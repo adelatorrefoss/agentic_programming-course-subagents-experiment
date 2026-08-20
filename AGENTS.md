@@ -43,8 +43,9 @@ npm run test
   final validations and push.
 - Finish every task with its own commit whose subject follows the convention
   below. Do not leave completed task changes uncommitted.
-- After integration, use `task-worktree.sh finish TASK-XXX`; it removes only a
-  clean managed worktree, never forces removal, and preserves the task branch.
+- After integration and green main CI, use `task-worktree.sh finish TASK-XXX`;
+  it removes only a clean managed worktree and deletes the merged local task
+  branch. It never forces removal or deletes an unmerged branch.
 
 Full workflows:
 

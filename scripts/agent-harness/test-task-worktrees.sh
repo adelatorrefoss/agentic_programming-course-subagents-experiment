@@ -57,6 +57,10 @@ for unsafe_id in '../TASK-103' 'TASK-1' 'TASK-104/other' 'task-104' 'TASK-104bb'
 	fi
 done
 run_harness finish TASK-103B >/dev/null
+if git -C "$repository" show-ref --verify --quiet refs/heads/task/TASK-103B; then
+	echo 'merged task branch TASK-103B was preserved' >&2
+	exit 1
+fi
 if run_harness finish TASK-101 >/dev/null 2>&1; then
 	echo 'dirty worktree was removed' >&2
 	exit 1
@@ -84,8 +88,12 @@ if run_harness finish TASK-102 >/dev/null 2>&1; then
 	exit 1
 fi
 git -C "${managed_root}/TASK-102" switch -q task/TASK-102
+git -C "$repository" merge --no-ff task/TASK-102 -qm 'test: integrate task two'
 run_harness finish TASK-102 >/dev/null
 [[ ! -e "${managed_root}/TASK-102" ]]
-git -C "$repository" show-ref --verify --quiet refs/heads/task/TASK-102
+if git -C "$repository" show-ref --verify --quiet refs/heads/task/TASK-102; then
+	echo 'merged task branch TASK-102 was preserved' >&2
+	exit 1
+fi
 
 echo 'Task worktree regression tests passed.'

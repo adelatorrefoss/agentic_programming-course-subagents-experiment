@@ -24,7 +24,7 @@ assert_rejected() {
 		echo "Expected mutation validation to reject: $expected" >&2
 		exit 1
 	fi
-	if ! rg -q "$expected" "$fixture/output.log"; then
+	if ! grep -Fq "$expected" "$fixture/output.log"; then
 		echo "Mutation validation failed without expected message: $expected" >&2
 		exit 1
 	fi
@@ -40,5 +40,15 @@ cp "$repo_root/eslint.config.mjs" "$fixture/eslint.config.mjs"
 
 sed -i '/Per-test coverage requires Stryker-specific Jest environments/d' "$fixture/stryker.config.mjs"
 assert_rejected 'coverage fallback lacks its mixed-environment rationale'
+
+# GitHub-hosted runners do not guarantee ripgrep. Keep the validator runnable
+# with the standard POSIX/GNU utilities already required by this harness.
+minimal_path="$fixture/minimal-path"
+mkdir -p "$minimal_path"
+for command in bash dirname grep; do
+	command_path="$(command -v "$command")"
+	ln -s "$command_path" "$minimal_path/$command"
+done
+PATH="$minimal_path" "$validator" "$repo_root" >/dev/null
 
 echo "Mutation configuration regression tests passed."

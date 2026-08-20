@@ -12,7 +12,7 @@ require_text() {
 	local pattern="$2"
 	local message="$3"
 
-	if ! rg -q "$pattern" "$file"; then
+	if ! grep -Eq "$pattern" "$file"; then
 		echo "Mutation config invalid: $message" >&2
 		exit 1
 	fi
@@ -26,7 +26,7 @@ require_text "$config" 'cleanTempDir:[[:space:]]*"always"' "temporary sandboxes 
 require_text "$config" 'tempDirName:[[:space:]]*"\.stryker-tmp"' "temporary sandbox root must be explicit"
 require_text "$project_root/jest.config.js" 'testEnvironment:[[:space:]]*"node"' "the expected base Node Jest environment was not found"
 
-if ! rg -q '@jest-environment jsdom' "$project_root/tests"; then
+if ! grep -R -Eq '@jest-environment jsdom' "$project_root/tests"; then
 	echo "Mutation config invalid: expected a file-level jsdom Jest environment probe" >&2
 	exit 1
 fi

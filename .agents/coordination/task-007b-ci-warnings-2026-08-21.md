@@ -44,8 +44,8 @@
 - Remediation required: no
 - Remediation commit: none (no findings)
 - Post-remediation validation commands and results: none required
-- Harness retro report: pending
-- Harness retro commit: pending
+- Harness retro report: `TODO-AGENT-HARNESS.md` TASK-007B retrospective; AH-030 identified as applicable.
+- Harness retro commit: recorded by `chore(TASK-007B): record harness retro`
 - Final sign-off: pending
 - Task-lead integration method and target: task branch pushed directly; PR/merge remains user-controlled.
 - Clean worktree removal evidence: pending

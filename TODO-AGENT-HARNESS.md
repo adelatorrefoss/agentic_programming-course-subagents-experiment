@@ -35,6 +35,7 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-027 | Medium | Require mutation-tool onboarding to probe the repository's actual test environments before selecting coverage analysis, and document an evidence-based fallback when file-level environments are incompatible with per-test coverage. | Test Infrastructure | ✅ Done |
 | AH-028 | High | Require tools that create instrumented or generated sandboxes to clean them after success and failure, and exclude their temp/report paths from repository-wide lint, formatting, test discovery, and Git. | Developer Experience | ✅ Done |
 | AH-029 | High | Isolate parallel tasks in dedicated linked Git worktrees and task branches, with validated identifiers, explicit task-lead integration, and cleanup that refuses dirty worktrees. | Developer Experience | ✅ Done |
+| AH-030 | High | Make shared-service discovery independent of the current linked-worktree directory, and ensure preflight recovery instructions target the canonical Compose project instead of creating a port-conflicting per-worktree project. | Developer Experience | ⏳ Pending |
 
 ### AH-029 completion evidence
 
@@ -250,6 +251,94 @@ failures directly.
   on failure, exclusion from broad scanners, and exclusion from Git.
 - After an intentionally failed tool run, check both filesystem cleanup and a
   clean `git status --short` before running repository-wide fix commands.
+
+## TASK-007B harness retrospective — 2026-08-21
+
+### Short summary
+
+TASK-007B's product and CI changes passed review, but the mandatory full local
+validation initially failed because Compose derived a different project name
+inside the linked worktree. The database was healthy under the main
+repository's Compose project; explicitly setting its canonical project name
+made the same validation pass.
+
+### Timeline
+
+- The task ran in the managed `TASK-007B` linked worktree, as required by
+  AH-029.
+- `npm run prep` reached PostgreSQL-dependent CI tests, but the worktree-local
+  Compose context could not find the already-running database container.
+- Following the harness recovery instruction attempted to create a separate
+  `task-007b-postgres-1` container, which could not bind host port `5432`
+  because the main repository's PostgreSQL already owned it.
+- The task lead reran validation with
+  `COMPOSE_PROJECT_NAME=agentic_programming-course-subagents-experiment`; the
+  command reused the healthy shared database and passed build, 139 regular
+  tests, and 11 CI tests.
+- Implementation commit `310cb0c` reduced `npm audit` from 16 vulnerabilities
+  to 0 and updated CI to Node.js 24-compatible Actions; review range
+  `310cb0c^..310cb0c` returned `APPROVED` and was recorded in `69c2275`.
+
+### Root causes
+
+| Cause | Classification | Confidence | Impact |
+| --- | --- | --- | --- |
+| `scripts/harness/check-services.sh` invokes `docker compose exec` without a stable project name, so Compose derives `task-007b` from the linked-worktree directory instead of resolving the main repository's shared project. | Harness configuration / environment | High | Preflight and PostgreSQL-dependent validation can report a false service outage even though the canonical database is healthy. |
+| The failure message recommends an unqualified `docker compose up -d --wait postgres`; from a linked worktree that command targets a second project whose fixed `5432:5432` mapping conflicts with the running shared service. | Prompt design / recovery process | High | The documented recovery path adds a stopped container and produces a port-allocation error rather than repairing the check. |
+
+AH-029 already requires linked-worktree isolation and notes that PostgreSQL is
+shared, but it does not make service discovery deterministic. AH-030 is a
+distinct enforcement gap: commands and diagnostics must resolve the canonical
+shared Compose project regardless of the caller's worktree path.
+
+### Evidence
+
+- `scripts/harness/check-services.sh` runs `docker compose exec` and prints
+  `docker compose up -d --wait postgres`, with no `--project-name` or equivalent
+  stable configuration.
+- `compose.yml` publishes PostgreSQL as `5432:5432`, so two per-worktree Compose
+  projects cannot run that service concurrently on the same host.
+- From the TASK-007B worktree, `docker compose config --format json` resolves
+  project name `task-007b`; with the explicit shared project environment it
+  resolves `agentic_programming-course-subagents-experiment`.
+- `docker compose ps -a` in the worktree shows
+  `task-007b-postgres-1` in `Created` state, while the explicit canonical
+  project shows its PostgreSQL container `Up` and `healthy`.
+- `.agents/coordination/task-007b-ci-warnings-2026-08-21.md` records the exact
+  successful full-validation command and its 139 regular plus 11 CI tests.
+- `.agents/reviews/TASK-007B-310cb0c.md` records the independent `APPROVED`
+  verdict, zero audit vulnerabilities, valid dependency tree, and Node.js 24
+  workflow evidence.
+
+### Prioritized remediation plan and applicability
+
+| Order | ID | Applicability to current harness | Action | Proposed verification evidence |
+| --- | --- | --- | --- | --- |
+| Immediate | AH-030 | Applicable now; every mandatory task worktree consumes the same PostgreSQL Compose service. | Introduce one repository-owned way to resolve the canonical Compose project and use it consistently in preflight, service startup diagnostics, local full-validation guidance, and any database lifecycle command. Avoid relying on the worktree directory basename. | Start only the canonical PostgreSQL project; run `npm run task:preflight` from the main worktree and two linked worktrees and require all three to pass without creating additional containers. Stop the canonical service in a controlled regression fixture and require every worktree to print the same executable recovery command and project name; then run `npm run agents:validate`. |
+
+No broader worktree or database isolation change is justified by this task.
+Sharing a single readied PostgreSQL instance remains compatible with the
+current test contract; the defect is its path-dependent discovery and unsafe
+recovery instruction.
+
+### Follow-up tasks
+
+| ID | Suggested owner | Estimate | Deliverable |
+| --- | --- | --- | --- |
+| AH-030 | Developer Experience | 1–2 hours | Canonical Compose-project resolver/wrapper, corrected preflight recovery output and a multi-worktree service-discovery regression wired into `npm run agents:validate`. |
+
+### Preventive checks and monitoring
+
+- Treat Compose project identity as repository configuration, not as an
+  implicit function of the current checkout directory.
+- Exercise service preflight from the main checkout and at least two generated
+  linked-worktree paths in the harness regression suite.
+- When preflight reports a missing shared service, validate that its suggested
+  recovery command addresses the same project that the subsequent health check
+  will inspect.
+- Reject a regression fixture that creates a second PostgreSQL container or
+  attempts to bind the canonical host port from a task-specific Compose
+  project.
 
 ## Maintenance rules
 

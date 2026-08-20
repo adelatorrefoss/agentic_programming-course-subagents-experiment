@@ -9,6 +9,7 @@ export class MockCookedDishRatingRepository implements CookedDishRatingRepositor
 	private readonly mockSave = jest.fn();
 	private readonly mockSearchByCookedDishAndAuthor = jest.fn();
 	private readonly mockSummarize = jest.fn();
+	private readonly mockSummarizeMany = jest.fn();
 
 	async save(rating: CookedDishRating): Promise<void> {
 		expect(this.mockSave).toHaveBeenCalledWith(rating.toPrimitives());
@@ -39,5 +40,17 @@ export class MockCookedDishRatingRepository implements CookedDishRatingRepositor
 
 	shouldSummarizeReturn(summary: CookedDishRatingSummary): void {
 		this.mockSummarize.mockReturnValue(summary);
+	}
+
+	async summarizeMany(
+		_cookedDishIds: CookedDishId[],
+	): Promise<Map<string, CookedDishRatingSummary>> {
+		return this.mockSummarizeMany() as Map<string, CookedDishRatingSummary>;
+	}
+
+	shouldSummarizeManyReturn(
+		summaries: Map<string, CookedDishRatingSummary>,
+	): void {
+		this.mockSummarizeMany.mockReturnValue(summaries);
 	}
 }

@@ -123,4 +123,29 @@ describe("PostgresCookedDishRatingRepository should", () => {
 			distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
 		});
 	});
+
+	it("summarize ratings for several cooked dishes in one batch", async () => {
+		const ratedDish = CookedDishMother.create();
+		const unratedDish = CookedDishMother.create();
+		await insertCookedDish(ratedDish);
+		await insertCookedDish(unratedDish);
+		await repository.save(
+			CookedDishRatingMother.create({
+				cookedDishId: ratedDish.id.value,
+				score: 4,
+			}),
+		);
+
+		const summaries = await repository.summarizeMany([
+			ratedDish.id,
+			unratedDish.id,
+		]);
+
+		expect(summaries.get(ratedDish.id.value)).toEqual({
+			average: 4,
+			total: 1,
+			distribution: { 1: 0, 2: 0, 3: 0, 4: 1, 5: 0 },
+		});
+		expect(summaries.has(unratedDish.id.value)).toBe(false);
+	});
 });

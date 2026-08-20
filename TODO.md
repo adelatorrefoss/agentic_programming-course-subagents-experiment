@@ -34,7 +34,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [x] Mostrar el resumen, la media y la distribución de valoraciones en la interfaz.
 - [x] Permitir enviar una valoración desde la interfaz con puntuación y comentario.
 - [x] Mostrar estados de carga, éxito y error al gestionar valoraciones.
-- [ ] Mostrar la nota media y el total de valoraciones en cada tarjeta de plato
+- [x] Mostrar la nota media y el total de valoraciones en cada tarjeta de plato
   cocinado de la página principal, sin tener que entrar en el detalle, incluyendo
   el estado de platos que todavía no tienen valoraciones.
 - [x] Verificar lint, build y tests con `npm run prep`.

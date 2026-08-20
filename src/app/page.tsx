@@ -16,6 +16,7 @@ interface CookedDish {
 	name: string;
 	description: string;
 	ingredients: { name: string; type: string }[];
+	ratingSummary: { average: number | null; total: number };
 }
 
 export default function Home() {
@@ -124,6 +125,7 @@ export default function Home() {
 				name: suggestedDish.name,
 				description: suggestedDish.description,
 				ingredients: suggestedDish.ingredients,
+				ratingSummary: { average: null, total: 0 },
 			};
 			setCookedDishes([newCookedDish, ...cookedDishes]);
 			setSuggestedDish(null);
@@ -386,6 +388,35 @@ export default function Home() {
 										>
 											{dish.description}
 										</p>
+										<div
+											className={
+												styles.cookedDishCard__rating
+											}
+											aria-label={
+												dish.ratingSummary.total === 0
+													? "Not rated yet"
+													: `${dish.ratingSummary.average?.toFixed(1)} out of 5 from ${dish.ratingSummary.total} ratings`
+											}
+										>
+											<span aria-hidden="true">★</span>
+											{dish.ratingSummary.total === 0 ? (
+												<span>Not rated yet</span>
+											) : (
+												<>
+													<strong>
+														{dish.ratingSummary.average?.toFixed(
+															1,
+														)}
+													</strong>
+													<span>
+														{dish.ratingSummary
+															.total === 1
+															? "1 rating"
+															: `${dish.ratingSummary.total} ratings`}
+													</span>
+												</>
+											)}
+										</div>
 										<ul
 											className={
 												styles.cookedDishCard__ingredients

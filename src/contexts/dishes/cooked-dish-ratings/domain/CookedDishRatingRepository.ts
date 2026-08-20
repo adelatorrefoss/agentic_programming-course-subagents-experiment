@@ -27,4 +27,8 @@ export abstract class CookedDishRatingRepository {
 	abstract summarize(
 		cookedDishId: CookedDishId,
 	): Promise<CookedDishRatingSummary>;
+
+	abstract summarizeMany(
+		cookedDishIds: CookedDishId[],
+	): Promise<Map<string, CookedDishRatingSummary>>;
 }

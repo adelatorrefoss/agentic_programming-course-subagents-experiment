@@ -99,6 +99,46 @@ export class PostgresCookedDishRatingRepository
 		};
 	}
 
+	async summarizeMany(
+		cookedDishIds: CookedDishId[],
+	): Promise<Map<string, CookedDishRatingSummary>> {
+		if (cookedDishIds.length === 0) {
+			return new Map();
+		}
+
+		const rows = await this.sql`
+			SELECT
+				cooked_dish_id,
+				AVG(score)::float8 AS average,
+				COUNT(*)::int AS total,
+				COUNT(*) FILTER (WHERE score = 1)::int AS score_1,
+				COUNT(*) FILTER (WHERE score = 2)::int AS score_2,
+				COUNT(*) FILTER (WHERE score = 3)::int AS score_3,
+				COUNT(*) FILTER (WHERE score = 4)::int AS score_4,
+				COUNT(*) FILTER (WHERE score = 5)::int AS score_5
+			FROM dishes.cooked_dish_ratings
+			WHERE cooked_dish_id IN ${this.sql(cookedDishIds.map((id) => id.value))}
+			GROUP BY cooked_dish_id;
+		`;
+
+		return new Map(
+			rows.map((row) => [
+				row.cooked_dish_id as string,
+				{
+					average: Number(row.average),
+					total: Number(row.total),
+					distribution: {
+						1: Number(row.score_1),
+						2: Number(row.score_2),
+						3: Number(row.score_3),
+						4: Number(row.score_4),
+						5: Number(row.score_5),
+					},
+				},
+			]),
+		);
+	}
+
 	protected toAggregate(row: Row): CookedDishRating {
 		return CookedDishRating.fromPrimitives({
 			id: row.id as string,

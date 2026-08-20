@@ -468,6 +468,25 @@
 	overflow: hidden;
 }
 
+.cookedDishCard__rating {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin-bottom: 0.75rem;
+	color: var(--accent);
+	font-size: 0.8125rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.cookedDishCard__rating strong {
+	color: var(--text-primary);
+	font-size: 0.875rem;
+}
+
+.cookedDishCard__rating span:last-child {
+	color: var(--text-muted);
+}
+
 .cookedDishCard__ingredients {
 	list-style: none;
 	padding: 0;

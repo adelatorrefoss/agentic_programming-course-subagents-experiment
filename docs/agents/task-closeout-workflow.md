@@ -1,0 +1,100 @@
+# 🎯 Cierre completo de tareas y handoff HIL
+
+## 💡 Convention
+
+Toda tarea que modifique el repositorio debe terminar con un cierre trazable que
+deje la funcionalidad, la revisión, el agent harness y el árbol de trabajo listos
+para comenzar la siguiente tarea.
+
+El cierre se ejecuta en este orden:
+
+1. Completar la implementación y vincular cada criterio de aceptación o TODO
+   marcado con su artefacto y una verificación aprobada en el registro de
+   coordinación.
+2. Ejecutar `npm run prep` y corregir cualquier fallo.
+3. Crear el commit de implementación `feat(TASK-XXX): ...`.
+4. Invocar `code-review` con el rango exacto de commits, persistir su informe en
+   `.agents/reviews/` y repetir el ciclo `fix(TASK-XXX): ...` hasta obtener
+   `APPROVED`.
+5. Ejecutar de nuevo `npm run prep` después de cualquier remediación.
+6. Invocar `harness-retro` y registrar todas sus recomendaciones con IDs
+   estables en `TODO-AGENT-HARNESS.md`.
+7. Crear un commit exclusivo para el resultado del retro:
+   `chore(TASK-XXX): record harness retro`.
+8. Implementar todos los TODOs de harness aplicables antes de cerrar. Un TODO
+   que no sea aplicable debe quedar justificado de forma explícita en el
+   registro de coordinación; no puede quedar simplemente pendiente.
+9. Verificar las mejoras del harness y crear un segundo commit independiente:
+   `chore(TASK-XXX): implement harness retro todos`.
+10. Actualizar el registro de coordinación con los commits, verificaciones,
+    informe del retro y sign-off final.
+11. Ejecutar `npm run prep`, `npm run agents:validate` y comprobar que
+    `git status --short` no contiene cambios de la tarea sin registrar.
+12. Mostrar al usuario un resumen visual HIL (human in the loop) con la
+    funcionalidad entregada, verificaciones, resultado de revisión, cambios del
+    harness, commits, advertencias relevantes y estado de preparación para la
+    siguiente tarea.
+
+El resumen HIL es una puerta de visibilidad, no una sustitución de las
+evidencias persistidas. Si queda una advertencia, un bloqueo o trabajo fuera de
+alcance, debe aparecer claramente en el resumen final.
+
+## 🏆 Benefits
+
+- Evita que una tarea aparentemente terminada deje deuda del harness pendiente.
+- Separa la implementación funcional, el resultado del retro y sus mejoras en
+  commits auditables.
+- Permite que una persona compruebe de un vistazo qué se entregó y qué debe
+  tener en cuenta.
+- Garantiza que la siguiente tarea comienza con validaciones aprobadas,
+  evidencias completas y un árbol de trabajo limpio.
+
+## 👀 Examples
+
+### ✅ Good: cierre completo y resumen HIL visible
+
+```text
+┌─ TASK-002 · CIERRE ────────────────────────────────┐
+│ Funcionalidad   Plan semanal y lista de compra   ✅ │
+│ Verificación    npm run prep                     ✅ │
+│ Code review     APPROVED                         ✅ │
+│ Harness retro   2 TODOs registrados              ✅ │
+│ Harness TODOs   2 implementados y verificados    ✅ │
+│ Coordination    Evidencias completas             ✅ │
+│ Worktree        Limpio                           ✅ │
+└─ Siguiente tarea: lista para comenzar ─────────────┘
+
+Commits:
+- feat(TASK-002): complete weekly meal planning
+- chore(TASK-002): record harness retro
+- chore(TASK-002): implement harness retro todos
+
+A tener en cuenta: ninguna advertencia abierta.
+```
+
+### ❌ Bad: cerrar con el retro o sus acciones pendientes
+
+```text
+Code review: APPROVED
+Harness retro: ejecutado
+TODOs: pendientes para más adelante
+Worktree: contiene cambios sin commit
+TASK-002 terminada
+```
+
+Este cierre no es válido: faltan la implementación o justificación de los TODOs,
+sus verificaciones, los commits correspondientes y un estado limpio.
+
+## 🧐 Real world examples
+
+- [Registro de TODOs del agent harness](../../TODO-AGENT-HARNESS.md)
+- [Plantilla del registro de coordinación](../../.agents/DELEGATION_TEMPLATE.md)
+- [Definición del agente harness-retro](../../.agents/agents/harness-retro.agent.md)
+- [Validador del cierre](../../scripts/agent-harness/validate-task-closeout.sh)
+
+## 🔗 Related agreements
+
+- [Revisión de código obligatoria](task-code-review-workflow.md)
+- [Configuración del agent harness](../agent-harness.md)
+- [Estándar de documentación](../documentation-guidelines.md)
+- [Instrucciones raíz para agentes](../../AGENTS.md)

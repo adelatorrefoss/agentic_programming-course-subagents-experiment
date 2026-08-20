@@ -1,0 +1,1 @@
+export { WeeklyMealPlanNotFoundError } from "./WeeklyMealPlanErrors";

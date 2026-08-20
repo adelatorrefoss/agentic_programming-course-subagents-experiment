@@ -1,0 +1,1 @@
+export { InvalidWeeklyMealPlanSlotError } from "./WeeklyMealPlanErrors";

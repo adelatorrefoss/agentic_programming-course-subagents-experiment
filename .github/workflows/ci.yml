@@ -1,0 +1,68 @@
+name: CI
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: 🚀 Test and build
+    timeout-minutes: 15
+
+    steps:
+      - name: 👍 Checkout
+        uses: actions/checkout@v4
+
+      - name: ❇️ Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: 📦 Cache Ollama model
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama
+          key: ${{ runner.os }}-ollama-qwen3-embedding-0.6b-v1
+          restore-keys: |
+            ${{ runner.os }}-ollama-qwen3-embedding-0.6b-
+
+      - name: 📥 Install Dependencies
+        run: npm ci
+
+      - name: 🤖 Validate agent configuration
+        run: npm run agents:validate
+
+      - name: 🐳 Start PostgreSQL
+        run: |
+          docker compose up -d --wait postgres
+
+      - name: 🦙 Install Ollama
+        run: |
+          if ! command -v ollama >/dev/null 2>&1; then
+            curl -fsSL https://ollama.com/install.sh | sh
+          fi
+          nohup ollama serve >"$RUNNER_TEMP/ollama.log" 2>&1 &
+
+      - name: 🦙 Prepare and verify Ollama
+        env:
+          OLLAMA_MODEL: qwen3-embedding:0.6b
+        run: npm run harness:ollama:prepare
+
+      - name: 🔎 Verify test services
+        run: npm run harness:check
+
+      - name: 🛠️ Build and test
+        run: npm run prep
+
+      - name: ✅ Test PostgreSQL integration
+        run: npm run test:ci
+
+      - name: 🧾 Collect harness diagnostics
+        if: failure()
+        run: |
+          echo "Ollama models:"
+          ollama list || true
+          echo "Ollama logs:"
+          tail -n 100 "$RUNNER_TEMP/ollama.log" || true
+          echo "PostgreSQL logs:"
+          docker compose logs --no-color postgres || true

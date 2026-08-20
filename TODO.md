@@ -162,4 +162,4 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [ ] Mantener las convenciones existentes para Mothers y mocks.
 - [ ] Hacer que el agente principal revise el diff integrado, no solo los resultados aislados.
 - [ ] Considerar terminada una tarea únicamente cuando `npm run prep` pase correctamente.
- - [x] Invocar `harness-retro` tras finalizar cada tarea para generar retros y propuestas de parche de configuración (NO aplicar cambios en código de producción).
+- [ ] Invocar `harness-retro` tras finalizar cada tarea para generar retros y propuestas de parche de configuración (NO aplicar cambios en código de producción).

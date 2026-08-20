@@ -202,9 +202,7 @@ describe("MealPlansPage should", () => {
 		const newList = deferred<api.ShoppingListItem[]>();
 		mocks.loadOrCreateMealPlan
 			.mockResolvedValueOnce(plan("old-plan", currentWeek))
-			.mockResolvedValueOnce(
-				plan("new-plan", moveWeek(currentWeek, 1)),
-			);
+			.mockResolvedValueOnce(plan("new-plan", moveWeek(currentWeek, 1)));
 		mocks.loadShoppingList
 			.mockReturnValueOnce(oldList.promise)
 			.mockReturnValueOnce(newList.promise);
@@ -218,9 +216,13 @@ describe("MealPlansPage should", () => {
 		await waitFor(() =>
 			expect(mocks.loadShoppingList).toHaveBeenCalledWith("new-plan"),
 		);
-		newList.resolve([{ name: "Current rice", type: "staple", quantity: 2 }]);
+		newList.resolve([
+			{ name: "Current rice", type: "staple", quantity: 2 },
+		]);
 		expect(await screen.findByText("Current rice")).toBeInTheDocument();
-		expect(screen.queryByText("Updating shopping list…")).not.toBeInTheDocument();
+		expect(
+			screen.queryByText("Updating shopping list…"),
+		).not.toBeInTheDocument();
 
 		oldList.resolve([{ name: "Stale tomato", type: "main", quantity: 9 }]);
 		await waitFor(() =>
@@ -228,6 +230,8 @@ describe("MealPlansPage should", () => {
 		);
 		expect(screen.getByText("Current rice")).toBeInTheDocument();
 		expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-		expect(screen.queryByText("Updating shopping list…")).not.toBeInTheDocument();
+		expect(
+			screen.queryByText("Updating shopping list…"),
+		).not.toBeInTheDocument();
 	});
 });

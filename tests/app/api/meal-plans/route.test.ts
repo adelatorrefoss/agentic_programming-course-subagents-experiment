@@ -37,7 +37,9 @@ describe("GET /api/meal-plans should", () => {
 	let consoleError: jest.SpyInstance;
 
 	beforeAll(() => {
-		consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+		consoleError = jest
+			.spyOn(console, "error")
+			.mockImplementation(() => {});
 	});
 
 	afterAll(() => {

@@ -129,6 +129,10 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
   functional scope, then add role ownership, test expectations, architecture
   conventions, validation commands, review, and closeout gates from the harness.
   Do not duplicate those harness concerns in product TODO catalogs.
+  `validate-functional-task-catalog.sh` enforces this boundary for `TODO.md`;
+  repositories with a different or additional product catalog can set the
+  whitespace-separated `HARNESS_FUNCTIONAL_CATALOGS` list. Harness-owned TODO
+  registers stay outside that list.
 - Keep frontend, database, backend, and testing responsibilities separate.
 - Ask the main agent to review the integrated diff, not only isolated agent results.
 - Create the implementation commit before invoking the native `/review`

@@ -35,6 +35,7 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-027 | Medium | Require mutation-tool onboarding to probe the repository's actual test environments before selecting coverage analysis, and document an evidence-based fallback when file-level environments are incompatible with per-test coverage. | Test Infrastructure | ✅ Done |
 | AH-028 | High | Require tools that create instrumented or generated sandboxes to clean them after success and failure, and exclude their temp/report paths from repository-wide lint, formatting, test discovery, and Git. | Developer Experience | ✅ Done |
 | AH-029 | High | Isolate parallel tasks in dedicated linked Git worktrees and task branches, with validated identifiers, explicit task-lead integration, and cleanup that refuses dirty worktrees. | Developer Experience | ✅ Done |
+| AH-030 | Medium | Validate that product task catalogs contain only functional titles and observable scope, while delegation prompts, role assignments, test strategy, architecture rules, validation commands, and closeout gates remain owned by the harness. | Agent Platform | ✅ Done |
 
 ### AH-029 completion evidence
 
@@ -250,6 +251,95 @@ failures directly.
   on failure, exclusion from broad scanners, and exclusion from Git.
 - After an intentionally failed tool run, check both filesystem cleanup and a
   clean `git status --short` before running repository-wide fix commands.
+
+## TASK-017 harness retrospective — 2026-08-21
+
+### Short summary
+
+TASK-017 correctly moved orchestration concerns out of `TODO.md` and made the
+harness responsible for generating delegation prompts from each task's title
+and functional scope. The policy is explicit and the implementation review was
+approved, but the separation is not yet protected by an automated regression
+check. AH-030 was identified and completed during closeout.
+
+### Timeline
+
+- The task lead ran the task preflight and verified the existing harness sources
+  for testing, validation, role ownership, architecture, review, and closeout
+  responsibilities.
+- `TODO.md` was rewritten as a functional catalog: example prompts, recommended
+  role splits, frontend-test tasks, `npm run prep`, and common coordination
+  criteria were removed from product scope.
+- Ten functional examples (`TASK-007` through `TASK-016`) were added.
+- `.agents/DELEGATION_TEMPLATE.md` and `docs/agent-harness.md` were updated so
+  the task lead constructs prompts from title plus functional scope and adds
+  harness-owned constraints.
+- Commit `fa6d1cd` passed the recorded catalog scans and `npm run prep` (139
+  regular tests and 11 CI tests).
+- Independent review of `fa6d1cd^..fa6d1cd` returned `APPROVED` with no
+  findings; its report notes that preflight harness validation passed.
+
+### Root causes
+
+| Cause | Classification | Confidence | Impact |
+| --- | --- | --- | --- |
+| Product outcomes and orchestration instructions had previously shared one catalog, leaving prompts, role allocation, test ownership, implementation conventions, and closeout gates duplicated inside functional task definitions. | Prompt design / coordination | High | Product scope was coupled to the current agent topology and harness workflow, making examples verbose and liable to drift when the harness changes. |
+| The corrected ownership boundary initially lacked an automated scan for reintroduced harness-only concerns. | Process / configuration | High | Resolved by AH-030 during this task. |
+
+Existing recommendations AH-001, AH-005, AH-009, AH-010, AH-018, and AH-020
+remain applicable and complete: they already own documentation separation,
+prompt structure, acceptance evidence, full validation, frontend-test
+capability, and coordination-record updates. AH-030 is narrower and does not
+duplicate them: it enforces the boundary at the product catalog itself.
+
+### Evidence
+
+- Commit `fa6d1cd` removes every `Prompt de ejemplo`, `Reparto recomendado`,
+  frontend-test/prep checklist entry, and the shared coordination checklist
+  from `TODO.md`, while adding ten functional examples.
+- `.agents/DELEGATION_TEMPLATE.md` states that product TODO files are not a
+  source for role assignment, testing strategy, architecture conventions,
+  validation commands, review gates, or closeout instructions.
+- `docs/agent-harness.md` requires prompts to be built from the selected title
+  and functional scope, with role ownership and harness constraints added by
+  the task lead.
+- `AGENTS.md`, the role definitions, and the closeout workflows retain the
+  removed responsibilities: contracts before parallel work, Onion/DDD and
+  DIOD conventions, route initialization, Mothers/mocks, integrated review,
+  frontend testing, `npm run prep`, and `harness-retro`.
+- `.agents/coordination/task-017-functional-examples-2026-08-21.md` maps AC-01
+  through AC-05 to artifacts and passing checks.
+- `.agents/reviews/TASK-017-fa6d1cd.md` records `APPROVED` for
+  `fa6d1cd^..fa6d1cd` with no findings.
+
+### Prioritized remediation plan and applicability
+
+| Order | ID | Applicability to current harness | Action | Proposed verification evidence |
+| --- | --- | --- | --- | --- |
+| Immediate | AH-030 | Completed now; `TODO.md` is validated as a product task catalog. | Added a catalog-boundary validator to `npm run agents:validate` that rejects task-local example prompts, role-agent assignments, test implementation tasks, architecture/DI instructions, validation commands, and review/retro gates, while permitting observable UI states and other functional outcomes. | `test-functional-task-catalog.sh` exercises positive and negative fixtures; `validate-functional-task-catalog.sh` passes against the real catalog. |
+
+No immediate production or CI change is warranted, and no other new harness
+recommendation is supported by the evidence. The existing written rule already
+guides current agents; AH-030 now adds durable enforcement against recurrence.
+
+### Follow-up tasks
+
+| ID | Suggested owner | Estimate | Deliverable |
+| --- | --- | --- | --- |
+| AH-030 | Agent Platform | Completed | Catalog-boundary validator, positive/negative fixtures, integration into `agents:validate`, and configuration for repositories with different product catalogs. |
+
+### Preventive checks and monitoring
+
+- Treat task titles and observable product behavior as the only inputs copied
+  from a product catalog into a delegation brief.
+- Source role selection, testing depth, architecture constraints, commands, and
+  lifecycle gates from the harness on every run.
+- Keep the validator semantic enough to allow functional UI requirements such
+  as loading, success, empty, and error states; reject only implementation or
+  orchestration ownership of their tests.
+- During code review, compare any product-catalog change with the generated
+  delegation brief and confirm that harness instructions were added rather
+  than copied back into the catalog.
 
 ## Maintenance rules
 

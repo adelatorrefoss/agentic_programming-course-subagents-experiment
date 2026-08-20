@@ -4,7 +4,7 @@
 
 - Task: Keep the example-task catalog functional and add ten examples.
 - Task identifier (`TASK-017`): TASK-017
-- Lifecycle: in-progress
+- Lifecycle: closed
 - Expected outcome: `TODO.md` contains only product-facing scope and ten new examples.
 - Scope boundaries: Documentation and harness verification only; no production behavior changes.
 - Task worktree path: `/home/antonio/Training/Cursos/ia-codely/.agentic_programming-course-subagents-experiment-task-worktrees/TASK-017`
@@ -40,34 +40,32 @@
 - Implementation commit subject: `docs(TASK-017): expand functional task examples`
 - Agent output references: task lead only
 - Contract-verification handoffs: none
-- Implementation commit: pending
+- Implementation commit: `fa6d1cd`
 - Code-review agent: `code-review`
-- PR code review commit range: pending
-- Code-review verdict: pending
-- Code-review evidence: pending
-- Code-review report: pending
-- Remediation required: pending
-- Remediation commit subject: `fix(TASK-017): ...`
-- Remediation commit: pending
-- Post-remediation validation commands and results: pending
-- Harness retro report: pending
-- Harness retro commit subject: `chore(TASK-017): ...`
-- Harness retro commit: pending
-- Final sign-off: pending
+- PR code review commit range: `fa6d1cd^..fa6d1cd`
+- Code-review verdict: `APPROVED`
+- Code-review evidence: The committed change adds exactly ten functional examples (`TASK-007` through `TASK-016`), removes example prompts, recommended role assignments, testing/validation tasks, and common coordination criteria from `TODO.md`, and records those responsibilities in `.agents/DELEGATION_TEMPLATE.md`, `docs/agent-harness.md`, `AGENTS.md`, and the applicable role-agent definitions. `git diff --check` passed and the task worktree was clean. Harness configuration validation passed during preflight; the reviewer's service check could not complete because PostgreSQL was not running in its environment.
+- Code-review report: `.agents/reviews/TASK-017-fa6d1cd.md`
+- Remediation required: no
+- Remediation commit subject: none (no findings)
+- Remediation commit: none (no findings)
+- Post-remediation validation commands and results: none required; final `npm run prep` and `npm run agents:validate` passed after the harness retrospective implementation.
+- Harness retro report: `TODO-AGENT-HARNESS.md`, section “TASK-017 harness retrospective — 2026-08-21”
+- Harness retro commit subject: `chore(TASK-017): enforce functional task catalogs`
+- Harness retro commit: `chore(TASK-017): enforce functional task catalogs` (the separate closeout commit containing this record)
+- Final sign-off: Review `APPROVED`; AH-030 implemented with positive/negative regression fixtures; `npm run agents:validate` passed; final `npm run prep` passed lint, build, 139 regular tests, and 11 CI tests.
 - Task-lead integration method and target: merge task branch into originating branch
-- Clean worktree removal evidence: pending
+- Clean worktree removal evidence: Must run `task-worktree.sh finish TASK-017` after integration; the managed worktree is currently clean apart from the closeout commit being prepared.
 
 ### Cross-agent boundary contracts
 
-| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |
-| --- | --- | --- | --- | --- | --- | --- |
-| none (no cross-agent runtime boundaries) | n/a | n/a | n/a | n/a | n/a | producer-to-consumer: not applicable |
+none (no cross-agent runtime boundaries)
 
 ### Code-review rounds
 
 | Round | Commit range | Verdict | Report | Findings / remediation |
 | --- | --- | --- | --- | --- |
-| 1 | pending | pending | pending | pending |
+| 1 | `fa6d1cd^..fa6d1cd` | `APPROVED` | `.agents/reviews/TASK-017-fa6d1cd.md` | No findings |
 
 ## Acceptance evidence
 

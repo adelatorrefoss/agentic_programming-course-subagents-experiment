@@ -2,7 +2,6 @@
 set -euo pipefail
 
 COORDINATION_DIR="${1:-.agents/coordination}"
-LEGACY_REVIEW_EXCEPTIONS="${LEGACY_REVIEW_EXCEPTIONS:-${COORDINATION_DIR}/legacy-review-exceptions.conf}"
 failure_count=0
 record_count=0
 
@@ -14,11 +13,14 @@ fi
 is_legacy_review_exception() {
 	local record_name="$1"
 
-	[[ -f "$LEGACY_REVIEW_EXCEPTIONS" ]] &&
-		awk -F'|' -v name="$record_name" '
-			$0 !~ /^[[:space:]]*#/ && $1 == name && $2 != "" { found = 1 }
-			END { exit(found ? 0 : 1) }
-		' "$LEGACY_REVIEW_EXCEPTIONS"
+	case "$record_name" in
+		harness-todos-2026-08-20.md | harness-todos-ah009-ah012-2026-08-20.md)
+			return 0
+			;;
+		*)
+			return 1
+			;;
+	esac
 }
 
 field_value() {
@@ -35,6 +37,15 @@ is_forbidden_value() {
 	[[ -z "$value" || "$value" == *"not requested"* || "$value" == *"pending"* || "$value" == "n/a" || "$value" == "tbd" ]]
 }
 
+commit_is_in_range() {
+	local commit="$1"
+	local range_base="$2"
+	local range_head="$3"
+
+	git merge-base --is-ancestor "$commit" "$range_head" &&
+		! git merge-base --is-ancestor "$commit" "$range_base"
+}
+
 for record in "$COORDINATION_DIR"/*.md; do
 	[[ -f "$record" ]] || continue
 	[[ "$(basename "$record")" == "README.md" ]] && continue
@@ -45,10 +56,12 @@ for record in "$COORDINATION_DIR"/*.md; do
 	if is_legacy_review_exception "$record_name"; then
 		echo "${record}: legacy code-review exception recorded"
 	else
+		implementation_commit="$(field_value "Implementation commit" "$record")"
 		review_agent="$(field_value "Code-review agent" "$record")"
 		review_range="$(field_value "PR code review commit range" "$record")"
 		review_verdict="$(field_value "Code-review verdict" "$record")"
 		review_evidence="$(field_value "Code-review evidence" "$record")"
+		review_report="$(field_value "Code-review report" "$record")"
 		remediation_required="$(field_value "Remediation required" "$record" | tr '[:upper:]' '[:lower:]')"
 		remediation_commit="$(field_value "Remediation commit" "$record")"
 
@@ -57,8 +70,28 @@ for record in "$COORDINATION_DIR"/*.md; do
 			record_error=true
 		fi
 
-		if [[ ! "$review_range" =~ ^[0-9a-f]{7,40}(\^)?\.\.[0-9a-f]{7,40}$ ]]; then
+		range_valid=false
+		if [[ "$review_range" =~ ^([0-9a-f]{7,40})(\^)?\.\.([0-9a-f]{7,40})$ ]]; then
+			range_base="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+			range_head="${BASH_REMATCH[3]}"
+			if git rev-parse --verify --quiet "${range_base}^{commit}" >/dev/null &&
+				git rev-parse --verify --quiet "${range_head}^{commit}" >/dev/null
+			then
+				range_valid=true
+			fi
+		fi
+		if [[ "$range_valid" != true ]]; then
 			echo "${record}: invalid PR code review commit range '${review_range}'" >&2
+			record_error=true
+		fi
+
+		if [[ ! "$implementation_commit" =~ ^[0-9a-f]{7,40}$ ]] ||
+			! git rev-parse --verify --quiet "${implementation_commit}^{commit}" >/dev/null
+		then
+			echo "${record}: Implementation commit must be an existing commit hash" >&2
+			record_error=true
+		elif [[ "$range_valid" == true ]] && ! commit_is_in_range "$implementation_commit" "$range_base" "$range_head"; then
+			echo "${record}: implementation commit is outside the approved review range" >&2
 			record_error=true
 		fi
 
@@ -72,12 +105,37 @@ for record in "$COORDINATION_DIR"/*.md; do
 			record_error=true
 		fi
 
+		if [[ ! "$review_report" =~ ^\.agents/reviews/[A-Za-z0-9._-]+\.md$ || ! -f "$review_report" ]]; then
+			echo "${record}: Code-review report must reference an existing file under .agents/reviews/" >&2
+			record_error=true
+		else
+			report_agent="$(field_value "Agent" "$review_report")"
+			report_range="$(field_value "Commit range" "$review_report")"
+			report_verdict="$(field_value "Verdict" "$review_report")"
+			report_evidence="$(field_value "Evidence" "$review_report")"
+			if [[ "$report_agent" != "$review_agent" || "$report_range" != "$review_range" || "$report_verdict" != "$review_verdict" || "$report_evidence" != "$review_evidence" ]]; then
+				echo "${record}: Code-review report does not match coordination evidence" >&2
+				record_error=true
+			fi
+			if ! grep -q '^- Findings:' "$review_report"; then
+				echo "${record}: Code-review report is missing Findings" >&2
+				record_error=true
+			fi
+		fi
+
 		if [[ "$remediation_required" != "yes" && "$remediation_required" != "no" ]]; then
 			echo "${record}: Remediation required must be 'yes' or 'no'" >&2
 			record_error=true
-		elif [[ "$remediation_required" == "yes" && ! "$remediation_commit" =~ ^[0-9a-f]{7,40}$ ]]; then
-			echo "${record}: remediation requires a commit hash" >&2
-			record_error=true
+		elif [[ "$remediation_required" == "yes" ]]; then
+			if [[ ! "$remediation_commit" =~ ^[0-9a-f]{7,40}$ ]] ||
+				! git rev-parse --verify --quiet "${remediation_commit}^{commit}" >/dev/null
+			then
+				echo "${record}: remediation requires an existing commit hash" >&2
+				record_error=true
+			elif [[ "$range_valid" == true ]] && ! commit_is_in_range "$remediation_commit" "$range_base" "$range_head"; then
+				echo "${record}: remediation commit is outside the approved review range" >&2
+				record_error=true
+			fi
 		elif [[ "$remediation_required" == "no" && "$remediation_commit" != "none (no findings)" ]]; then
 			echo "${record}: no-remediation closeout must say 'none (no findings)'" >&2
 			record_error=true

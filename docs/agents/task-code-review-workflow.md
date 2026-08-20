@@ -6,13 +6,17 @@ Toda tarea que modifique el repositorio debe pasar por el agente específico
 `code-review` después del commit de implementación y antes de la validación
 final y del cierre del harness.
 
-El registro de coordinación debe incluir el agente que revisó, el rango de
-commits revisado, el veredicto (`APPROVED` o `CHANGES_REQUESTED`) y la evidencia
-de la revisión. Si hay hallazgos aceptados, deben resolverse en un commit
+El registro de coordinación debe incluir el agente que revisó, un informe
+persistido bajo `.agents/reviews/`, el rango de commits revisado, el veredicto
+(`APPROVED` o `CHANGES_REQUESTED`) y la evidencia de la revisión. Si hay
+hallazgos aceptados, deben resolverse en un commit
 `fix(TASK-XXX): ...` y someterse a una nueva revisión hasta obtener `APPROVED`.
 
 `npm run agents:validate` bloquea el cierre si falta cualquiera de estas
-evidencias o si se usan valores como `not requested`, `pending` o `n/a`.
+evidencias, si los commits no existen, si el informe no coincide con el
+registro, si la remediación queda fuera del rango aprobado o si se usan valores
+como `not requested`, `pending` o `n/a`. Las únicas excepciones legacy están
+fijadas en el propio validador y no pueden ampliarse mediante configuración.
 
 ## 🏆 Benefits
 
@@ -30,6 +34,7 @@ evidencias o si se usan valores como `not requested`, `pending` o `n/a`.
 - PR code review commit range: `abc1234^..abc1234`
 - Code-review verdict: `APPROVED`
 - Code-review evidence: no significant findings; output recorded in the task session
+- Code-review report: `.agents/reviews/TASK-001-abc1234.md`
 - Remediation required: no
 - Remediation commit: none (no findings)
 ```
@@ -40,6 +45,7 @@ evidencias o si se usan valores como `not requested`, `pending` o `n/a`.
 - Code-review agent: not requested
 - PR code review commit range: not requested
 - Code-review verdict: not requested
+- Code-review report: not requested
 ```
 
 Este registro debe ser rechazado aunque build y tests hayan pasado.

@@ -40,3 +40,5 @@ prioritized findings before the task can proceed to remediation or closeout.
 4. Acceptance criteria not proven by the diff or tests
 5. Checks performed
 6. Coordination-record evidence line
+7. Markdown report content with `Agent`, `Commit range`, `Verdict`, `Evidence`,
+   and `Findings` fields for persistence under `.agents/reviews/`

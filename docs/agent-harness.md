@@ -90,7 +90,7 @@ The agent may update that TODO file, but it must not modify production code or C
 5. Invoke `code-review` with the exact implementation commit range and record
    its verdict and evidence. See [the mandatory review convention](agents/task-code-review-workflow.md).
 6. Apply accepted findings and commit the remediation changes with a message
-   starting with `code-review:`.
+   starting with `fix(TASK-XXX):`.
 7. Run `npm run prep`, which includes regular and `.ci` tests, after remediation.
 8. Validate the completed coordination record with `npm run agents:validate`;
    it rejects missing review evidence and non-approved verdicts.

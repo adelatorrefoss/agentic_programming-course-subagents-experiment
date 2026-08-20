@@ -39,6 +39,7 @@ Shared contracts must be explicit before parallel work begins:
 - PR code review commit range:
 - Code-review verdict: `APPROVED` or `CHANGES_REQUESTED`
 - Code-review evidence:
+- Code-review report: `.agents/reviews/TASK-XXX-<commit>.md`
 - Remediation required: yes or no
 - Remediation commit subject: `fix(TASK-XXX): ...`
 - Remediation commit:

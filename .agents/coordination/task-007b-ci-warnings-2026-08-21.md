@@ -45,7 +45,9 @@
 - Remediation commit: none (no findings)
 - Post-remediation validation commands and results: none required
 - Harness retro report: `TODO-AGENT-HARNESS.md` TASK-007B retrospective; AH-030 identified as applicable.
-- Harness retro commit: recorded by `chore(TASK-007B): record harness retro`
+- Harness retro commit: `6198db5`
+- Harness retro TODO: AH-030 implemented with a canonical Compose project name and multi-worktree regression coverage.
+- Harness TODO verification: `npm run agents:validate` and `npm run task:preflight` passed from the TASK-007B worktree without a Compose project override.
 - Final sign-off: pending
 - Task-lead integration method and target: task branch pushed directly; PR/merge remains user-controlled.
 - Clean worktree removal evidence: pending
@@ -71,3 +73,4 @@
 | AC-03 | Run project CI on Node.js 24 | `.github/workflows/ci.yml` | workflow pins `node-version: 24`; local `npm run prep` passed on Node.js 24.14.0; remote CI pending |
 | AC-04 | Keep full project validation green | complete TASK-007B diff | `COMPOSE_PROJECT_NAME=agentic_programming-course-subagents-experiment bash scripts/agent-harness/run-with-next-lock.sh npm run prep` passed: build, 139 regular tests and 11 CI tests |
 | AC-05 | Publish and validate the task head | `task/TASK-007B` | pending remote CI |
+| AH-030 | Make shared Compose service discovery independent of linked-worktree paths | `compose.yml`, `scripts/agent-harness/test-task-worktrees.sh`, `TODO-AGENT-HARNESS.md` | `npm run agents:validate` and `npm run task:preflight` passed from TASK-007B |

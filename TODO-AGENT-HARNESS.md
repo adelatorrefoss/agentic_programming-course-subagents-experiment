@@ -35,7 +35,17 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-027 | Medium | Require mutation-tool onboarding to probe the repository's actual test environments before selecting coverage analysis, and document an evidence-based fallback when file-level environments are incompatible with per-test coverage. | Test Infrastructure | ✅ Done |
 | AH-028 | High | Require tools that create instrumented or generated sandboxes to clean them after success and failure, and exclude their temp/report paths from repository-wide lint, formatting, test discovery, and Git. | Developer Experience | ✅ Done |
 | AH-029 | High | Isolate parallel tasks in dedicated linked Git worktrees and task branches, with validated identifiers, explicit task-lead integration, and cleanup that refuses dirty worktrees. | Developer Experience | ✅ Done |
-| AH-030 | High | Make shared-service discovery independent of the current linked-worktree directory, and ensure preflight recovery instructions target the canonical Compose project instead of creating a port-conflicting per-worktree project. | Developer Experience | ⏳ Pending |
+| AH-030 | High | Make shared-service discovery independent of the current linked-worktree directory, and ensure preflight recovery instructions target the canonical Compose project instead of creating a port-conflicting per-worktree project. | Developer Experience | ✅ Done |
+
+### AH-030 completion evidence
+
+- `compose.yml` declares the canonical project name, so Compose service discovery
+  and the existing recovery command resolve the same shared PostgreSQL project
+  from the main checkout and every linked worktree.
+- `scripts/agent-harness/test-task-worktrees.sh` compares the rendered Compose
+  project name in its fixture repository, a numeric task worktree, and a task
+  worktree with an uppercase suffix without starting any containers.
+- `npm run agents:validate` and `npm run task:preflight` pass from TASK-007B.
 
 ### AH-029 completion evidence
 

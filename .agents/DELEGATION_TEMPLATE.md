@@ -110,8 +110,10 @@ boundaries)` only when the task genuinely has no such boundary.
 | --- | --- | --- | --- | --- | --- | --- |
 |  |  |  |  |  |  | `producer-to-consumer: ...` |
 
-The pushed commit, GitHub Actions run URL, and remote CI result belong in the
-post-push HIL handoff. Do not persist them in a follow-up evidence commit.
+The task branch is not pushed and does not receive remote CI. After the task
+lead integrates it into `main`, the pushed `main` commit, GitHub Actions run
+URL, and remote CI result belong in the post-push HIL handoff. Do not persist
+them in a follow-up evidence commit.
 
 ### Code-review rounds
 

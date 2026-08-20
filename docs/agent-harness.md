@@ -122,6 +122,11 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
   integration, run `task-worktree.sh finish TASK-004`. Cleanup refuses dirty
   worktrees, uses no force option, and preserves the branch for deliberate
   deletion later. Never treat cleanup as integration.
+- Task branches are validated locally but are not pushed and do not receive
+  remote CI. This is the repository's trunk-based workflow: feature branches
+  are local working branches only. After integration into `main`, push `main` and run
+  `npm run task:verify-remote-ci`; the verifier requires the matching SHA on
+  `head_branch=main`.
 - Define shared contracts before starting parallel work.
 - Start each delegation from `.agents/DELEGATION_TEMPLATE.md`, including named
   ownership, input/output contracts, dependency order, and stop conditions.

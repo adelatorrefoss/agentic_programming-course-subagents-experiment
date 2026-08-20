@@ -2,6 +2,7 @@
 set -euo pipefail
 
 commit_sha="${REMOTE_CI_EXPECTED_SHA:-$(git rev-parse HEAD)}"
+expected_branch="${REMOTE_CI_EXPECTED_BRANCH:-main}"
 repository="${REMOTE_CI_REPOSITORY:-}"
 
 if [[ -z "$repository" ]]; then
@@ -26,12 +27,13 @@ fi
 printf '%s' "$response" | node -e '
 const fs = require("node:fs");
 const expectedSha = process.argv[1];
+const expectedBranch = process.argv[2];
 const payload = JSON.parse(fs.readFileSync(0, "utf8"));
 const runs = Array.isArray(payload.workflow_runs) ? payload.workflow_runs : [];
-const run = runs.find((candidate) => candidate.head_sha === expectedSha);
+const run = runs.find((candidate) => candidate.head_sha === expectedSha && candidate.head_branch === expectedBranch);
 
 if (!run) {
-	console.error(`No pushed GitHub Actions run found for ${expectedSha}.`);
+	console.error(`No pushed GitHub Actions run found for ${expectedSha} on ${expectedBranch}.`);
 	process.exit(1);
 }
 
@@ -46,4 +48,4 @@ if (run.conclusion !== "success") {
 }
 
 console.log(`Remote CI passed for ${expectedSha}: ${run.html_url}`);
-' "$commit_sha"
+' "$commit_sha" "$expected_branch"

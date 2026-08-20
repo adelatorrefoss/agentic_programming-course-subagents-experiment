@@ -39,7 +39,7 @@
 - Code-review agent: `code-review`
 - PR code review commit range: `310cb0c^..310cb0c`
 - Code-review verdict: `APPROVED`
-- Code-review evidence: no significant findings; `npm audit --json`, `npm ls --all --omit=optional`, and `git diff --check` passed on Node.js 24.14.0.
+- Code-review evidence: Complete committed diff reviewed; `git diff --check` passed; `npm audit --json` reported 0 vulnerabilities on Node.js 24.14.0; `npm ls --all --omit=optional` passed; workflow pins Node.js 24 and Actions v5; coordination evidence records a passing full `npm run prep`.
 - Code-review report: `.agents/reviews/TASK-007B-310cb0c.md`
 - Remediation required: no
 - Remediation commit: none (no findings)
@@ -54,9 +54,7 @@
 
 ### Cross-agent boundary contracts
 
-| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |
-| --- | --- | --- | --- | --- | --- | --- |
-| none | none | none | none | none | none | producer-to-consumer: none (no cross-agent runtime boundaries) |
+none (no cross-agent runtime boundaries)
 
 ### Code-review rounds
 

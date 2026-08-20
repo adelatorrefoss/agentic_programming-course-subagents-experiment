@@ -170,6 +170,85 @@ broader workspace isolation would add cost without evidence that it is needed.
   and harness guide distinguish exclusive generated-state commands from work
   that remains safe to parallelize.
 
+## TASK-018 harness retrospective — 2026-08-21
+
+### Short summary
+
+The closeout lifecycle previously described remote publication too broadly:
+agents could interpret it as pushing and checking CI for the feature branch.
+TASK-018 makes the repository's trunk-based workflow explicit: validate the
+feature branch locally, merge it into `main`, push only `main`, and require the
+corresponding `main` GitHub Actions run to pass. The remote-CI verifier now
+rejects a branch override even when the override is supplied through its
+environment, and the independent review returned `APPROVED`.
+
+### Timeline
+
+- The task lead identified the mismatch between the desired local feature-branch
+  workflow and the previous closeout wording.
+- `AGENTS.md`, `docs/agent-harness.md`,
+  `docs/agents/task-closeout-workflow.md`, and
+  `.agents/DELEGATION_TEMPLATE.md` were updated to state that feature branches
+  are local only and that publication/remote CI happen after integration into
+  `main`.
+- `verify-remote-ci.sh` was first made branch-aware, then corrected to make
+  `main` mandatory rather than configurable.
+- `test-verify-remote-ci.sh` gained a regression that attempts to set
+  `REMOTE_CI_EXPECTED_BRANCH=task/TASK-018`; the verifier correctly rejects the
+  task-branch evidence.
+- The focused verifier test and `npm run agents:validate` passed. Independent
+  review of `deaf6ff..034252d` returned `APPROVED` with no findings.
+
+### Root causes
+
+| Cause | Classification | Confidence | Impact |
+| --- | --- | --- | --- |
+| Closeout guidance used generic pushed-commit language and did not state that the remote branch must be `main`. | Coordination / process | High | The documented lifecycle was ambiguous with respect to trunk-based development and could cause unnecessary task-branch pushes or CI checks. |
+| The verifier briefly accepted an environment-provided expected branch, so a caller could request successful CI evidence from a task branch. | Agent harness validation | High | A successful but disallowed task-branch run could have been treated as final evidence. |
+
+### Evidence
+
+- `AGENTS.md`, `docs/agent-harness.md`,
+  `docs/agents/task-closeout-workflow.md`, and
+  `.agents/DELEGATION_TEMPLATE.md` document local-only feature branches and
+  main-only publication/CI.
+- `scripts/agent-harness/verify-remote-ci.sh` hard-codes `expected_branch="main"`
+  and matches both SHA and branch.
+- `scripts/agent-harness/test-verify-remote-ci.sh` proves that successful
+  `main` evidence passes, task-branch evidence fails, and an attempted
+  `REMOTE_CI_EXPECTED_BRANCH` override still fails.
+- `.agents/reviews/TASK-018-034252d.md` records the independent `APPROVED`
+  verdict for `deaf6ff..034252d`.
+- `bash scripts/agent-harness/test-verify-remote-ci.sh` and `npm run
+  agents:validate` passed during this retrospective.
+
+### Prioritized remediation plan and applicability
+
+| Order | ID | Applicability to current harness | Action | Verification evidence |
+| --- | --- | --- | --- | --- |
+| Completed | AH-024 | Applicable and completed. Remote publication and successful monitoring are the final gate, but the target is specifically the integrated `main` commit under trunk-based development. | Keep the lifecycle documentation and verifier aligned on local-only task branches, `main` integration, main push, and green remote CI. | Main-only lifecycle source scan, `bash scripts/agent-harness/test-verify-remote-ci.sh`, `npm run agents:validate`, and the recorded approved review. |
+
+No new harness TODO is warranted. AH-029 already governs local task worktrees,
+and AH-024 governs publication plus remote-CI completion; TASK-018 clarifies
+their relationship for trunk-based development without introducing another
+overlapping recommendation.
+
+### Follow-up tasks
+
+None. The applicable existing recommendation is implemented, and no separate
+configuration or production-code patch is justified by this retrospective.
+
+### Preventive checks and monitoring
+
+- Treat feature branches as local validation workspaces only; do not push them
+  or use their runs as final CI evidence.
+- Integrate the reviewed task branch into `main` before publication and remote
+  verification.
+- Keep the verifier's accepted branch non-configurable and test attempted
+  environment overrides in regression coverage.
+- Record the `main` SHA, GitHub Actions URL, and successful conclusion in the
+  final HIL handoff without creating a follow-up evidence commit.
+
 ## TASK-005 harness retrospective — 2026-08-20
 
 ### Short summary

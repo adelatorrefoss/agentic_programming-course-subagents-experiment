@@ -16,6 +16,17 @@ npm run test      # run tests
 npm run prep      # lint + build + regular and .ci tests
 ```
 
+## Handoff validation for typed test doubles
+
+When test work changes a typed mock, fake, stub, Object Mother, or any other
+implementation of a TypeScript interface, focused Jest tests are not sufficient
+for handoff. Run a TypeScript-aware production build with `npm run build` in
+addition to the focused tests, and report both results. If the change depends on
+PostgreSQL or another required service, run `npm run task:preflight` first.
+
+Do not mark the delegated test task complete while either the focused tests or
+the build/typecheck is failing.
+
 ## Architecture
 
 - Next.js 16, Onion Architecture, DDD.

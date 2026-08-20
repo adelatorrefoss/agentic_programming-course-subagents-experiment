@@ -33,20 +33,20 @@ Shared contracts were fixed before implementation delegation:
 
 - Implementation commit subject: `feat(TASK-001): show rating summaries on home cards`
 - Agent output references: `task001_frontend`, `task001_tests`.
-- Implementation commit: `2ea1efc`.
+- Implementation commit: `2ea1efc`
 - Code-review agent: `code-review`
-- PR code review commit range: `9caf3f4..2ea1efc`.
-- Code-review verdict: `APPROVED`.
+- PR code review commit range: `9caf3f4..2ea1efc`
+- Code-review verdict: `APPROVED`
 - Code-review evidence: Committed diff inspected end-to-end; batched rating enrichment and rated/unrated home-card rendering are correct; focused application/API tests passed (2 suites, 3 tests). The PostgreSQL-focused reviewer rerun was blocked only by sandbox `EPERM`; its passing `npm run prep` evidence is recorded in the coordination record.
 - Code-review report: `.agents/reviews/TASK-001-2ea1efc.md`
-- Remediation required: no.
+- Remediation required: no
 - Remediation commit subject: `fix(TASK-001): address home rating summary review`
-- Remediation commit: none (no findings).
+- Remediation commit: none (no findings)
 - Post-remediation validation commands and results: not applicable; `npm run prep` passed before review (44 regular + 11 CI tests).
 - Harness retro report: `TODO-AGENT-HARNESS.md` entries `AH-014` and `AH-015`; contract acknowledgment and typed-mock validation gates recommended.
 - Harness retro commit subject: `chore(TASK-001): record home rating summary harness retro`
-- Harness retro commit: pending review approval.
-- Final sign-off: pending full workflow.
+- Harness retro commit: `4c23ade`
+- Final sign-off: TASK-001 implementation and independent review are complete; harness recommendations AH-014 and AH-015 are implemented in the following harness-control commit.
 
 ## Acceptance evidence
 

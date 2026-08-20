@@ -23,6 +23,17 @@ Shared contracts must be explicit before parallel work begins:
 - API contract:
 - Test contract:
 
+## Contract acknowledgements
+
+Before implementation starts, every delegated agent must acknowledge the exact
+shared contract it received. Before handoff, it must record how its output was
+verified against that contract, including applicable boundary semantics such as
+`null`, empty collections, zero values, missing resources, and error shapes.
+
+| Agent | Contract acknowledged before implementation | Boundary semantics checked | Verification evidence before handoff |
+| --- | --- | --- | --- |
+|  |  |  |  |
+
 ## Dependencies and stop conditions
 
 1. Contract checkpoint:
@@ -34,6 +45,7 @@ Shared contracts must be explicit before parallel work begins:
 
 - Implementation commit subject: `feat(TASK-XXX): ...`
 - Agent output references:
+- Contract-verification handoffs:
 - Implementation commit:
 - Code-review agent: `code-review`
 - PR code review commit range:

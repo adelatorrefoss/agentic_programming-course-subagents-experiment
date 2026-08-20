@@ -4,7 +4,7 @@
 
 - Task: Add advanced, safely paginated cooked-dish search.
 - Task identifier (`TASK-XXX`): `TASK-003`
-- Lifecycle: `in-progress`
+- Lifecycle: `closed`
 - Expected outcome: Search by text, ingredient types, minimum rating and date range with allow-listed sorting, metadata, UI controls and robust states.
 - Scope boundaries: Preserve create/by-id/similarity behavior; evolve list GET to a paginated envelope and update all current consumers.
 
@@ -56,7 +56,7 @@ Frontend component-test capability checkpoint:
 - Code-review agent: `code-review`
 - PR code review commit range: `17d704e^..2a0aef1`
 - Code-review verdict: `APPROVED`
-- Code-review evidence: Executable remote-CI verification rejects missing, pending, failed, and mismatched evidence, accepts matching success, and keeps the final run URL/result in the HIL handoff; shell syntax checks, focused fixtures, and `npm run agents:validate` passed.
+- Code-review evidence: Executable remote-CI verification rejects missing, in-progress, failed, and mismatched evidence, accepts matching success, and keeps the final run URL/result in the HIL handoff; shell syntax checks, focused fixtures, and `npm run agents:validate` passed.
 - Code-review report: `.agents/reviews/TASK-003-2a0aef1.md`
 - Remediation required: yes
 - Remediation commit subject: `fix(TASK-003): enforce post-push CI verification`
@@ -65,8 +65,8 @@ Frontend component-test capability checkpoint:
 - Incremental coordination rule: User requested that every task commit include its current coordination record. Persisted as harness improvement `AH-020`; all commits after the request include this record.
 - Harness retro report: Final lifecycle retro confirmed AH-024 completely captures the executable push/matching-successful-CI gate and HIL-only evidence model. AH-001 through AH-024 are complete with no duplicates, pending or blocked items; no additional TODO was warranted.
 - Harness retro commit subject: `chore(TASK-003): record final lifecycle harness retro`
-- Harness retro commit: current retro commit; AH-024 was implemented in `2a0aef1` and independently approved.
-- Final sign-off: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests; `npm run agents:validate` passed including the CI history regression; review `APPROVED`; AH-001 through AH-023 complete; final validations and clean worktree check required after this closeout commit.
+- Harness retro commit: `a4ab6e2`; AH-024 was implemented in `2a0aef1` and independently approved.
+- Final sign-off: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests; `npm run agents:validate` passed including checkout-history and remote-CI verifier regressions; review `APPROVED`; AH-001 through AH-024 complete; push and successful matching remote CI remain the post-commit HIL gate.
 
 ### Code-review rounds
 

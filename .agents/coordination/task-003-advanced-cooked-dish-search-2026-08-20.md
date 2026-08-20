@@ -55,9 +55,9 @@ Frontend component-test capability checkpoint:
 - Implementation commit: `09c4e33`
 - Code-review agent: `code-review`
 - PR code review commit range: `2403e63..8e5b34c`
-- Code-review verdict: pending final review after round 1 `CHANGES_REQUESTED`.
-- Code-review evidence: Round 1 found unsafe unbounded offsets, an incomplete 50-item planner catalog and missing PostgreSQL backslash evidence; all three were remediated and the full gate passes pending independent confirmation.
-- Code-review report: round 1 `.agents/reviews/TASK-003-09c4e33.md`; final pending.
+- Code-review verdict: `APPROVED`.
+- Code-review evidence: Code review APPROVED for 2403e63..999670c: the complete committed range and affected context were inspected; safe page/offset bounds, complete multi-page planner catalog loading and literal PostgreSQL backslash matching are implemented and tested; SQL parameterization, allow-listed ordering, counts, UTC date bounds, null-rating semantics, 400 validation, envelope consumers, home race protection/accessibility and index rationale were reconfirmed; git diff check passed and focused verification passed with 6 suites/48 tests; no significant findings remain.
+- Code-review report: round 1 `.agents/reviews/TASK-003-09c4e33.md`; final `.agents/reviews/TASK-003-999670c.md`.
 - Remediation required: yes.
 - Remediation commit subject: `fix(TASK-003): harden search pagination and catalog completeness`
 - Remediation commit: `8e5b34c`
@@ -73,7 +73,7 @@ Frontend component-test capability checkpoint:
 | Round | Commit range | Verdict | Report | Findings / remediation |
 | --- | --- | --- | --- | --- |
 | 1 | `2403e63..09c4e33` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-003-09c4e33.md` | Bound page/offset, paginate the full planner catalog and add real backslash coverage. Remediated by `8e5b34c`. |
-| 2 | `2403e63..8e5b34c` | pending | pending | Independent re-review in progress. |
+| 2 | `2403e63..999670c` | `APPROVED` | `.agents/reviews/TASK-003-999670c.md` | All three findings reconfirmed fixed; 6 suites/48 focused tests passed. |
 
 ## Acceptance evidence
 

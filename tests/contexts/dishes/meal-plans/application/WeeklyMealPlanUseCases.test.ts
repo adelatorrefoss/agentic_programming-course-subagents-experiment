@@ -3,9 +3,11 @@ import { WeeklyMealPlanCreator } from "../../../../../src/contexts/dishes/meal-p
 import { WeeklyMealPlanMealRemover } from "../../../../../src/contexts/dishes/meal-plans/application/remove-meal/WeeklyMealPlanMealRemover";
 import { WeeklyMealPlanMealReplacer } from "../../../../../src/contexts/dishes/meal-plans/application/replace-meal/WeeklyMealPlanMealReplacer";
 import { WeeklyMealPlanSearcher } from "../../../../../src/contexts/dishes/meal-plans/application/search-by-id/WeeklyMealPlanSearcher";
+import { WeeklyMealPlanByWeekStartSearcher } from "../../../../../src/contexts/dishes/meal-plans/application/search-by-week-start/WeeklyMealPlanByWeekStartSearcher";
 import { WeeklyMealPlanShoppingListGenerator } from "../../../../../src/contexts/dishes/meal-plans/application/shopping-list/WeeklyMealPlanShoppingListGenerator";
 import { CookedDishNotFoundError } from "../../../../../src/contexts/dishes/meal-plans/domain/CookedDishNotFoundError";
 import { InvalidWeeklyMealPlanSlotError } from "../../../../../src/contexts/dishes/meal-plans/domain/InvalidWeeklyMealPlanSlotError";
+import { InvalidWeeklyMealPlanWeekStartError } from "../../../../../src/contexts/dishes/meal-plans/domain/InvalidWeeklyMealPlanWeekStartError";
 import { WeeklyMealPlanAlreadyExistsError } from "../../../../../src/contexts/dishes/meal-plans/domain/WeeklyMealPlanAlreadyExistsError";
 import { WeeklyMealPlanNotFoundError } from "../../../../../src/contexts/dishes/meal-plans/domain/WeeklyMealPlanNotFoundError";
 import { WeeklyMealPlanSlotAlreadyOccupiedError } from "../../../../../src/contexts/dishes/meal-plans/domain/WeeklyMealPlanSlotAlreadyOccupiedError";
@@ -52,6 +54,30 @@ describe("Weekly meal plan use cases should", () => {
 
 		plans.shouldSearchByIdReturn(null);
 		await expect(searcher.search(plan.id.value)).resolves.toBeNull();
+	});
+
+	it("search a plan by its Monday week start", async () => {
+		const plan = WeeklyMealPlanMother.create();
+		const searcher = new WeeklyMealPlanByWeekStartSearcher(plans);
+		plans.shouldSearchByWeekStartReturn(plan);
+
+		await expect(searcher.search(plan.weekStart)).resolves.toEqual(
+			plan.toPrimitives(),
+		);
+
+		plans.shouldSearchByWeekStartReturn(null);
+		await expect(searcher.search(plan.weekStart)).resolves.toBeNull();
+	});
+
+	it("reject a missing or malformed week start lookup", async () => {
+		const searcher = new WeeklyMealPlanByWeekStartSearcher(plans);
+
+		await expect(searcher.search("")).rejects.toBeInstanceOf(
+			InvalidWeeklyMealPlanWeekStartError,
+		);
+		await expect(searcher.search("2026-08-18")).rejects.toBeInstanceOf(
+			InvalidWeeklyMealPlanWeekStartError,
+		);
 	});
 
 	it("assign a dish and fail when the plan or dish does not exist", async () => {

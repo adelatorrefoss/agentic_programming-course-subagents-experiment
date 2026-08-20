@@ -68,6 +68,34 @@
 	animation: fadeIn 0.6s ease 0.3s backwards;
 }
 
+.mealPlannerCta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1rem 1.25rem;
+	color: var(--text-primary);
+	text-decoration: none;
+	background: linear-gradient(135deg, var(--accent-glow), var(--bg-secondary));
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-md);
+	transition: all var(--transition-base);
+}
+
+.mealPlannerCta:hover {
+	border-color: var(--accent);
+	transform: translateY(-2px);
+}
+
+.mealPlannerCta span:first-child {
+	display: flex;
+	flex-direction: column;
+}
+
+.mealPlannerCta small {
+	color: var(--text-muted);
+}
+
 .sectionHeader {
 	display: flex;
 	justify-content: space-between;

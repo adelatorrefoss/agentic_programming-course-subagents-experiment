@@ -162,6 +162,13 @@ export default function Home() {
 						perfect dish
 					</p>
 				</header>
+				<Link href="/meal-plans" className={styles.mealPlannerCta}>
+					<span>
+						<strong>Plan your week</strong>
+						<small>21 meal slots and one shopping list</small>
+					</span>
+					<span aria-hidden="true">→</span>
+				</Link>
 
 				<section className={styles.inputSection}>
 					<div className={styles.sectionHeader}>

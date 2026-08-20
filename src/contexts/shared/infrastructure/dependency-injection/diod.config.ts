@@ -20,6 +20,7 @@ import { WeeklyMealPlanCreator } from "../../../dishes/meal-plans/application/cr
 import { WeeklyMealPlanMealRemover } from "../../../dishes/meal-plans/application/remove-meal/WeeklyMealPlanMealRemover";
 import { WeeklyMealPlanMealReplacer } from "../../../dishes/meal-plans/application/replace-meal/WeeklyMealPlanMealReplacer";
 import { WeeklyMealPlanSearcher } from "../../../dishes/meal-plans/application/search-by-id/WeeklyMealPlanSearcher";
+import { WeeklyMealPlanByWeekStartSearcher } from "../../../dishes/meal-plans/application/search-by-week-start/WeeklyMealPlanByWeekStartSearcher";
 import { WeeklyMealPlanShoppingListGenerator } from "../../../dishes/meal-plans/application/shopping-list/WeeklyMealPlanShoppingListGenerator";
 import { WeeklyMealPlanRepository } from "../../../dishes/meal-plans/domain/WeeklyMealPlanRepository";
 import { PostgresWeeklyMealPlanRepository } from "../../../dishes/meal-plans/infrastructure/PostgresWeeklyMealPlanRepository";
@@ -93,6 +94,7 @@ builder
 builder.registerAndUse(PostgresWeeklyMealPlanRepository);
 builder.registerAndUse(WeeklyMealPlanCreator);
 builder.registerAndUse(WeeklyMealPlanSearcher);
+builder.registerAndUse(WeeklyMealPlanByWeekStartSearcher);
 builder.registerAndUse(WeeklyMealPlanMealAssigner);
 builder.registerAndUse(WeeklyMealPlanMealReplacer);
 builder.registerAndUse(WeeklyMealPlanMealRemover);

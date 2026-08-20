@@ -84,7 +84,7 @@ Frontend component-test capability checkpoint:
 | 5 | `dd04873^..7a0d0e4` | `APPROVED` | `.agents/reviews/TASK-004-7a0d0e4.md` | All sentinel, ownership-race, surviving-child, clean-worktree, truncation and symlink findings resolved; focused regressions passed. |
 | 6 | `e4a9c63^..e4a9c63` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-e4a9c63.md` | Require branch ownership before finish and reset/report detached state correctly in list. |
 | 7 | `e4a9c63^..033c89f` | `APPROVED` | `.agents/reviews/TASK-004-033c89f.md` | Exact task-branch ownership, detached/mismatch rejection and detached listing regression-covered. |
-| 8 | remote-CI portability remediation to be reviewed | remediation implemented | review report to follow | Replace unavailable `rg` dependency in mutation harness validation with portable `grep` and prove a minimal PATH. |
+| 8 | `16a8f22^..16a8f22` | `APPROVED` | `.agents/reviews/TASK-004-16a8f22.md` | Portable `grep` semantics and minimal-PATH operation verified; no findings. |
 
 ## Acceptance evidence
 

@@ -4,7 +4,7 @@
 
 - Task: Add advanced, safely paginated cooked-dish search.
 - Task identifier (`TASK-XXX`): `TASK-003`
-- Lifecycle: `closed`
+- Lifecycle: `in-progress`
 - Expected outcome: Search by text, ingredient types, minimum rating and date range with allow-listed sorting, metadata, UI controls and robust states.
 - Scope boundaries: Preserve create/by-id/similarity behavior; evolve list GET to a paginated envelope and update all current consumers.
 
@@ -94,3 +94,4 @@ Frontend component-test capability checkpoint:
 | AC-13 | Full lint, build and tests | Entire TASK-003 implementation | Post-remediation `npm run prep` passed: lint, Next build, 105 regular and 11 CI tests |
 | AC-14 | Invoke harness-retro and register recommendations | AH-021/AH-022 in `TODO-AGENT-HARNESS.md` | External runner self-test and real 10-test PostgreSQL run passed; naming guidance documented |
 | AC-15 | Persist coordination with each originating change | `AH-020`, closeout workflow and delegation template | Documentation inspection and `npm run agents:validate` passed |
+| AC-16 | CI can validate historical coordination commit evidence | `.github/workflows/ci.yml` full-history checkout and `test-ci-checkout-history.sh` regression check | `npm run agents:validate` and a depth-1 reproduction prove the failure mode; final `npm run prep` required |

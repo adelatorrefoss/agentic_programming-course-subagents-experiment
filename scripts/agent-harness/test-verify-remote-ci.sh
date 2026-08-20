@@ -13,6 +13,14 @@ verify_fixture() {
 		bash scripts/agent-harness/verify-remote-ci.sh
 }
 
+verify_override_fixture() {
+	REMOTE_CI_EXPECTED_SHA="$sha" \
+		REMOTE_CI_EXPECTED_BRANCH="task/TASK-018" \
+		REMOTE_CI_REPOSITORY="owner/repository" \
+		REMOTE_CI_RESPONSE_FILE="$1" \
+		bash scripts/agent-harness/verify-remote-ci.sh
+}
+
 cat >"$fixture_dir/success.json" <<EOF
 {"workflow_runs":[{"head_sha":"$sha","head_branch":"main","status":"completed","conclusion":"success","html_url":"https://github.com/owner/repository/actions/runs/1"}]}
 EOF
@@ -38,7 +46,7 @@ if verify_fixture "$fixture_dir/task-branch.json" >/dev/null 2>&1; then
 	exit 1
 fi
 
-if REMOTE_CI_EXPECTED_BRANCH="task/TASK-018" verify_fixture "$fixture_dir/task-branch.json" >/dev/null 2>&1; then
+if verify_override_fixture "$fixture_dir/task-branch.json" >/dev/null 2>&1; then
 	echo "Remote CI verifier allowed overriding the mandatory main branch." >&2
 	exit 1
 fi

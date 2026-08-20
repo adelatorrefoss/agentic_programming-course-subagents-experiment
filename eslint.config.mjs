@@ -5,7 +5,11 @@ import globals from "globals";
 export default [
 	...eslintConfigCodely.course,
 	{
-		ignores: ["mcp-test-client/dist/**/*"],
+		ignores: [
+			"mcp-test-client/dist/**/*",
+			".stryker-tmp/**/*",
+			"reports/mutation/**/*",
+		],
 	},
 	{
 		files: ["**/**.ts"],

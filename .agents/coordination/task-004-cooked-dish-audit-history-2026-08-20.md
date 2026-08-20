@@ -62,7 +62,7 @@ Frontend component-test capability checkpoint:
 - Remediation commit subject: none (no findings)
 - Remediation commit: none (no findings)
 - Post-remediation validation commands and results: no remediation; implementation `npm run prep` passed.
-- Harness retro report: pending
+- Harness retro report: TASK-004 exposed two immediate harness gaps: cross-agent boundaries need executable producer-to-consumer contract evidence (AH-025), and commands writing shared `.next` state need serialization or isolation (AH-026). The retro, evidence, root causes and complete action register are persisted in `TODO-AGENT-HARNESS.md`.
 - Harness retro commit subject: `chore(TASK-004): record harness retro`
 - Harness retro commit: pending
 - Final sign-off: Initial `npm run prep` passed lint, Next build, 138 regular tests and 11 CI tests; final validation will be repeated after review/retro.

@@ -30,6 +30,99 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-022 | Medium | Name newly spawned agent threads with the current task identifier and role; when reusing a persistent legacy thread, spawn a correctly named nested worker and expose that current name in user-visible status. | Task Lead | ✅ Done |
 | AH-023 | High | Fetch complete Git history in CI before validating commit-backed coordination evidence, and keep a harness regression check that rejects shallow checkout configuration for that validation job. | Test Infrastructure | ✅ Done |
 | AH-024 | High | Make push plus successful monitoring of the corresponding GitHub Actions run the final task-completion gate, and include its URL and result in the HIL handoff. | Task Lead | ✅ Done |
+| AH-025 | High | Require a producer-to-consumer contract test for every shared boundary implemented by different agents, and record its passing command in the integration handoff before the implementation commit. | Task Lead | ⏳ Pending |
+| AH-026 | Medium | Serialize or isolate delegated commands that write shared build state (especially Next.js `.next`), while allowing independent read-only and focused test work to remain parallel. | Developer Experience | ⏳ Pending |
+
+## TASK-004 harness retrospective — 2026-08-20
+
+### Short summary
+
+Parallel role isolation was effective for ownership and focused verification,
+but it allowed a persistence-to-API shape mismatch to survive the delegated
+handoffs: the backend/persistence path held snapshot-shaped `changes`, while the
+frontend required a normalized `changes[]`. The task lead caught and corrected
+the mismatch during integrated diff inspection, added cross-boundary contract
+coverage before commit `5aa0477`, and the independent review subsequently
+returned `APPROVED`; a separate Next.js build lock showed that write-heavy
+verification also needs resource-aware scheduling.
+
+### Timeline
+
+- The task lead fixed shared domain, persistence, API and test contracts before
+  delegating database, backend, frontend and testing work.
+- Each delegated role completed its focused tests/build and handed off its
+  owned artifacts without reporting a contract violation.
+- During integrated diff inspection, the task lead found that persisted audit
+  entries exposed snapshot objects whereas the frontend parser expected the
+  public `changes` array.
+- Before the implementation commit, the task lead added the projection in
+  `CookedDishHistorySearcher` and a contract test proving the normalized API
+  shape consumed by the frontend.
+- Concurrent Next.js builds contended on shared `.next` build state; serializing
+  those builds removed the environmental conflict.
+- Commit `5aa0477` passed `npm run prep`; independent review of
+  `5aa0477^..5aa0477` returned `APPROVED` with 8 focused suites / 25 tests.
+
+### Root causes
+
+| Cause | Classification | Confidence | Impact |
+| --- | --- | --- | --- |
+| Delegated verification stopped at role-local tests and did not require one executable producer-to-consumer example at the persistence/application/frontend boundary. | Coordination / process | High | Both implementations could be locally green while disagreeing on the runtime representation of `changes`; lead integration inspection became the first effective boundary check. |
+| Parallel agents ran Next.js builds against the same workspace and shared `.next` state without a resource lock or isolated output directory. | Environment / tool coordination | High | A build lock created a false-negative verification signal and avoidable delay; serialization was required. |
+
+The existing written contract and acknowledgement controls (AH-002, AH-005,
+AH-007 and AH-014) remain valid and are not duplicated here. TASK-004 exposed a
+more specific missing enforcement mechanism: executable compatibility between
+separately owned producer and consumer artifacts.
+
+### Evidence
+
+- `.agents/coordination/task-004-cooked-dish-audit-history-2026-08-20.md`
+  records all four role handoffs, the lead's projection correction, the initial
+  full validation, and the acceptance-evidence mapping.
+- `src/contexts/dishes/cooked-dish-history/infrastructure/PostgresCookedDishAuditRepository.ts`
+  reconstructs the stored snapshot/delta object as `CookedDishAuditChanges`.
+- `src/contexts/dishes/cooked-dish-history/application/search/CookedDishHistorySearcher.ts`
+  is the integration projection that converts that object to the public
+  `changes: {field,before,after}[]` contract.
+- `tests/contexts/dishes/cooked-dish-history/application/search/CookedDishHistorySearcher.test.ts`
+  proves the persistence-domain entry is projected to the public history
+  representation; `tests/app/cooked-dishes/cooked-dish-history-api.test.ts`
+  proves the frontend accepts that representation.
+- `.agents/reviews/TASK-004-5aa0477.md` records `APPROVED`, a clean diff check,
+  preflight success, and 8 focused suites / 25 passing tests, including the
+  cross-layer and real PostgreSQL checks.
+
+### Prioritized remediation plan and applicability
+
+| Order | ID | Applicability to current harness | Action | Proposed verification evidence |
+| --- | --- | --- | --- | --- |
+| Immediate | AH-025 | Applicable now; TASK-004 has multiple independently owned runtime boundaries. | Extend the delegation template/coordination validator so each cross-agent boundary names a producer fixture, consumer assertion and command, and the integration handoff cannot complete without passing evidence. | A harness regression fixture with locally green producer/consumer tests but an incompatible payload must be rejected; a fixture recording a passing cross-boundary Jest test must be accepted; `npm run agents:validate` passes. |
+| Immediate | AH-026 | Applicable now; all agents share one worktree and Next.js writes `.next`. | Add a repository-supported serialized build wrapper or lock and require delegated agents to use it for shared-state builds; document which commands may still run concurrently. | Run two wrapper invocations concurrently and show that the second waits then both succeed without a `.next/lock` error; add a deterministic shell regression test and run `npm run agents:validate`. |
+
+No long-term recommendation is warranted from the supplied evidence. The two
+immediate items cover the observed coordination and environment failure modes;
+broader workspace isolation would add cost without evidence that it is needed.
+
+### Follow-up tasks
+
+| ID | Suggested owner | Estimate | Deliverable |
+| --- | --- | --- | --- |
+| AH-025 | Task Lead with Test Infrastructure | 2–4 hours | Delegation-template fields, closeout validation, regression fixtures, and documentation for executable cross-agent contracts. |
+| AH-026 | Developer Experience | 1–3 hours | Shared-build lock/wrapper, concurrency regression test, and agent command guidance. |
+
+### Preventive checks and monitoring
+
+- At contract checkpoint, label every boundary with its producing agent,
+  consuming agent, canonical fixture and one compatibility command.
+- At integration handoff, reject evidence made only of separate producer and
+  consumer unit suites when no test passes the producer-shaped value directly
+  through the consumer contract.
+- Treat `.next`, coverage directories, generated clients and database schemas
+  as declared shared resources in delegation briefs; schedule exclusive writers
+  and retain parallelism for independent focused tests.
+- Track build-lock diagnostics separately from product failures so orchestration
+  problems do not trigger unnecessary application changes.
 
 ## Maintenance rules
 

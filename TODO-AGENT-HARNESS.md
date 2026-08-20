@@ -19,6 +19,8 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-011 | Medium | Validate documented repository commands against `package.json` scripts so guidance uses executable forms such as `npm run prep`. | Agent Platform | ✅ Done |
 | AH-012 | Medium | Add a task-start preflight that checks required service availability and tool permissions, and reports an actionable database-start instruction before implementation or verification begins. | Developer Experience | ✅ Done |
 | AH-013 | High | Enforce an independent `code-review` agent gate with a reviewed commit range, approved verdict, and persisted evidence before task closeout. | Agent Platform | ✅ Done |
+| AH-014 | High | Require every delegated agent to acknowledge the exact shared contract, including null and empty-state semantics, and verify its output against that contract before integration handoff. | Task Lead | ⏳ Pending |
+| AH-015 | Medium | Require delegated test work that changes typed mocks or interface implementations to run a TypeScript-aware build or typecheck in addition to focused Jest tests before handoff. | Test Infrastructure | ⏳ Pending |
 
 ## Maintenance rules
 

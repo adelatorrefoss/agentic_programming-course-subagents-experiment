@@ -63,9 +63,9 @@ Frontend component-test capability checkpoint:
 - Remediation commit: none (no findings)
 - Post-remediation validation commands and results: No remediation required; implementation validation passed `npm run agents:validate` and `npm run prep` with 105 regular and 11 CI tests.
 - Incremental coordination rule: User requested that every task commit include its current coordination record. Persisted as harness improvement `AH-020`; all commits after the request include this record.
-- Harness retro report: TASK-003 retro added AH-021 for time-boxed external-service tests with actionable diagnostics. AH-020 was confirmed implemented and not duplicated. User feedback additionally produced AH-022 for task/role-specific agent thread names. Both new items are implemented and verified.
-- Harness retro commit subject: `chore(TASK-003): record advanced search harness retro`
-- Harness retro commit: `6f63176`; recommendations implemented in `a882786`.
+- Harness retro report: CI failure retro added completed recommendation AH-023 requiring full Git history before commit-backed coordination validation and a regression guard. It also consolidated the duplicate pending AH-021 register row; AH-001 through AH-023 are complete.
+- Harness retro commit subject: `chore(TASK-003): record CI checkout harness retro`
+- Harness retro commit: current retro commit; AH-023 was already implemented and verified in `679e411`.
 - Final sign-off: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests; `npm run agents:validate` passed; review `APPROVED`; AH-020/AH-021/AH-022 implemented; worktree checked clean after this closeout commit.
 
 ### Code-review rounds
@@ -96,3 +96,4 @@ Frontend component-test capability checkpoint:
 | AC-14 | Invoke harness-retro and register recommendations | AH-021/AH-022 in `TODO-AGENT-HARNESS.md` | External runner self-test and real 10-test PostgreSQL run passed; naming guidance documented |
 | AC-15 | Persist coordination with each originating change | `AH-020`, closeout workflow and delegation template | Documentation inspection and `npm run agents:validate` passed |
 | AC-16 | CI can validate historical coordination commit evidence | `.github/workflows/ci.yml` full-history checkout and `test-ci-checkout-history.sh` regression check | `npm run agents:validate`, depth-1 failure reproduction, `npm run prep`, and independent review `APPROVED` |
+| AH-023 | Require full history for commit-backed CI validation and guard the configuration | `fetch-depth: 0`, `test-ci-checkout-history.sh`, and completed `TODO-AGENT-HARNESS.md` entry | Focused guard and `npm run agents:validate` passed; code review `APPROVED` |

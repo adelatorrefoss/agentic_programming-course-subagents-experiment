@@ -27,6 +27,18 @@ PostgreSQL or another required service, run `npm run task:preflight` first.
 Do not mark the delegated test task complete while either the focused tests or
 the build/typecheck is failing.
 
+## Frontend component-test capability checkpoint
+
+Before accepting delegated work for interactive React acceptance criteria,
+verify that Jest can transform TSX, run the relevant suite in `jsdom`, render
+the component, query accessible roles, and drive user events. If any capability
+is missing, report it at the contract checkpoint and provision the required
+test dependencies before implementation starts.
+
+Helpers and HTTP-adapter tests complement component tests, but they do not by
+themselves prove rendered loading, success, error, retry, disabled, empty, or
+out-of-order interaction states.
+
 ## Architecture
 
 - Next.js 16, Onion Architecture, DDD.

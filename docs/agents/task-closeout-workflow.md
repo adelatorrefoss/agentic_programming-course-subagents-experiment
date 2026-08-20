@@ -39,6 +39,24 @@ El resumen HIL es una puerta de visibilidad, no una sustitución de las
 evidencias persistidas. Si queda una advertencia, un bloqueo o trabajo fuera de
 alcance, debe aparecer claramente en el resumen final.
 
+## Lenguaje visual de fases y agentes
+
+Todas las actualizaciones visibles durante el workflow y el resumen HIL final
+usan un icono estable para que el usuario identifique la fase de un vistazo:
+
+| Icono | Fase / agente |
+| --- | --- |
+| 🗄️ | `database-engineer` / persistencia |
+| ⚙️ | `backend-engineer` / dominio, aplicación y API |
+| 🎨 | `frontend-engineer` / interfaz |
+| 🧪 | `testing-engineer` / verificación |
+| 🔍 | `code-review` / revisión independiente |
+| 🧰 | `harness-retro` / mejoras del harness |
+| ✅ | cierre y handoff HIL |
+
+El icono acompaña al texto; nunca sustituye el estado, el resultado ni la
+evidencia escrita.
+
 ## 🏆 Benefits
 
 - Evita que una tarea aparentemente terminada deje deuda del harness pendiente.

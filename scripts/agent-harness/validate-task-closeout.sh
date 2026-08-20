@@ -52,6 +52,22 @@ for record in "$COORDINATION_DIR"/*.md; do
 	record_count=$((record_count + 1))
 	record_error=false
 	record_name="$(basename "$record")"
+	lifecycle="$(field_value "Lifecycle" "$record")"
+	[[ -n "$lifecycle" ]] || lifecycle="closed"
+
+	case "$lifecycle" in
+		in-progress)
+			echo "${record}: in-progress coordination record accepted"
+			continue
+			;;
+		closing | closed)
+			;;
+		*)
+			echo "${record}: Lifecycle must be 'in-progress', 'closing', or 'closed'" >&2
+			failure_count=$((failure_count + 1))
+			continue
+			;;
+	esac
 
 	if is_legacy_review_exception "$record_name"; then
 		echo "${record}: legacy code-review exception recorded"

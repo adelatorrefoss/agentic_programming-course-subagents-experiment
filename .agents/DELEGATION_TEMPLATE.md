@@ -7,6 +7,7 @@ coordination record and complete every section before starting implementation.
 
 - Task:
 - Task identifier (`TASK-XXX`):
+- Lifecycle: `in-progress` (change to `closed` only after all closeout evidence is complete)
 - Expected outcome:
 - Scope boundaries:
 
@@ -22,6 +23,14 @@ Shared contracts must be explicit before parallel work begins:
 - Persistence contract:
 - API contract:
 - Test contract:
+
+For interactive frontend acceptance criteria, confirm the component-test
+capability before delegating implementation:
+
+- TSX transform available:
+- DOM environment (`jsdom`) available:
+- React render/query/user-event tooling available:
+- Component-level scenarios required by acceptance criteria:
 
 ## Contract acknowledgements
 
@@ -60,6 +69,16 @@ verified against that contract, including applicable boundary semantics such as
 - Harness retro commit subject: `chore(TASK-XXX): ...`
 - Harness retro commit:
 - Final sign-off:
+
+### Code-review rounds
+
+Persist every review round, including `CHANGES_REQUESTED`, under
+`.agents/reviews/`. Use the reviewed head in the filename and record the
+findings/remediation chain here; do not retain only the final approval.
+
+| Round | Commit range | Verdict | Report | Findings / remediation |
+| --- | --- | --- | --- | --- |
+| 1 |  |  |  |  |
 
 ## Acceptance evidence
 

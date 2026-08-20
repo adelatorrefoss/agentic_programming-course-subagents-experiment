@@ -4,6 +4,7 @@
 
 - Task: Complete the weekly meal planner and consolidated shopping-list UI.
 - Task identifier (`TASK-XXX`): `TASK-002`
+- Lifecycle: `closed`
 - Expected outcome: A durable `/meal-plans` experience, reachable from home, supporting week selection, assign/replace/remove, and shopping-list feedback.
 - Scope boundaries: Reuse existing aggregate, persistence and mutation APIs; add week-start lookup but do not redesign stored meal-plan data.
 
@@ -55,8 +56,16 @@ Shared contracts were fixed before parallel implementation:
 - Post-remediation validation commands and results: `cab8949` fixed production concurrency/ARIA and introduced React tests; `143536d` added shopping-list retry/race proof. Final `npm run prep` passed with 74 regular and 11 CI tests.
 - Harness retro report: `TODO-AGENT-HARNESS.md` entries `AH-016` through `AH-019`, covering lifecycle-aware validation, review-round evidence, frontend test capability and stable visual phase icons.
 - Harness retro commit subject: `chore(TASK-002): record weekly planner harness retro`
-- Harness retro commit: pending review approval.
-- Final sign-off: pending full workflow.
+- Harness retro commit: `ca5413f`
+- Final sign-off: TASK-002 functionality, remediations, final `APPROVED` review and 74 regular + 11 CI tests are complete; AH-016 through AH-019 are implemented in the following harness-control commit.
+
+### Code-review rounds
+
+| Round | Commit range | Verdict | Report | Findings / remediation |
+| --- | --- | --- | --- | --- |
+| 1 | `afbd87d..6853360` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-002-6853360.md` | Stale week/list responses, missing React component tests and invalid ARIA header hierarchy; remediated in `cab8949` |
+| 2 | `afbd87d..cab8949` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-002-cab8949.md` | Missing direct component proof for shopping-list retry and out-of-order list responses; remediated in `143536d` |
+| 3 | `afbd87d..143536d` | `APPROVED` | `.agents/reviews/TASK-002-143536d.md` | No significant findings remain |
 
 ## Acceptance evidence
 

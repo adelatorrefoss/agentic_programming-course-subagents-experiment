@@ -21,10 +21,10 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-013 | High | Enforce an independent `code-review` agent gate with a reviewed commit range, approved verdict, and persisted evidence before task closeout. | Agent Platform | ✅ Done |
 | AH-014 | High | Require every delegated agent to acknowledge the exact shared contract, including null and empty-state semantics, and verify its output against that contract before integration handoff. | Task Lead | ✅ Done |
 | AH-015 | Medium | Require delegated test work that changes typed mocks or interface implementations to run a TypeScript-aware build or typecheck in addition to focused Jest tests before handoff. | Test Infrastructure | ✅ Done |
-| AH-016 | High | Make closeout validation lifecycle-aware so task preflight and delegated checks accept explicitly in-progress coordination records while final closeout still rejects pending evidence. | Agent Platform | ⏳ Pending |
-| AH-017 | Medium | Persist every code-review round and its findings, remediation commit, and verdict in the task coordination record and under `.agents/reviews/`, rather than retaining only the final approval. | Task Lead | ⏳ Pending |
-| AH-018 | Medium | Audit required frontend component-test capabilities before delegation and provision `jsdom` plus React Testing Library before implementation when acceptance criteria require interactive UI proof. | Test Infrastructure | ⏳ Pending |
-| AH-019 | Medium | Use a stable icon/emoticon for every user-visible workflow update: 🗄️ database, ⚙️ backend, 🎨 frontend, 🧪 testing, 🔍 review, 🧰 retro, ✅ HIL/cierre. | Task Lead | ⏳ Pending |
+| AH-016 | High | Make closeout validation lifecycle-aware so task preflight and delegated checks accept explicitly in-progress coordination records while final closeout still rejects pending evidence. | Agent Platform | ✅ Done |
+| AH-017 | Medium | Persist every code-review round and its findings, remediation commit, and verdict in the task coordination record and under `.agents/reviews/`, rather than retaining only the final approval. | Task Lead | ✅ Done |
+| AH-018 | Medium | Audit required frontend component-test capabilities before delegation and provision `jsdom` plus React Testing Library before implementation when acceptance criteria require interactive UI proof. | Test Infrastructure | ✅ Done |
+| AH-019 | Medium | Use a stable icon/emoticon for every user-visible workflow update: 🗄️ database, ⚙️ backend, 🎨 frontend, 🧪 testing, 🔍 review, 🧰 retro, ✅ HIL/cierre. | Task Lead | ✅ Done |
 
 ## Maintenance rules
 

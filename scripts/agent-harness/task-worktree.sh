@@ -49,10 +49,19 @@ case "$command" in
 	list)
 		[[ "$#" -eq 1 ]] || die "list accepts no arguments"
 		git worktree list --porcelain | awk -v root="${worktree_root}/" '
-			$1 == "worktree" { path = substr($0, length($1) + 2) }
+			function emit() {
+				if (index(path, root) == 1) printf "%s\t%s\n", branch, path
+				path = ""
+				branch = "<detached>"
+			}
+			$1 == "worktree" {
+				if (path != "") emit()
+				path = substr($0, length($1) + 2)
+				branch = "<detached>"
+			}
 			$1 == "branch" { branch = $2; sub("refs/heads/", "", branch) }
-			/^$/ && index(path, root) == 1 { printf "%s\t%s\n", branch, path; path = branch = "" }
-			END { if (index(path, root) == 1) printf "%s\t%s\n", branch, path }
+			/^$/ && path != "" { emit() }
+			END { if (path != "") emit() }
 		'
 		;;
 	finish)
@@ -62,6 +71,9 @@ case "$command" in
 		branch="task/${task_id}"
 		path="${worktree_root}/${task_id}"
 		git worktree list --porcelain | grep -Fqx "worktree ${path}" || die "managed worktree not found: ${path}"
+		expected_ref="refs/heads/${branch}"
+		current_ref="$(git -C "$path" symbolic-ref -q HEAD || true)"
+		[[ "$current_ref" == "$expected_ref" ]] || die "refusing to remove worktree that does not own ${expected_ref}: ${path} (${current_ref:-detached})"
 		[[ -z "$(git -C "$path" status --porcelain --untracked-files=all)" ]] || die "refusing to remove dirty worktree: ${path}"
 		git worktree remove "$path"
 		printf 'Removed clean worktree %s. Branch %s was preserved; integrate it explicitly, then delete it separately if desired.\n' "$path" "$branch"

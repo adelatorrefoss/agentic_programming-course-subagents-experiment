@@ -82,6 +82,8 @@ Frontend component-test capability checkpoint:
 | 3 | `dd04873^..27fee8a` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-27fee8a.md` | Out-of-section sentinel fixed; replace unsafe PID reclamation and make in-section `none` exclusive. |
 | 4 | `dd04873^..40e7150` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-40e7150.md` | Prior findings resolved; move persistent lock out of tracked worktree and avoid unsafe truncating opens. |
 | 5 | `dd04873^..7a0d0e4` | `APPROVED` | `.agents/reviews/TASK-004-7a0d0e4.md` | All sentinel, ownership-race, surviving-child, clean-worktree, truncation and symlink findings resolved; focused regressions passed. |
+| 6 | `e4a9c63^..e4a9c63` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-e4a9c63.md` | Require branch ownership before finish and reset/report detached state correctly in list. |
+| 7 | worktree ownership remediation to be reviewed | remediation implemented | review report to follow | `finish` rejects detached/mismatched branches; `list` resets every porcelain block and reports detached explicitly. |
 
 ## Acceptance evidence
 

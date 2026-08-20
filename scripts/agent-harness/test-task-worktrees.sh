@@ -53,6 +53,24 @@ fi
 git -C "${managed_root}/TASK-102" add task-two.txt
 git -C "${managed_root}/TASK-102" commit -qm 'test: task two change'
 rm -rf "${managed_root}/TASK-102/.next"
+
+git -C "${managed_root}/TASK-102" switch --detach -q
+printf 'detached\n' > "${managed_root}/TASK-102/detached.txt"
+git -C "${managed_root}/TASK-102" add detached.txt
+git -C "${managed_root}/TASK-102" commit -qm 'test: detached task change'
+if run_harness finish TASK-102 >/dev/null 2>&1; then
+	echo 'detached worktree was removed' >&2
+	exit 1
+fi
+run_harness list | grep -Fq $'<detached>\t'"${managed_root}/TASK-102"
+
+git -C "${managed_root}/TASK-102" switch -q task/TASK-102
+git -C "${managed_root}/TASK-102" switch -qc unrelated-branch
+if run_harness finish TASK-102 >/dev/null 2>&1; then
+	echo 'worktree on a mismatched branch was removed' >&2
+	exit 1
+fi
+git -C "${managed_root}/TASK-102" switch -q task/TASK-102
 run_harness finish TASK-102 >/dev/null
 [[ ! -e "${managed_root}/TASK-102" ]]
 git -C "$repository" show-ref --verify --quiet refs/heads/task/TASK-102

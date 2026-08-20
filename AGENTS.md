@@ -16,8 +16,13 @@ npm run test
 - Map every acceptance criterion and checked TODO item to an implementation
   artifact and a passing verification in the task coordination record.
 - Run `npm run prep` before closing the task.
+- After the implementation commit, invoke the `code-review` agent with the
+  exact commit range. Do not close the task until it returns `APPROVED` and the
+  review evidence is recorded in the coordination record.
 - Finish every task with its own commit whose subject follows the convention
   below. Do not leave completed task changes uncommitted.
+
+Full workflow: [mandatory task code review](docs/agents/task-code-review-workflow.md).
 
 # Architecture
 

@@ -35,8 +35,11 @@ Shared contracts must be explicit before parallel work begins:
 - Implementation commit subject: `feat(TASK-XXX): ...`
 - Agent output references:
 - Implementation commit:
+- Code-review agent: `code-review`
 - PR code review commit range:
-- `/review` result:
+- Code-review verdict: `APPROVED` or `CHANGES_REQUESTED`
+- Code-review evidence:
+- Remediation required: yes or no
 - Remediation commit subject: `fix(TASK-XXX): ...`
 - Remediation commit:
 - Post-remediation validation commands and results:

@@ -60,8 +60,8 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
 - Keep frontend, database, backend, and testing responsibilities separate.
 - Ask the main agent to review the integrated diff, not only isolated agent results.
 - Create the implementation commit before invoking the native `/review`
-  command. Treat it as a PR review of that commit, not as a pre-commit lint
-  step.
+  command through the `code-review` agent. Treat it as a PR review of that
+  commit, not as a pre-commit lint step.
 - Apply all accepted review changes in a second commit and record the review
   result and remediation commit in the task coordination record.
 - Persist one coordination record per multi-agent task under
@@ -87,11 +87,13 @@ The agent may update that TODO file, but it must not modify production code or C
    agents.
 3. Integrate and validate the complete diff.
 4. Commit the implementation and open or identify the PR commit range.
-5. Execute `/review` as the PR review of the implementation commit.
+5. Invoke `code-review` with the exact implementation commit range and record
+   its verdict and evidence. See [the mandatory review convention](agents/task-code-review-workflow.md).
 6. Apply accepted findings and commit the remediation changes with a message
    starting with `code-review:`.
 7. Run `npm run prep`, which includes regular and `.ci` tests, after remediation.
-8. Validate the completed coordination record with `npm run agents:validate`.
+8. Validate the completed coordination record with `npm run agents:validate`;
+   it rejects missing review evidence and non-approved verdicts.
 9. Execute `harness-retro`, update the harness TODO register, and commit the
    retrospective separately.
 10. Finish every task with all task changes recorded in a convention-compliant

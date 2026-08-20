@@ -9,7 +9,8 @@ The record is the handoff contract for the task. It must preserve:
 - dependency order and stop conditions;
 - agent run or output references;
 - implementation commit and PR code-review commit range;
-- `/review` result and remediation commit using the `code-review:` prefix;
+- `code-review` agent, exact reviewed range, `APPROVED` verdict, review
+  evidence, and remediation commit when findings were accepted;
 - post-remediation validation, harness-retro report, and final sign-off.
 - one evidence row for every acceptance criterion and checked TODO item, naming
   both the implementation artifact and a passing verification.

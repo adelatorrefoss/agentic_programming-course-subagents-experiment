@@ -19,7 +19,7 @@ die() {
 }
 
 validate_task_id() {
-	[[ "${1:-}" =~ ^TASK-[0-9]{3,}$ ]] || die "unsafe task identifier '${1:-}'; expected TASK-XXX (digits only)"
+	[[ "${1:-}" =~ ^TASK-[0-9]{3,}[A-Z]?$ ]] || die "unsafe task identifier '${1:-}'; expected TASK-XXX with an optional uppercase suffix"
 }
 
 repository_root="$(git rev-parse --show-toplevel 2>/dev/null)" || die "run this command from a Git worktree"

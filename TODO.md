@@ -179,6 +179,19 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - `frontend-engineer`: acción de edición, formulario, validaciones e integración con la API.
 - `testing-engineer`: pruebas de componentes, interacciones, errores y actualización correcta.
 
+## TASK-007B. Eliminar advertencias de seguridad y runtime del CI
+
+### Alcance
+
+- [x] Actualizar el árbol de dependencias para eliminar las 16 vulnerabilidades
+  notificadas por npm, sin introducir saltos mayores innecesarios.
+- [x] Actualizar las Actions del workflow a versiones que se ejecuten sobre
+  Node.js 24.
+- [x] Ejecutar el CI del proyecto con Node.js 24.
+- [x] Verificar que `npm audit` no reporta vulnerabilidades.
+- [x] Verificar el harness y la suite completa con `npm run prep`.
+- [ ] Publicar la rama y confirmar que el `HEAD` supera GitHub Actions.
+
 ## Criterios comunes de coordinación
 
 - [ ] Antes de programar, acordar contratos entre dominio, repositorios y esquema SQL.

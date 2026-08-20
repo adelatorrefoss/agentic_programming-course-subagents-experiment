@@ -64,6 +64,12 @@ usan un icono estable para que el usuario identifique la fase de un vistazo:
 El icono acompaña al texto; nunca sustituye el estado, el resultado ni la
 evidencia escrita.
 
+Los hilos de agentes nuevos se nombran con la tarea y el rol vigentes (por
+ejemplo, `task003_code_review`). Si el límite de concurrencia obliga a reutilizar
+un hilo persistente con nombre histórico, este actúa solo como coordinador y
+crea un worker anidado correctamente nombrado; las actualizaciones visibles
+muestran el nombre actual, no el identificador legado.
+
 ## 🏆 Benefits
 
 - Evita que una tarea aparentemente terminada deje deuda del harness pendiente.

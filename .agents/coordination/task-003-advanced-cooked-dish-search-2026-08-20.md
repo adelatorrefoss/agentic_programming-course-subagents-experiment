@@ -63,7 +63,7 @@ Frontend component-test capability checkpoint:
 - Remediation commit: `8e5b34c`
 - Post-remediation validation commands and results: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests.
 - Incremental coordination rule: User requested that every task commit include its current coordination record. Persisted as harness improvement `AH-020`; all commits after the request include this record.
-- Harness retro report: TASK-003 retro added pending AH-021 for time-boxed external-service tests with actionable diagnostics. AH-020 was confirmed implemented and not duplicated. User feedback additionally produced pending AH-022 for task/role-specific agent thread names.
+- Harness retro report: TASK-003 retro added AH-021 for time-boxed external-service tests with actionable diagnostics. AH-020 was confirmed implemented and not duplicated. User feedback additionally produced AH-022 for task/role-specific agent thread names. Both new items are implemented and verified.
 - Harness retro commit subject: `chore(TASK-003): record advanced search harness retro`
 - Harness retro commit: pending review approval.
 - Final sign-off: pending full workflow.
@@ -92,5 +92,5 @@ Frontend component-test capability checkpoint:
 | AC-11 | Tests for isolated/combined filters, sorting and limits | Criteria, repository and application test suites | Focused 26 tests plus real SQL matrix; final `npm run prep` |
 | AC-12 | Real SQL integration catches query errors | Extended `PostgresCookedDishRepository.test.ts` | 10/10 real PostgreSQL tests passed; final regular suite passed |
 | AC-13 | Full lint, build and tests | Entire TASK-003 implementation | Post-remediation `npm run prep` passed: lint, Next build, 105 regular and 11 CI tests |
-| AC-14 | Invoke harness-retro and register recommendations | Pending AH-021/AH-022 in `TODO-AGENT-HARNESS.md` | Harness-retro report and user feedback persisted; implementation follows in the next commit |
+| AC-14 | Invoke harness-retro and register recommendations | AH-021/AH-022 in `TODO-AGENT-HARNESS.md` | External runner self-test and real 10-test PostgreSQL run passed; naming guidance documented |
 | AC-15 | Persist coordination incrementally in every task commit | `AH-020`, closeout workflow and delegation template | Documentation inspection; `npm run agents:validate` pending final gate |

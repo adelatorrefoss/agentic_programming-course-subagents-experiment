@@ -23,6 +23,12 @@ implementation of a TypeScript interface, focused Jest tests are not sufficient
 for handoff. Run a TypeScript-aware production build with `npm run build` in
 addition to the focused tests, and report both results. If the change depends on
 PostgreSQL or another required service, run `npm run task:preflight` first.
+Run focused external-service suites through the time-boxed harness command
+(`npm run test:postgres` for the cooked-dish PostgreSQL suite). It has a visible
+120-second default timeout, configurable with `EXTERNAL_TEST_TIMEOUT_SECONDS`,
+and distinguishes timeout/execution-permission diagnostics from assertion or
+connection failures. Record the command, duration and exit result; never retry
+an unbounded external command indefinitely.
 
 Do not mark the delegated test task complete while either the focused tests or
 the build/typecheck is failing.

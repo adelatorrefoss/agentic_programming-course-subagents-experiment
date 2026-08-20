@@ -50,18 +50,18 @@ describe("PostgresCookedDishRepository should", () => {
 
 	it("apply literal text and ingredient-type filters alone and combined", async () => {
 		const matchingMain = CookedDishMother.create({
-			name: "Chef's 100%_ Tomato Bowl",
+			name: "Chef's 100%_\\ Tomato Bowl",
 			description: "Fresh lunch",
 			ingredients: [{ name: "tomato", type: "main" }],
 		});
 		const matchingStaple = CookedDishMother.create({
 			name: "Rice",
-			description: "A chef's 100%_ pantry dish",
+			description: "A chef's 100%_\\ tomato pantry dish",
 			ingredients: [{ name: "rice", type: "household_staple" }],
 		});
 		const wildcardOnly = CookedDishMother.create({
-			name: "100xx Tomato Bowl",
-			description: "Would match unescaped wildcards",
+			name: "Chef's 100%_ Tomato Bowl",
+			description: "Would match an incorrectly escaped backslash",
 			ingredients: [{ name: "tomato", type: "main" }],
 		});
 		await repository.save(matchingMain);
@@ -70,12 +70,12 @@ describe("PostgresCookedDishRepository should", () => {
 
 		const result = await repository.search(
 			CookedDishSearchCriteria.create({
-				text: "chef's 100%_",
+				text: "chef's 100%_\\ tomato",
 				ingredientTypes: ["main", "household_staple"],
 			}),
 		);
 		const textOnly = await repository.search(
-			CookedDishSearchCriteria.create({ text: "chef's 100%_" }),
+			CookedDishSearchCriteria.create({ text: "chef's 100%_\\ tomato" }),
 		);
 		const mainsOnly = await repository.search(
 			CookedDishSearchCriteria.create({ ingredientTypes: ["main"] }),

@@ -57,6 +57,15 @@ describe("CookedDishSearchCriteria should", () => {
 		).toMatchObject({ minimumRating: 4.5, page: 2, pageSize: 5 });
 	});
 
+	it("accept the maximum safe page and reject the first page beyond it", () => {
+		expect(
+			CookedDishSearchCriteria.create({ page: 1000, pageSize: 50 }),
+		).toMatchObject({ page: 1000, pageSize: 50, offset: 49_950 });
+		expect(() => CookedDishSearchCriteria.create({ page: 1001 })).toThrow(
+			InvalidCookedDishSearchCriteriaError,
+		);
+	});
+
 	it.each([
 		[{ text: " " }, "text"],
 		[{ text: "x".repeat(101) }, "text"],
@@ -69,6 +78,7 @@ describe("CookedDishSearchCriteria should", () => {
 		[{ sortDirection: "sideways" }, "sortDirection"],
 		[{ page: 0 }, "page"],
 		[{ page: 1.5 }, "page"],
+		[{ page: 1001 }, "page"],
 		[{ pageSize: 0 }, "pageSize"],
 		[{ pageSize: 51 }, "pageSize"],
 	] as const)("reject invalid criteria %j for %s", (raw, field) => {

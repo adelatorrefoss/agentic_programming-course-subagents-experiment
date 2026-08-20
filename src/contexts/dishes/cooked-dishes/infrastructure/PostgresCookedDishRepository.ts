@@ -86,8 +86,8 @@ export class PostgresCookedDishRepository
 			(${escapedText}::text IS NULL OR lower(cd.name || ' ' || cd.description) LIKE ${escapedText} ESCAPE ${"\\"})
 			AND ${ingredientFilter}
 			AND (${minimumRating}::float8 IS NULL OR COALESCE(rating.average, 0) >= ${minimumRating})
-			AND (${cookedFrom}::date IS NULL OR cd.cooked_at >= ${cookedFrom}::date)
-			AND (${cookedTo}::date IS NULL OR cd.cooked_at < (${cookedTo}::date + INTERVAL '1 day'))
+			AND (${cookedFrom}::date IS NULL OR cd.cooked_at >= (${cookedFrom}::date AT TIME ZONE 'UTC'))
+			AND (${cookedTo}::date IS NULL OR cd.cooked_at < ((${cookedTo}::date + 1) AT TIME ZONE 'UTC'))
 		`;
 
 		const [countRows, rows] = await Promise.all([

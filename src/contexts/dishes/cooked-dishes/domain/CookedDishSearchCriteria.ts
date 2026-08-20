@@ -23,6 +23,7 @@ export interface RawCookedDishSearchCriteria {
 export class CookedDishSearchCriteria {
 	static readonly DEFAULT_PAGE = 1;
 	static readonly DEFAULT_PAGE_SIZE = 12;
+	static readonly MAX_PAGE = 1000;
 	static readonly MAX_PAGE_SIZE = 50;
 
 	private constructor(
@@ -70,7 +71,7 @@ export class CookedDishSearchCriteria {
 			"page",
 			raw.page ?? this.DEFAULT_PAGE,
 			1,
-			Number.MAX_SAFE_INTEGER,
+			this.MAX_PAGE,
 		);
 		const pageSize = this.validateInteger(
 			"pageSize",

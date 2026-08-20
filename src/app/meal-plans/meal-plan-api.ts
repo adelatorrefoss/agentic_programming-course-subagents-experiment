@@ -24,6 +24,11 @@ export interface ShoppingListItem {
 	quantity: number;
 }
 
+interface CookedDishCatalogPage {
+	items: CookedDishOption[];
+	pagination: { page: number; totalPages: number };
+}
+
 async function requestJson<T>(
 	input: RequestInfo | URL,
 	init?: RequestInit,
@@ -38,24 +43,46 @@ async function requestJson<T>(
 }
 
 export function parseCookedDishCatalog(payload: unknown): CookedDishOption[] {
+	return parseCookedDishCatalogPage(payload).items;
+}
+
+function parseCookedDishCatalogPage(payload: unknown): CookedDishCatalogPage {
 	if (
 		typeof payload === "object" &&
 		payload !== null &&
 		"items" in payload &&
-		Array.isArray(payload.items)
+		Array.isArray(payload.items) &&
+		"pagination" in payload &&
+		typeof payload.pagination === "object" &&
+		payload.pagination !== null &&
+		"page" in payload.pagination &&
+		"totalPages" in payload.pagination &&
+		typeof payload.pagination.page === "number" &&
+		typeof payload.pagination.totalPages === "number"
 	) {
-		return payload.items as CookedDishOption[];
+		return payload as CookedDishCatalogPage;
 	}
 
 	throw new Error("Cooked dish catalog has an invalid response shape");
 }
 
 export async function loadCookedDishCatalog(): Promise<CookedDishOption[]> {
-	const payload = await requestJson<unknown>(
-		"/api/cooked-dishes?page=1&pageSize=50&sortBy=name&sortDirection=asc",
-	);
+	async function loadPage(
+		page: number,
+		accumulated: CookedDishOption[],
+	): Promise<CookedDishOption[]> {
+		const payload = await requestJson<unknown>(
+			`/api/cooked-dishes?page=${page}&pageSize=50&sortBy=name&sortDirection=asc`,
+		);
+		const result = parseCookedDishCatalogPage(payload);
+		const dishes = [...accumulated, ...result.items];
 
-	return parseCookedDishCatalog(payload);
+		return page < result.pagination.totalPages
+			? loadPage(page + 1, dishes)
+			: dishes;
+	}
+
+	return loadPage(1, []);
 }
 
 export async function loadOrCreateMealPlan(

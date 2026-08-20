@@ -149,16 +149,43 @@ describe("meal-plan API adapter should", () => {
 	});
 
 	it("consume only the final paginated cooked-dish catalog", async () => {
-		const dishes = [
+		const firstPageDishes = [
 			{ id: "dish-1", name: "Rice", description: "Simple rice" },
 		];
-		expect(parseCookedDishCatalog({ items: dishes })).toEqual(dishes);
-		expect(() => parseCookedDishCatalog(dishes)).toThrow(
+		const laterDish = {
+			id: "dish-51",
+			name: "Zucchini",
+			description: "Available beyond page one",
+		};
+		expect(() => parseCookedDishCatalog(firstPageDishes)).toThrow(
 			"Cooked dish catalog has an invalid response shape",
 		);
-		fetchMock.mockResolvedValue(
-			response(200, {
-				items: dishes,
+		fetchMock
+			.mockResolvedValueOnce(
+				response(200, {
+					items: firstPageDishes,
+					pagination: {
+						page: 1,
+						pageSize: 50,
+						totalItems: 51,
+						totalPages: 2,
+					},
+				}),
+			)
+			.mockResolvedValueOnce(
+				response(200, {
+					items: [laterDish],
+					pagination: {
+						page: 2,
+						pageSize: 50,
+						totalItems: 51,
+						totalPages: 2,
+					},
+				}),
+			);
+		expect(
+			parseCookedDishCatalog({
+				items: firstPageDishes,
 				pagination: {
 					page: 1,
 					pageSize: 50,
@@ -166,10 +193,19 @@ describe("meal-plan API adapter should", () => {
 					totalPages: 1,
 				},
 			}),
-		);
-		await expect(loadCookedDishCatalog()).resolves.toEqual(dishes);
-		expect(fetchMock).toHaveBeenCalledWith(
+		).toEqual(firstPageDishes);
+		await expect(loadCookedDishCatalog()).resolves.toEqual([
+			...firstPageDishes,
+			laterDish,
+		]);
+		expect(fetchMock).toHaveBeenNthCalledWith(
+			1,
 			"/api/cooked-dishes?page=1&pageSize=50&sortBy=name&sortDirection=asc",
+			undefined,
+		);
+		expect(fetchMock).toHaveBeenNthCalledWith(
+			2,
+			"/api/cooked-dishes?page=2&pageSize=50&sortBy=name&sortDirection=asc",
 			undefined,
 		);
 	});

@@ -60,12 +60,13 @@ bash scripts/agent-harness/run-with-next-lock.sh npm run build
 bash scripts/agent-harness/run-with-next-lock.sh npm run prep
 ```
 
-The wrapper waits while another shared-state command is running and releases
-only the lock it owns when its command exits. It safely reclaims an abandoned
-lock when the recorded owner process is no longer alive, while retaining the
-configured timeout for active or unreadable locks. A long-running `npm run dev`
-may also use the wrapper, but it holds the lock until the server stops. Do not
-delete `.next-build.lock` while its recorded process is active.
+The wrapper requires `flock`, waits up to
+`NEXT_BUILD_LOCK_TIMEOUT_SECONDS` (600 seconds by default), and passes its
+locked file descriptor to the child command. The kernel therefore retains the
+lock if the wrapper dies while its child still writes shared state. The lock
+file itself contains no ownership state and is harmless when no process holds
+it. A long-running `npm run dev` may also use the wrapper, but it holds the lock
+until the server stops.
 
 Read-only inspection, linting, and focused tests that do not invoke a Next.js
 build may continue in parallel. Commands writing other shared generated state,

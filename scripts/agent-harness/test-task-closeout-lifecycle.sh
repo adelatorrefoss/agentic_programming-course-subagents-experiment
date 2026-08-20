@@ -65,4 +65,14 @@ fi
 sed -i 's/producer and consumer unit suites pass locally/producer-to-consumer: PASS; backend fixture was accepted by frontend parser/' "$fixture_dir/local-only.md"
 bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null
 
+sed -i '/^none (no cross-agent runtime boundaries)$/d' "$fixture_dir/local-only.md"
+sed -i '/^### Cross-agent boundary contracts$/a none (no cross-agent runtime boundaries)' "$fixture_dir/local-only.md"
+if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
+	echo "A no-boundaries sentinel combined with a nonempty contract table was accepted." >&2
+	exit 1
+fi
+
+sed -i '/^| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |$/,/^| API payload /d' "$fixture_dir/local-only.md"
+bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null
+
 echo "Task closeout lifecycle validation passed."

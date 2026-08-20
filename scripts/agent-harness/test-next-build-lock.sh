@@ -3,92 +3,107 @@ set -euo pipefail
 
 wrapper="scripts/agent-harness/run-with-next-lock.sh"
 fixture_dir="$(mktemp -d)"
-first_pid=""
-second_pid=""
-abandoned_pid=""
+holder_pid=""
+holder_child_pid=""
+waiter_pid=""
+parallel_pids=()
 
 cleanup() {
-	[[ -z "$first_pid" ]] || kill "$first_pid" 2>/dev/null || true
-	[[ -z "$second_pid" ]] || kill "$second_pid" 2>/dev/null || true
-	[[ -z "$abandoned_pid" ]] || kill "$abandoned_pid" 2>/dev/null || true
+	[[ -z "$holder_pid" ]] || kill "$holder_pid" 2>/dev/null || true
+	[[ -z "$holder_child_pid" ]] || kill "$holder_child_pid" 2>/dev/null || true
+	[[ -z "$waiter_pid" ]] || kill "$waiter_pid" 2>/dev/null || true
+	for pid in "${parallel_pids[@]}"; do kill "$pid" 2>/dev/null || true; done
 	rm -rf "$fixture_dir"
 }
 trap cleanup EXIT
 
-export NEXT_BUILD_LOCK_DIR="$fixture_dir/shared-next.lock"
-export NEXT_BUILD_LOCK_POLL_SECONDS="0.02"
+command -v flock >/dev/null 2>&1 || {
+	echo "Shared Next.js build lock test requires 'flock' on PATH." >&2
+	exit 127
+}
+
+export NEXT_BUILD_LOCK_FILE="$fixture_dir/shared-next.lock"
 export NEXT_BUILD_LOCK_TIMEOUT_SECONDS="5"
-export TEST_FIRST_ACQUIRED="$fixture_dir/first-acquired"
-export TEST_FIRST_COMPLETED="$fixture_dir/first-completed"
-export TEST_RELEASE_FIRST="$fixture_dir/release-first"
-export TEST_SECOND_COMPLETED="$fixture_dir/second-completed"
+export TEST_HOLDER_ACQUIRED="$fixture_dir/holder-acquired"
+export TEST_HOLDER_CHILD_PID="$fixture_dir/holder-child-pid"
+export TEST_RELEASE_HOLDER="$fixture_dir/release-holder"
+export TEST_WAITER_COMPLETED="$fixture_dir/waiter-completed"
 
 bash "$wrapper" sh -c '
-	touch "$TEST_FIRST_ACQUIRED"
-	while [ ! -f "$TEST_RELEASE_FIRST" ]; do sleep 0.02; done
-	touch "$TEST_FIRST_COMPLETED"
-' >"$fixture_dir/first.out" 2>"$fixture_dir/first.err" &
-first_pid=$!
+	echo "$$" > "$TEST_HOLDER_CHILD_PID"
+	touch "$TEST_HOLDER_ACQUIRED"
+	while [ ! -f "$TEST_RELEASE_HOLDER" ]; do sleep 0.02; done
+' >"$fixture_dir/holder.out" 2>"$fixture_dir/holder.err" &
+holder_pid=$!
 
 for _ in {1..100}; do
-	[[ -f "$TEST_FIRST_ACQUIRED" ]] && break
+	[[ -f "$TEST_HOLDER_ACQUIRED" && -f "$TEST_HOLDER_CHILD_PID" ]] && break
 	sleep 0.02
 done
-[[ -f "$TEST_FIRST_ACQUIRED" ]] || { echo "First invocation did not acquire the lock" >&2; exit 1; }
+[[ -f "$TEST_HOLDER_ACQUIRED" ]] || { echo "Holder did not acquire the lock" >&2; exit 1; }
+holder_child_pid="$(<"$TEST_HOLDER_CHILD_PID")"
 
-bash "$wrapper" sh -c 'touch "$TEST_SECOND_COMPLETED"' \
-	>"$fixture_dir/second.out" 2>"$fixture_dir/second.err" &
-second_pid=$!
+bash "$wrapper" sh -c 'touch "$TEST_WAITER_COMPLETED"' \
+	>"$fixture_dir/waiter.out" 2>"$fixture_dir/waiter.err" &
+waiter_pid=$!
 
 for _ in {1..100}; do
-	grep -q 'Waiting for shared Next.js build lock' "$fixture_dir/second.err" 2>/dev/null && break
+	grep -q 'Waiting for shared Next.js build lock' "$fixture_dir/waiter.err" 2>/dev/null && break
 	sleep 0.02
 done
-
-grep -q 'Waiting for shared Next.js build lock' "$fixture_dir/second.err" || {
-	echo "Second invocation did not report waiting for the lock" >&2
+grep -q 'Waiting for shared Next.js build lock' "$fixture_dir/waiter.err" || {
+	echo "Waiter did not report lock contention" >&2
 	exit 1
 }
-[[ ! -f "$TEST_SECOND_COMPLETED" ]] || {
-	echo "Second invocation ran before the first released the lock" >&2
+[[ ! -f "$TEST_WAITER_COMPLETED" ]] || { echo "Waiter overlapped the holder" >&2; exit 1; }
+
+# SIGKILL cannot run shell cleanup. The protected child still owns inherited
+# FD 9, so the waiter must remain blocked until that child exits.
+kill -9 "$holder_pid"
+wait "$holder_pid" 2>/dev/null || true
+holder_pid=""
+sleep 0.05
+[[ ! -f "$TEST_WAITER_COMPLETED" ]] || {
+	echo "Killing the wrapper released the lock while its writer child was alive" >&2
 	exit 1
 }
-if grep -q 'Reclaimed stale shared Next.js build lock' "$fixture_dir/second.err"; then
-	echo "Second invocation reclaimed a lock whose owner was still active" >&2
-	exit 1
-fi
 
-touch "$TEST_RELEASE_FIRST"
-wait "$first_pid"
-first_pid=""
-wait "$second_pid"
-second_pid=""
+touch "$TEST_RELEASE_HOLDER"
+for _ in {1..100}; do
+	[[ -f "$TEST_WAITER_COMPLETED" ]] && break
+	sleep 0.02
+done
+wait "$waiter_pid"
+waiter_pid=""
+holder_child_pid=""
+[[ -f "$TEST_WAITER_COMPLETED" ]] || { echo "Waiter did not complete after holder exit" >&2; exit 1; }
 
-[[ -f "$TEST_FIRST_COMPLETED" && -f "$TEST_SECOND_COMPLETED" ]] || {
-	echo "Both serialized invocations did not complete successfully" >&2
-	exit 1
-}
-grep -q 'Acquired shared Next.js build lock' "$fixture_dir/second.err"
-[[ ! -d "$NEXT_BUILD_LOCK_DIR" ]] || { echo "Build lock was not released" >&2; exit 1; }
+# Multiple contenders must all complete without entering the critical section
+# together or stealing the kernel-owned lock.
+export TEST_CRITICAL_DIR="$fixture_dir/critical"
+export TEST_OVERLAP="$fixture_dir/overlap"
+for index in 1 2 3 4; do
+	export TEST_DONE_FILE="$fixture_dir/done-$index"
+	bash "$wrapper" sh -c '
+		mkdir "$TEST_CRITICAL_DIR" || { touch "$TEST_OVERLAP"; exit 1; }
+		sleep 0.05
+		rmdir "$TEST_CRITICAL_DIR"
+		touch "$TEST_DONE_FILE"
+	' >"$fixture_dir/parallel-$index.out" 2>"$fixture_dir/parallel-$index.err" &
+	parallel_pids+=("$!")
+done
 
-# Model an untrappable owner termination: SIGKILL leaves the lock directory
-# behind, then the next invocation must reclaim it without timing out.
-sleep 30 &
-abandoned_pid=$!
-mkdir "$NEXT_BUILD_LOCK_DIR"
-printf '%s abandoned-owner command=test\n' "$abandoned_pid" > "$NEXT_BUILD_LOCK_DIR/owner"
-kill -9 "$abandoned_pid"
-wait "$abandoned_pid" 2>/dev/null || true
-abandoned_pid=""
+for pid in "${parallel_pids[@]}"; do wait "$pid"; done
+parallel_pids=()
+[[ ! -f "$TEST_OVERLAP" ]] || { echo "Parallel waiters overlapped" >&2; exit 1; }
+for index in 1 2 3 4; do
+	[[ -f "$fixture_dir/done-$index" ]] || { echo "Parallel waiter $index did not complete" >&2; exit 1; }
+done
 
-bash "$wrapper" sh -c 'touch "$TEST_SECOND_COMPLETED.stale"' \
-	>"$fixture_dir/stale.out" 2>"$fixture_dir/stale.err"
-
-[[ -f "$TEST_SECOND_COMPLETED.stale" ]] || {
-	echo "Invocation did not complete after reclaiming an abandoned lock" >&2
-	exit 1
-}
-grep -q 'Reclaimed stale shared Next.js build lock' "$fixture_dir/stale.err"
-[[ ! -d "$NEXT_BUILD_LOCK_DIR" ]] || { echo "Reclaimed build lock was not released" >&2; exit 1; }
+# Lock files carry no ownership state: an old file without a kernel holder is
+# immediately usable.
+touch "$NEXT_BUILD_LOCK_FILE"
+bash "$wrapper" sh -c 'touch "$1"' sh "$fixture_dir/stale-file-completed"
+[[ -f "$fixture_dir/stale-file-completed" ]] || { echo "Stale lock file blocked execution" >&2; exit 1; }
 
 echo "Shared Next.js build lock validation passed."

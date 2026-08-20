@@ -65,6 +65,21 @@ boundary_section_declares_none() {
 	awk '
 		/^### Cross-agent boundary contracts$/ { in_section = 1; next }
 		in_section && /^###? / { exit }
+		in_section && /^[[:space:]]*$/ { next }
+		in_section {
+			content_lines++
+			if ($0 == "none (no cross-agent runtime boundaries)") sentinel_lines++
+		}
+		END { exit(content_lines == 1 && sentinel_lines == 1 ? 0 : 1) }
+	' "$record"
+}
+
+boundary_section_contains_none() {
+	local record="$1"
+
+	awk '
+		/^### Cross-agent boundary contracts$/ { in_section = 1; next }
+		in_section && /^###? / { exit }
 		in_section && /^none \(no cross-agent runtime boundaries\)$/ { found = 1 }
 		END { exit(found ? 0 : 1) }
 	' "$record"
@@ -198,6 +213,9 @@ for record in "$COORDINATION_DIR"/*.md; do
 			record_error=true
 		elif boundary_section_declares_none "$record"; then
 			:
+		elif boundary_section_contains_none "$record"; then
+			echo "${record}: no-boundaries sentinel must be the section's only content" >&2
+			record_error=true
 		elif ! grep -q '^| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |$' "$record"; then
 			echo "${record}: missing cross-agent boundary contract table" >&2
 			record_error=true

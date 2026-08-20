@@ -4,7 +4,7 @@
 
 - Task: Add a mutation-testing tool to the project.
 - Task identifier (`TASK-XXX`): `TASK-005`
-- Lifecycle: `in-progress`
+- Lifecycle: `closed`
 - Expected outcome: Stryker can execute the existing Jest suite against TypeScript and TSX production code and produce console and HTML mutation reports.
 - Scope boundaries: Add project tooling only; do not modify application behavior or include mutation execution in the regular `prep` gate.
 
@@ -15,14 +15,19 @@
 - Code-review agent: `code-review`
 - PR code review commit range: `b7cc5bc^..b7cc5bc`
 - Code-review verdict: `APPROVED`
-- Code-review evidence: no significant findings; preflight, dependency resolution, diff checks and the 149-test Stryker dry run were reproduced independently.
+- Code-review evidence: `npm run task:preflight` passed; the complete committed diff and affected configuration were inspected; `git diff --check b7cc5bc^ b7cc5bc` passed; `npm ls @stryker-mutator/core @stryker-mutator/jest-runner --depth=0` resolved both packages at 10.0.0; `npm run test:mutation:dry` passed, instrumenting 123 TypeScript/TSX source files with 2,343 mutants and running all 149 Jest tests successfully.
 - Code-review report: `.agents/reviews/TASK-005-b7cc5bc.md`
 - Remediation required: no
 - Remediation commit: none (no findings)
-- Harness retro report: `TODO-AGENT-HARNESS.md` TASK-005 retrospective; applicable TODOs `AH-027` and `AH-028` recorded pending implementation.
+- Harness retro report: `TODO-AGENT-HARNESS.md` TASK-005 retrospective; applicable TODOs `AH-027` and `AH-028` implemented and marked done.
 - Harness retro commit subject: `chore(TASK-005): record harness retro`
 - Harness retro commit: `a3b08bd`
-- Final sign-off: pending
+- Harness TODO implementation commit: `0a619d5`
+- Final sign-off: Stryker dry run passed with 123 source files, 2,343 mutants and 149 tests; final `npm run prep` passed lint, build, 139 regular tests and 11 CI tests; final `npm run agents:validate` passed. Remote CI evidence is reported only in the HIL handoff after push.
+
+### Cross-agent boundary contracts
+
+none (no cross-agent runtime boundaries)
 
 ### Code-review rounds
 

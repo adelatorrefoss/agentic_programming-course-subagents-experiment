@@ -3,9 +3,10 @@
 Use this brief before delegating parallel agent work. Copy it into the task
 coordination record and complete every section before starting implementation.
 
-Commit the coordination record incrementally: every task commit must include
-the record state and evidence that correspond to that commit. Do not defer the
-task history to a final documentation-only commit.
+Commit the coordination record incrementally together with the implementation,
+test, review or harness files that caused the update. Do not defer task history
+to a final documentation-only commit, and do not create a separate progress
+commit when the originating artifacts can share the same commit.
 
 ## Objective
 

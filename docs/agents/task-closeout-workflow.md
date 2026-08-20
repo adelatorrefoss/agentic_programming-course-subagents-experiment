@@ -9,9 +9,11 @@ para comenzar la siguiente tarea.
 El cierre se ejecuta en este orden:
 
 Durante todo el workflow, cada commit de la tarea debe incluir la versión
-actualizada de su archivo `.agents/coordination/`. El registro debe describir el
-estado alcanzado por ese mismo commit (artefactos, verificaciones, revisión o
-retro); no se permite acumular toda la trazabilidad en un commit final.
+actualizada de su archivo `.agents/coordination/` junto con los archivos que
+originan esa actualización. El registro debe describir el estado alcanzado por
+ese mismo commit (artefactos, verificaciones, revisión o retro); no se permite
+acumular toda la trazabilidad en un commit final ni crear un commit separado
+solo para el avance de coordinación cuando existen artefactos asociados.
 
 1. Completar la implementación y vincular cada criterio de aceptación o TODO
    marcado con su artefacto y una verificación aprobada en el registro de

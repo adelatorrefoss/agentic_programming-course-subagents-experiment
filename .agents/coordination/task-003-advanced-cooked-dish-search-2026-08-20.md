@@ -4,7 +4,7 @@
 
 - Task: Add advanced, safely paginated cooked-dish search.
 - Task identifier (`TASK-XXX`): `TASK-003`
-- Lifecycle: `in-progress`
+- Lifecycle: `closed`
 - Expected outcome: Search by text, ingredient types, minimum rating and date range with allow-listed sorting, metadata, UI controls and robust states.
 - Scope boundaries: Preserve create/by-id/similarity behavior; evolve list GET to a paginated envelope and update all current consumers.
 
@@ -54,19 +54,19 @@ Frontend component-test capability checkpoint:
 - Contract-verification handoffs: Database delivered/applied idempotent DDL and safe query, then primary verified 10 real PostgreSQL tests and index presence; frontend delivered envelope-only consumers and accessible home states with lint/build; testing delivered 26 focused domain/use-case/API/React tests plus build.
 - Implementation commit: `09c4e33`
 - Code-review agent: `code-review`
-- PR code review commit range: `2403e63..8e5b34c`
-- Code-review verdict: `APPROVED`.
-- Code-review evidence: Code review APPROVED for 2403e63..999670c: the complete committed range and affected context were inspected; safe page/offset bounds, complete multi-page planner catalog loading and literal PostgreSQL backslash matching are implemented and tested; SQL parameterization, allow-listed ordering, counts, UTC date bounds, null-rating semantics, 400 validation, envelope consumers, home race protection/accessibility and index rationale were reconfirmed; git diff check passed and focused verification passed with 6 suites/48 tests; no significant findings remain.
-- Code-review report: round 1 `.agents/reviews/TASK-003-09c4e33.md`; final `.agents/reviews/TASK-003-999670c.md`.
-- Remediation required: yes.
+- PR code review commit range: `2403e63..999670c`
+- Code-review verdict: `APPROVED`
+- Code-review evidence: The complete committed range and affected context were inspected. `git diff --check` passed and focused verification passed with 6 suites and 48 tests, including the real PostgreSQL repository suite. Page and offset are operationally bounded with tested edges; the meal planner retrieves and terminates across all catalog pages and proves access to dish 51; literal backslash, percent, underscore and apostrophe matching is proven against PostgreSQL. SQL parameterization, allow-listed ordering, count semantics, UTC date bounds, null ratings, consistent 400 responses, paginated consumers, home race protection/accessibility and index rationale were reconfirmed. Coordination and harness commits accurately preserve the earlier findings and workflow state.
+- Code-review report: `.agents/reviews/TASK-003-999670c.md`
+- Remediation required: yes
 - Remediation commit subject: `fix(TASK-003): harden search pagination and catalog completeness`
 - Remediation commit: `8e5b34c`
 - Post-remediation validation commands and results: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests.
 - Incremental coordination rule: User requested that every task commit include its current coordination record. Persisted as harness improvement `AH-020`; all commits after the request include this record.
 - Harness retro report: TASK-003 retro added AH-021 for time-boxed external-service tests with actionable diagnostics. AH-020 was confirmed implemented and not duplicated. User feedback additionally produced AH-022 for task/role-specific agent thread names. Both new items are implemented and verified.
 - Harness retro commit subject: `chore(TASK-003): record advanced search harness retro`
-- Harness retro commit: pending review approval.
-- Final sign-off: pending full workflow.
+- Harness retro commit: `6f63176`; recommendations implemented in `a882786`.
+- Final sign-off: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests; `npm run agents:validate` passed; review `APPROVED`; AH-020/AH-021/AH-022 implemented; worktree checked clean after this closeout commit.
 
 ### Code-review rounds
 
@@ -83,7 +83,7 @@ Frontend component-test capability checkpoint:
 | AC-02 | Combinable filters, allowed sorting and safe limits | Criteria value object with page cap 1000 and repository query | Boundary tests prove page 1000 accepted/page 1001 rejected; PostgreSQL tests; final `npm run prep` |
 | AC-03 | Necessary indexes with justification | `databases/4-cooked-dish-search.sql` with rationale comments | DDL applied; `pg_indexes` confirms three indexes; EXPLAIN inspected |
 | AC-04 | Safe parameterized PostgreSQL query | `PostgresCookedDishRepository.search` | 10 real repository tests including literal `%`, `_`, backslash and apostrophe; final `npm run prep` |
-| AC-05 | Search use case keeps route free of business logic | `CookedDishesSearcher` | Use-case tests and successful build; pending independent review |
+| AC-05 | Search use case keeps route free of business logic | `CookedDishesSearcher` | Use-case tests, successful build and independent review `APPROVED` |
 | AC-06 | GET cooked-dishes supports new parameters | Thin `src/app/api/cooked-dishes/route.ts` | API tests for repeated/default/invalid params; final `npm run prep` |
 | AC-07 | Results plus pagination metadata | Search result projection/use case/API envelope | Use-case, API and React tests; final `npm run prep` |
 | AC-08 | Consistent invalid-parameter responses | `InvalidCookedDishSearchCriteriaError` and route mapping | 13 invalid criteria cases plus API 400 test |
@@ -93,4 +93,4 @@ Frontend component-test capability checkpoint:
 | AC-12 | Real SQL integration catches query errors | Extended `PostgresCookedDishRepository.test.ts` | 10/10 real PostgreSQL tests passed; final regular suite passed |
 | AC-13 | Full lint, build and tests | Entire TASK-003 implementation | Post-remediation `npm run prep` passed: lint, Next build, 105 regular and 11 CI tests |
 | AC-14 | Invoke harness-retro and register recommendations | AH-021/AH-022 in `TODO-AGENT-HARNESS.md` | External runner self-test and real 10-test PostgreSQL run passed; naming guidance documented |
-| AC-15 | Persist coordination incrementally in every task commit | `AH-020`, closeout workflow and delegation template | Documentation inspection; `npm run agents:validate` pending final gate |
+| AC-15 | Persist coordination with each originating change | `AH-020`, closeout workflow and delegation template | Documentation inspection and `npm run agents:validate` passed |

@@ -4,7 +4,7 @@
 
 - Task: Add an auditable history for cooked-dish creation and modification.
 - Task identifier (`TASK-XXX`): `TASK-004`
-- Lifecycle: `in-progress`
+- Lifecycle: `closed`
 - Expected outcome: Immutable, queryable audit events recorded atomically for every cooked-dish create/update, exposed through an API and accessible timeline UI.
 - Scope boundaries: Keep domain and routes independent of PostgreSQL; do not introduce authentication beyond the explicit request actor contract.
 
@@ -56,7 +56,7 @@ Frontend component-test capability checkpoint:
 - Code-review agent: `code-review`
 - PR code review commit range: `5aa0477^..5aa0477`
 - Code-review verdict: `APPROVED`
-- Code-review evidence: No findings; preflight and diff check passed, and 8 focused suites / 25 tests passed including append-only SQL, API/UI behavior and second-connection rollback.
+- Code-review evidence: `npm run task:preflight` passed; the complete committed diff and surrounding code were inspected; `git diff --check 5aa0477^ 5aa0477` passed; 8 focused Jest suites / 25 tests passed, including real PostgreSQL append-only, stable-ordering, and second-connection rollback tests.
 - Code-review report: `.agents/reviews/TASK-004-5aa0477.md`
 - Remediation required: no
 - Remediation commit subject: none (no findings)
@@ -65,7 +65,7 @@ Frontend component-test capability checkpoint:
 - Harness retro report: TASK-004 exposed two immediate harness gaps: cross-agent boundaries need executable producer-to-consumer contract evidence (AH-025), and commands writing shared `.next` state need serialization or isolation (AH-026). The retro, evidence, root causes and complete action register are persisted in `TODO-AGENT-HARNESS.md`.
 - Harness retro commit subject: `chore(TASK-004): record harness retro`
 - Harness retro commit: `7ad870c`
-- Final sign-off: Initial `npm run prep` passed lint, Next build, 138 regular tests and 11 CI tests; final validation will be repeated after review/retro.
+- Final sign-off: Final locked `npm run prep` passed lint, Next build, 139 regular tests and 11 CI tests on the integrated HEAD; `npm run agents:validate` passed contract, lock, worktree, lifecycle, remote-CI and mutation harness regressions. Application review and final AH-025/AH-026/AH-029 remediation reviews are `APPROVED`. TASK-004 began before worktree isolation existed, so no managed task worktree can be retroactively removed; all future parallel tasks are required to use `task-worktree.sh`.
 
 ### Cross-agent boundary contracts
 
@@ -83,7 +83,7 @@ Frontend component-test capability checkpoint:
 | 4 | `dd04873^..40e7150` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-40e7150.md` | Prior findings resolved; move persistent lock out of tracked worktree and avoid unsafe truncating opens. |
 | 5 | `dd04873^..7a0d0e4` | `APPROVED` | `.agents/reviews/TASK-004-7a0d0e4.md` | All sentinel, ownership-race, surviving-child, clean-worktree, truncation and symlink findings resolved; focused regressions passed. |
 | 6 | `e4a9c63^..e4a9c63` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-e4a9c63.md` | Require branch ownership before finish and reset/report detached state correctly in list. |
-| 7 | worktree ownership remediation to be reviewed | remediation implemented | review report to follow | `finish` rejects detached/mismatched branches; `list` resets every porcelain block and reports detached explicitly. |
+| 7 | `e4a9c63^..033c89f` | `APPROVED` | `.agents/reviews/TASK-004-033c89f.md` | Exact task-branch ownership, detached/mismatch rejection and detached listing regression-covered. |
 
 ## Acceptance evidence
 

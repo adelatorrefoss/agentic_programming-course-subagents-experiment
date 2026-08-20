@@ -11,6 +11,8 @@ CREATE TABLE dishes.cooked_dish_ratings (
         ON DELETE CASCADE,
     CONSTRAINT cooked_dish_ratings_score_check
         CHECK (score BETWEEN 1 AND 5),
+    CONSTRAINT cooked_dish_ratings_author_not_blank_check
+        CHECK (btrim(author) <> ''),
     CONSTRAINT cooked_dish_ratings_cooked_dish_id_author_key
         UNIQUE (cooked_dish_id, author)
 );

@@ -16,8 +16,43 @@ type RouteContext = {
 	params: Promise<{ uuid: string }>;
 };
 
+type AddRatingRequest = {
+	author: string;
+	score: number;
+	comment: string | null;
+};
+
 const adder = container.get(CookedDishRatingAdder);
 const summarizer = container.get(CookedDishRatingsSummarizer);
+
+async function addRatingRequest(
+	request: NextRequest,
+): Promise<AddRatingRequest> {
+	let body: unknown;
+
+	try {
+		body = await request.json();
+	} catch {
+		throw new InvalidCookedDishRatingError({ body: "Invalid JSON" });
+	}
+
+	if (typeof body !== "object" || body === null || Array.isArray(body)) {
+		throw new InvalidCookedDishRatingError({ body });
+	}
+
+	const values = body as Record<string, unknown>;
+	const comment = values.comment ?? null;
+
+	if (
+		typeof values.author !== "string" ||
+		typeof values.score !== "number" ||
+		(comment !== null && typeof comment !== "string")
+	) {
+		throw new InvalidCookedDishRatingError({ body });
+	}
+
+	return { author: values.author, score: values.score, comment };
+}
 
 function responseForError(error: CodelyError): NextResponse | void {
 	if (error instanceof CookedDishNotFoundError) {
@@ -39,9 +74,9 @@ export const POST = withErrorHandling<CodelyError, RouteContext>(
 		{ params }: RouteContext,
 	): Promise<NextResponse> => {
 		const { uuid } = await params;
-		const body = await request.json();
+		const body = await addRatingRequest(request);
 
-		await adder.add(uuid, body.author, body.score, body.comment ?? null);
+		await adder.add(uuid, body.author, body.score, body.comment);
 
 		return HttpNextResponse.created();
 	},

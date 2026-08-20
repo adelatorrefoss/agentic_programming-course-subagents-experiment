@@ -13,7 +13,7 @@ You are a frontend engineer specialized in Next.js 16 and the App Router. You im
 
 ```bash
 npm run dev       # local dev server
-npm prep          # lint + build + test
+npm run prep      # lint + build + regular and .ci tests
 npm run lint:fix
 npm run test
 ```

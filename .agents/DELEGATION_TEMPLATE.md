@@ -44,3 +44,12 @@ Shared contracts must be explicit before parallel work begins:
 - Harness retro commit subject: `chore(TASK-XXX): ...`
 - Harness retro commit:
 - Final sign-off:
+
+## Acceptance evidence
+
+Every acceptance criterion and checked TODO item must have one row. A task
+cannot be closed while an artifact or verification is missing or pending.
+
+| ID | Acceptance criterion / TODO item | Implementation artifact | Passing verification |
+| --- | --- | --- | --- |
+| AC-01 |  |  |  |

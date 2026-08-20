@@ -15,7 +15,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 > `database-engineer`, el dominio, los casos de uso y las rutas API en `backend-engineer`,
 > la interfaz de valoración en `frontend-engineer` y toda la estrategia de pruebas en
 > `testing-engineer`. Coordina el trabajo, revisa la integración entre las partes y
-> ejecuta `npm prep` al terminar.
+> ejecuta `npm run prep` al terminar.
 
 ### Alcance
 
@@ -34,7 +34,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [x] Mostrar el resumen, la media y la distribución de valoraciones en la interfaz.
 - [x] Permitir enviar una valoración desde la interfaz con puntuación y comentario.
 - [x] Mostrar estados de carga, éxito y error al gestionar valoraciones.
-- [x] Verificar lint, build y tests con `npm prep`.
+- [x] Verificar lint, build y tests con `npm run prep`.
 
 ### Reparto recomendado
 
@@ -50,7 +50,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 > Añade un planificador semanal de comidas que permita asignar platos cocinados a días
 > y genere una lista de la compra consolidada. Usa en paralelo `database-engineer`,
 > `backend-engineer`, `frontend-engineer` y `testing-engineer`. Haz que cada agente sea
-> responsable de su especialidad y entrega el cambio integrado y validado con `npm prep`.
+> responsable de su especialidad y entrega el cambio integrado y validado con `npm run prep`.
 
 ### Alcance
 
@@ -67,7 +67,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [x] Crear una vista semanal para consultar y gestionar las comidas planificadas.
 - [x] Permitir asignar, sustituir y retirar platos desde la interfaz.
 - [x] Mostrar la lista de la compra consolidada con sus estados de carga y error.
-- [x] Verificar lint, build y tests con `npm prep`.
+- [x] Verificar lint, build y tests con `npm run prep`.
 
 ### Reparto recomendado
 
@@ -84,7 +84,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 > puntuación mínima y rango de fechas, con ordenación y paginación. Delega el SQL y sus
 > índices en `database-engineer`, la arquitectura y API en `backend-engineer`, la interfaz
 > de búsqueda en `frontend-engineer` y los tests en `testing-engineer`. Pide a los agentes
-> que revisen los contratos compartidos antes de integrar y ejecuta `npm prep`.
+> que revisen los contratos compartidos antes de integrar y ejecuta `npm run prep`.
 
 ### Alcance
 
@@ -100,7 +100,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [ ] Mostrar resultados, metadatos y estados de carga o error de la búsqueda.
 - [ ] Probar filtros aislados, combinaciones, ordenación y límites de página.
 - [ ] Añadir tests de integración que detecten errores en el SQL real.
-- [ ] Verificar lint, build y tests con `npm prep`.
+- [ ] Verificar lint, build y tests con `npm run prep`.
 
 ### Reparto recomendado
 
@@ -117,7 +117,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 > Coordina a `database-engineer` para la persistencia, `backend-engineer` para los eventos,
 > suscriptores, caso de uso y API, `frontend-engineer` para la interfaz de consulta, y
 > `testing-engineer` para las pruebas de todo el flujo. Evita acoplar el dominio a
-> PostgreSQL y valida el resultado completo con `npm prep`.
+> PostgreSQL y valida el resultado completo con `npm run prep`.
 
 ### Alcance
 
@@ -133,7 +133,7 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [ ] Mostrar los detalles de cada cambio y sus estados de carga o error.
 - [ ] Probar serialización, publicación, suscripción y persistencia.
 - [ ] Verificar que un fallo de auditoría tenga el comportamiento transaccional acordado.
-- [ ] Verificar lint, build y tests con `npm prep`.
+- [ ] Verificar lint, build y tests con `npm run prep`.
 
 ### Reparto recomendado
 
@@ -151,5 +151,5 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [ ] Decorar los servicios inyectables con `@Service()` y registrarlos en DIOD.
 - [ ] Mantener las convenciones existentes para Mothers y mocks.
 - [ ] Hacer que el agente principal revise el diff integrado, no solo los resultados aislados.
-- [ ] Considerar terminada una tarea únicamente cuando `npm prep` pase correctamente.
+- [ ] Considerar terminada una tarea únicamente cuando `npm run prep` pase correctamente.
  - [x] Invocar `harness-retro` tras finalizar cada tarea para generar retros y propuestas de parche de configuración (NO aplicar cambios en código de producción).

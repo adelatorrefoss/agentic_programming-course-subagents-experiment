@@ -14,10 +14,10 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-006 | Medium | Define and validate a least-privilege tool matrix for each agent role instead of granting every implementation agent the same tool set. | Agent Platform | ✅ Done |
 | AH-007 | Medium | Persist a task-level coordination record containing delegation briefs, agent run/output references, contract-review checkpoints, and integrated sign-off. | Agent Platform | ✅ Done |
 | AH-008 | High | Make the post-task `harness-retro` invocation and TODO status update an explicit multi-agent task closeout gate. | Agent Platform | ✅ Done |
-| AH-009 | High | Require task closeout to map every acceptance criterion and checked TODO item to an implementation artifact and a passing verification; reject checkbox-only completion. | Task Lead | ⏳ Pending |
-| AH-010 | High | Make the canonical full-validation command run both regular and `.ci` tests, or require both commands explicitly in the task closeout checklist. | Test Infrastructure | ⏳ Pending |
-| AH-011 | Medium | Validate documented repository commands against `package.json` scripts so guidance uses executable forms such as `npm run prep`. | Agent Platform | ⏳ Pending |
-| AH-012 | Medium | Add a task-start preflight that checks required service availability and tool permissions, and reports an actionable database-start instruction before implementation or verification begins. | Developer Experience | ⏳ Pending |
+| AH-009 | High | Require task closeout to map every acceptance criterion and checked TODO item to an implementation artifact and a passing verification; reject checkbox-only completion. | Task Lead | ✅ Done |
+| AH-010 | High | Make the canonical full-validation command run both regular and `.ci` tests, or require both commands explicitly in the task closeout checklist. | Test Infrastructure | ✅ Done |
+| AH-011 | Medium | Validate documented repository commands against `package.json` scripts so guidance uses executable forms such as `npm run prep`. | Agent Platform | ✅ Done |
+| AH-012 | Medium | Add a task-start preflight that checks required service availability and tool permissions, and reports an actionable database-start instruction before implementation or verification begins. | Developer Experience | ✅ Done |
 
 ## Maintenance rules
 

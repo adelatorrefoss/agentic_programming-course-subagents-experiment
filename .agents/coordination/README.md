@@ -11,6 +11,11 @@ The record is the handoff contract for the task. It must preserve:
 - implementation commit and PR code-review commit range;
 - `/review` result and remediation commit using the `code-review:` prefix;
 - post-remediation validation, harness-retro report, and final sign-off.
+- one evidence row for every acceptance criterion and checked TODO item, naming
+  both the implementation artifact and a passing verification.
+
+Run `npm run agents:validate` before closeout. It rejects records with missing,
+placeholder, or pending acceptance evidence.
 
 Commit subjects must include the task identifier, for example
 `feat(TASK-002): add weekly meal planning`. Use `fix(TASK-002): ...` for review

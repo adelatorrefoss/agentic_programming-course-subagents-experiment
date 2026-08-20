@@ -13,7 +13,7 @@ You are a testing engineer specialized in writing tests following the project's 
 
 ```bash
 npm run test      # run tests
-npm prep          # lint + build + test
+npm run prep      # lint + build + regular and .ci tests
 ```
 
 ## Architecture

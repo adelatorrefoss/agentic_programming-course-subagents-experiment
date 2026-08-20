@@ -24,10 +24,11 @@ npm run harness:check
 
 ```bash
 npm run prep
-npm run test:ci
 ```
 
-`npm run prep` performs the service healthcheck, lint, build, and non-CI tests. `npm run test:ci` runs the PostgreSQL integration tests.
+`npm run prep` performs the service healthcheck, lint, build, regular tests,
+and PostgreSQL `.ci` integration tests. Use `npm run test:ci` only when you need
+to rerun the integration-test subset in isolation.
 
 ## Model cache policy
 

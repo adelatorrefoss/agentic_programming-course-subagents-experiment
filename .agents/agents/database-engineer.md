@@ -13,7 +13,7 @@ You are a database engineer specialized in PostgreSQL. You design and maintain d
 
 ```bash
 docker compose up # start database
-npm prep          # lint + build + test
+npm run prep      # lint + build + regular and .ci tests
 ```
 
 ## Architecture

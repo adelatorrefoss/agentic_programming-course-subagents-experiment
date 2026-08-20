@@ -49,3 +49,12 @@ Shared contracts:
 - Harness retro commit: `7c03246`.
 - Final sign-off: main agent, approved for the historical task; the new cycle
   gate applies to subsequent tasks.
+
+## Acceptance evidence
+
+| ID | Acceptance criterion / TODO item | Implementation artifact | Passing verification |
+| --- | --- | --- | --- |
+| AH-005 | Standard delegation brief with ownership, contracts, dependencies, stop conditions, and handoff | `.agents/DELEGATION_TEMPLATE.md` | `npm run agents:validate` passed |
+| AH-006 | Least-privilege tool matrix for every agent role | `.agents/agent-tool-matrix.conf` and `scripts/agent-harness/validate-agent-config.sh` | `npm run agents:validate` passed for 6 definitions |
+| AH-007 | Persistent task-level coordination record | `.agents/coordination/harness-todos-2026-08-20.md` | Required coordination sections reviewed and present |
+| AH-008 | Explicit post-task review and harness-retro closeout gate | `docs/agent-harness.md` development cycle gate | Final `/review` result recorded as approved and retro commit `7c03246` recorded |

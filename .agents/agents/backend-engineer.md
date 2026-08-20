@@ -12,7 +12,7 @@ You are a backend engineer specialized in Next.js 16, Onion Architecture, and DD
 ## Key commands
 
 ```bash
-npm prep          # lint + build + test
+npm run prep      # lint + build + regular and .ci tests
 docker compose up # start database
 npm run dev       # local dev server
 npm run lint:fix
@@ -276,7 +276,7 @@ Key rules enforced:
 - `@typescript-eslint/explicit-function-return-type: error` — every function must declare its return type.
 - TypeScript `strict: true` in `tsconfig.json`.
 
-Lint issues are fixed with `npm run lint:fix`. The full check suite runs with `npm prep` (lint + build + test).
+Lint issues are fixed with `npm run lint:fix`. The full check suite runs with `npm run prep` (lint + build + regular and `.ci` tests).
 
 ### Examples
 

@@ -19,6 +19,16 @@ Validate all agent definitions locally with:
 npm run agents:validate
 ```
 
+Before starting any task, run the complete preflight:
+
+```bash
+npm run task:preflight
+```
+
+It validates agent tool permissions, documented npm commands, task closeout
+records, PostgreSQL availability, and the required Ollama model. A failed
+PostgreSQL check reports the exact `docker compose` command needed to start it.
+
 The validator requires `name`, `description`, and `tools` frontmatter, checks declared tools against the supported tool set, rejects duplicate agent names, and requires role documentation headings in the body.
 
 The least-privilege role matrix is maintained in
@@ -56,6 +66,9 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
   result and remediation commit in the task coordination record.
 - Persist one coordination record per multi-agent task under
   `.agents/coordination/`.
+- Map every acceptance criterion and checked TODO item to an implementation
+  artifact and a passing verification in the coordination record. The closeout
+  validator rejects missing, placeholder, or pending evidence.
 - Preserve existing user changes and avoid unrelated production edits.
 - Record agent-harness recommendations in `TODO-AGENT-HARNESS.md`.
 - Record test infrastructure recommendations in `TODO-TEST-INFRASTRUCTURE.md`.
@@ -77,6 +90,9 @@ The agent may update that TODO file, but it must not modify production code or C
 5. Execute `/review` as the PR review of the implementation commit.
 6. Apply accepted findings and commit the remediation changes with a message
    starting with `code-review:`.
-7. Run the required project checks after remediation.
-8. Execute `harness-retro`, update the harness TODO register, and commit the
+7. Run `npm run prep`, which includes regular and `.ci` tests, after remediation.
+8. Validate the completed coordination record with `npm run agents:validate`.
+9. Execute `harness-retro`, update the harness TODO register, and commit the
    retrospective separately.
+10. Finish every task with all task changes recorded in a convention-compliant
+    commit; completed task work must not remain uncommitted.

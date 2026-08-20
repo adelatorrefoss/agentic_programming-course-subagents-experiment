@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-wrapper="scripts/agent-harness/run-with-next-lock.sh"
+repository_root="$(pwd)"
+wrapper="$repository_root/scripts/agent-harness/run-with-next-lock.sh"
 fixture_dir="$(mktemp -d)"
 holder_pid=""
 holder_child_pid=""
@@ -105,5 +106,39 @@ done
 touch "$NEXT_BUILD_LOCK_FILE"
 bash "$wrapper" sh -c 'touch "$1"' sh "$fixture_dir/stale-file-completed"
 [[ -f "$fixture_dir/stale-file-completed" ]] || { echo "Stale lock file blocked execution" >&2; exit 1; }
+
+# The default belongs to Git's per-worktree internal path, preserves an
+# existing regular file, and never follows a symlink supplied as the lock.
+temp_repo="$fixture_dir/default-path-repo"
+mkdir "$temp_repo"
+git -C "$temp_repo" init --quiet
+default_lock="$(git -C "$temp_repo" rev-parse --git-path agent-harness/next-build.lock)"
+if [[ "$default_lock" != /* ]]; then default_lock="$temp_repo/$default_lock"; fi
+mkdir -p "${default_lock%/*}"
+printf 'preserve-this-marker\n' > "$default_lock"
+
+unset NEXT_BUILD_LOCK_FILE
+status_before="$(git -C "$temp_repo" status --porcelain)"
+(
+	cd "$temp_repo"
+	bash "$wrapper" true
+)
+status_after="$(git -C "$temp_repo" status --porcelain)"
+[[ "$status_before" == "$status_after" ]] || { echo "Default lock changed Git status" >&2; exit 1; }
+grep -q '^preserve-this-marker$' "$default_lock" || { echo "Opening the lock truncated existing content" >&2; exit 1; }
+
+rm -f "$default_lock"
+symlink_target="$fixture_dir/symlink-target"
+printf 'target-must-not-change\n' > "$symlink_target"
+ln -s "$symlink_target" "$default_lock"
+if (
+	cd "$temp_repo"
+	bash "$wrapper" true
+) >"$fixture_dir/symlink.out" 2>"$fixture_dir/symlink.err"; then
+	echo "Symlink lock path was accepted" >&2
+	exit 1
+fi
+grep -q 'Refusing symlink' "$fixture_dir/symlink.err"
+[[ "$(<"$symlink_target")" == "target-must-not-change" ]] || { echo "Symlink target was modified" >&2; exit 1; }
 
 echo "Shared Next.js build lock validation passed."

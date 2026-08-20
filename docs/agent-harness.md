@@ -64,9 +64,13 @@ The wrapper requires `flock`, waits up to
 `NEXT_BUILD_LOCK_TIMEOUT_SECONDS` (600 seconds by default), and passes its
 locked file descriptor to the child command. The kernel therefore retains the
 lock if the wrapper dies while its child still writes shared state. The lock
-file itself contains no ownership state and is harmless when no process holds
-it. A long-running `npm run dev` may also use the wrapper, but it holds the lock
-until the server stops.
+file defaults to the per-worktree internal path reported by `git rev-parse
+--git-path agent-harness/next-build.lock`, so it does not change `git status` or
+collide across linked worktrees. Existing regular lock files are not truncated,
+and symlink lock paths are rejected. The file contains no ownership state and
+is harmless when no process holds it. Tests may override the path with
+`NEXT_BUILD_LOCK_FILE`. A long-running `npm run dev` may also use the wrapper,
+but it holds the lock until the server stops.
 
 Read-only inspection, linting, and focused tests that do not invoke a Next.js
 build may continue in parallel. Commands writing other shared generated state,

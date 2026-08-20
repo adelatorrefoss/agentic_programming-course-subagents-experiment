@@ -152,6 +152,33 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - `frontend-engineer`: vista cronológica, detalle de cambios e integración con la API.
 - `testing-engineer`: mocks del bus, pruebas de eventos, suscriptores e integración.
 
+## TASK-006. Interfaz para actualizar platos
+
+### Prompt de ejemplo
+
+> Implementa una interfaz que permita actualizar platos cocinados existentes. Delega
+> la edición y sus estados en `frontend-engineer`, los cambios necesarios del contrato
+> y la API en `backend-engineer`, y la estrategia de pruebas en `testing-engineer`.
+> Revisa la integración completa y ejecuta `npm run prep` al terminar.
+
+### Alcance
+
+- [ ] Añadir una acción visible para editar un plato cocinado existente.
+- [ ] Crear un formulario de edición precargado con los datos actuales del plato.
+- [ ] Permitir actualizar el nombre, la descripción y los ingredientes del plato.
+- [ ] Validar los campos antes de enviar los cambios.
+- [ ] Integrar el formulario con la API de actualización de platos.
+- [ ] Mostrar estados de carga, éxito y error durante la actualización.
+- [ ] Reflejar los cambios guardados en la interfaz sin mostrar datos obsoletos.
+- [ ] Añadir pruebas frontend del formulario, sus validaciones y sus estados.
+- [ ] Verificar lint, build y tests con `npm run prep`.
+
+### Reparto recomendado
+
+- `backend-engineer`: revisar o completar el caso de uso y la ruta API de actualización.
+- `frontend-engineer`: acción de edición, formulario, validaciones e integración con la API.
+- `testing-engineer`: pruebas de componentes, interacciones, errores y actualización correcta.
+
 ## Criterios comunes de coordinación
 
 - [ ] Antes de programar, acordar contratos entre dominio, repositorios y esquema SQL.

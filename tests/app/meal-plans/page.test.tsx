@@ -36,11 +36,13 @@ function plan(
 
 function deferred<T>() {
 	let resolve!: (value: T) => void;
-	const promise = new Promise<T>((resolvePromise) => {
+	let reject!: (reason?: unknown) => void;
+	const promise = new Promise<T>((resolvePromise, rejectPromise) => {
 		resolve = resolvePromise;
+		reject = rejectPromise;
 	});
 
-	return { promise, resolve };
+	return { promise, resolve, reject };
 }
 
 describe("MealPlansPage should", () => {
@@ -151,6 +153,29 @@ describe("MealPlansPage should", () => {
 		expect(mocks.loadOrCreateMealPlan).toHaveBeenCalledTimes(2);
 	});
 
+	it("retry a failed shopping list and render the recovered items", async () => {
+		mocks.loadShoppingList
+			.mockRejectedValueOnce(new Error("shopping offline"))
+			.mockResolvedValueOnce([
+				{ name: "Tomato", type: "main", quantity: 3 },
+			]);
+		const user = userEvent.setup();
+		render(<MealPlansPage />);
+
+		const alert = await screen.findByRole("alert");
+		expect(alert).toHaveTextContent(
+			"The shopping list could not be loaded.",
+		);
+		await user.click(within(alert).getByRole("button", { name: "Retry" }));
+
+		expect(await screen.findByText("Tomato")).toBeInTheDocument();
+		expect(screen.getByText("× 3")).toBeInTheDocument();
+		expect(
+			screen.queryByText("The shopping list could not be loaded."),
+		).not.toBeInTheDocument();
+		expect(mocks.loadShoppingList).toHaveBeenCalledTimes(2);
+	});
+
 	it("ignore an older week response resolved after the current week", async () => {
 		const oldWeek = deferred<api.WeeklyMealPlan>();
 		const newWeek = deferred<api.WeeklyMealPlan>();
@@ -170,5 +195,39 @@ describe("MealPlansPage should", () => {
 			expect(mocks.loadShoppingList).toHaveBeenCalledTimes(1),
 		);
 		expect(mocks.loadShoppingList).not.toHaveBeenCalledWith("old-plan");
+	});
+
+	it("ignore an older shopping list resolved after the current week list", async () => {
+		const oldList = deferred<api.ShoppingListItem[]>();
+		const newList = deferred<api.ShoppingListItem[]>();
+		mocks.loadOrCreateMealPlan
+			.mockResolvedValueOnce(plan("old-plan", currentWeek))
+			.mockResolvedValueOnce(
+				plan("new-plan", moveWeek(currentWeek, 1)),
+			);
+		mocks.loadShoppingList
+			.mockReturnValueOnce(oldList.promise)
+			.mockReturnValueOnce(newList.promise);
+		const user = userEvent.setup();
+		render(<MealPlansPage />);
+		await waitFor(() =>
+			expect(mocks.loadShoppingList).toHaveBeenCalledWith("old-plan"),
+		);
+
+		await user.click(screen.getByRole("button", { name: "Next" }));
+		await waitFor(() =>
+			expect(mocks.loadShoppingList).toHaveBeenCalledWith("new-plan"),
+		);
+		newList.resolve([{ name: "Current rice", type: "staple", quantity: 2 }]);
+		expect(await screen.findByText("Current rice")).toBeInTheDocument();
+		expect(screen.queryByText("Updating shopping list…")).not.toBeInTheDocument();
+
+		oldList.resolve([{ name: "Stale tomato", type: "main", quantity: 9 }]);
+		await waitFor(() =>
+			expect(screen.queryByText("Stale tomato")).not.toBeInTheDocument(),
+		);
+		expect(screen.getByText("Current rice")).toBeInTheDocument();
+		expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+		expect(screen.queryByText("Updating shopping list…")).not.toBeInTheDocument();
 	});
 });

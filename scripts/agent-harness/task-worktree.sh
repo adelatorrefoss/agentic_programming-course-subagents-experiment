@@ -75,7 +75,6 @@ case "$command" in
 		current_ref="$(git -C "$path" symbolic-ref -q HEAD || true)"
 		[[ "$current_ref" == "$expected_ref" ]] || die "refusing to remove worktree that does not own ${expected_ref}: ${path} (${current_ref:-detached})"
 		[[ -z "$(git -C "$path" status --porcelain --untracked-files=all)" ]] || die "refusing to remove dirty worktree: ${path}"
-		[[ "$(git branch --show-current)" == "main" ]] || die "refusing to delete ${branch} unless the task lead is on main"
 		git merge-base --is-ancestor "$branch" main || die "refusing to delete unmerged branch ${branch}; merge it into main first"
 		git worktree remove "$path"
 		git branch -d "$branch"

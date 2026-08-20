@@ -45,7 +45,8 @@ npm run test
   below. Do not leave completed task changes uncommitted.
 - After integration and green main CI, use `task-worktree.sh finish TASK-XXX`;
   it removes only a clean managed worktree and deletes the merged local task
-  branch. It never forces removal or deletes an unmerged branch.
+  branch. It never forces removal or deletes a branch that is not merged into
+  `main`.
 
 Full workflows:
 

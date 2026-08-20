@@ -121,8 +121,8 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
   merge or cherry-pick according to the task's commit contract. After
   integration and green main CI, run `task-worktree.sh finish TASK-004`.
   Cleanup refuses dirty worktrees, requires the task branch to be merged into
-  `main`, deletes that local branch, and uses no force option. Never treat
-  cleanup as integration.
+  `main`, deletes that local branch, and uses no force option. The check also
+  works from detached CI checkouts. Never treat cleanup as integration.
 - Task branches are validated locally but are not pushed and do not receive
   remote CI. This is the repository's trunk-based workflow: feature branches
   are local working branches only. After integration into `main`, push `main` and run

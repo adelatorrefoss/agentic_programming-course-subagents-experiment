@@ -1,165 +1,59 @@
-# Ejemplos de tareas multiagente
+# Ejemplos de tareas funcionales
 
-Estas tareas están diseñadas para practicar la coordinación entre los cuatro agentes del proyecto:
-
-- `database-engineer`: esquema PostgreSQL, migraciones, índices y consultas.
-- `backend-engineer`: dominio, casos de uso, repositorios, inyección de dependencias y API.
-- `frontend-engineer`: páginas, componentes React, estado de UI e integración con la API.
-- `testing-engineer`: tests unitarios y de integración, Object Mothers y Mock Objects.
+Este catálogo describe únicamente resultados observables del producto. La asignación
+de agentes, la estrategia de pruebas y las validaciones de cierre pertenecen al
+harness definido en `AGENTS.md`, `.agents/DELEGATION_TEMPLATE.md` y
+`docs/agent-harness.md`.
 
 ## TASK-001. Valoraciones y puntuación de platos cocinados
 
-### Prompt de ejemplo
-
-> Implementa valoraciones de platos cocinados. Delega el diseño de la persistencia en
-> `database-engineer`, el dominio, los casos de uso y las rutas API en `backend-engineer`,
-> la interfaz de valoración en `frontend-engineer` y toda la estrategia de pruebas en
-> `testing-engineer`. Coordina el trabajo, revisa la integración entre las partes y
-> ejecuta `npm run prep` al terminar.
-
 ### Alcance
 
-- [x] Crear una tabla de valoraciones asociada a `cooked_dishes`.
-- [x] Guardar autor, puntuación de 1 a 5, comentario y fecha de creación.
+- [x] Permitir valorar un plato con autor, puntuación de 1 a 5 y comentario.
 - [x] Impedir más de una valoración del mismo autor para un mismo plato.
-- [x] Modelar la valoración y sus invariantes en el dominio.
-- [x] Crear un caso de uso para añadir una valoración.
-- [x] Crear un caso de uso para obtener el resumen de valoraciones de un plato.
-- [x] Exponer `POST /api/cooked-dishes/:uuid/ratings`.
-- [x] Exponer `GET /api/cooked-dishes/:uuid/ratings` con media, total y distribución.
-- [x] Registrar repositorios y casos de uso en DIOD.
-- [x] Añadir tests unitarios del dominio y los casos de uso.
-- [x] Añadir tests de integración del repositorio PostgreSQL.
-- [x] Cubrir errores: plato inexistente, puntuación inválida y valoración duplicada.
-- [x] Mostrar el resumen, la media y la distribución de valoraciones en la interfaz.
-- [x] Permitir enviar una valoración desde la interfaz con puntuación y comentario.
-- [x] Mostrar estados de carga, éxito y error al gestionar valoraciones.
-- [x] Mostrar la nota media y el total de valoraciones en cada tarjeta de plato
-  cocinado de la página principal, sin tener que entrar en el detalle, incluyendo
-  el estado de platos que todavía no tienen valoraciones.
-- [x] Verificar lint, build y tests con `npm run prep`.
-
-### Reparto recomendado
-
-- `database-engineer`: tablas, restricciones, claves foráneas e índices.
-- `backend-engineer`: agregado, repositorio, casos de uso, DIOD y rutas API finas.
-- `frontend-engineer`: componentes de valoración, estado de UI e integración con las rutas.
-- `testing-engineer`: Mothers, mocks, tests unitarios e integración PostgreSQL.
+- [x] Mostrar media, total y distribución de puntuaciones en el detalle del plato.
+- [x] Mostrar estados de carga, éxito y error al enviar una valoración.
+- [x] Mostrar la nota media y el total de valoraciones en cada tarjeta de la página principal.
+- [x] Mostrar un estado específico para los platos que todavía no tienen valoraciones.
 
 ## TASK-002. Planificador semanal de comidas y lista de la compra
 
-### Prompt de ejemplo
-
-> Añade un planificador semanal de comidas que permita asignar platos cocinados a días
-> y genere una lista de la compra consolidada. Usa en paralelo `database-engineer`,
-> `backend-engineer`, `frontend-engineer` y `testing-engineer`. Haz que cada agente sea
-> responsable de su especialidad y entrega el cambio integrado y validado con `npm run prep`.
-
 ### Alcance
 
-- [x] Diseñar la persistencia de planes semanales y sus comidas.
-- [x] Garantizar que un día y franja (`breakfast`, `lunch`, `dinner`) tengan como máximo un plato.
-- [x] Modelar `WeeklyMealPlan`, sus identificadores y reglas de negocio.
-- [x] Crear casos de uso para crear un plan y asignar, sustituir o retirar un plato.
-- [x] Crear un caso de uso que agrupe ingredientes repetidos en una lista de la compra.
-- [x] Exponer rutas API para crear, consultar y modificar el plan.
-- [x] Resolver todas las dependencias mediante DIOD.
-- [x] Añadir tests de reglas, casos de uso, errores y persistencia.
-- [x] Comprobar concurrencia al asignar dos platos a la misma franja.
-- [x] Verificar que las rutas solo coordinan entrada, caso de uso y respuesta HTTP.
-- [x] Crear una vista semanal para consultar y gestionar las comidas planificadas.
-- [x] Hacer que la vista semanal sea accesible mediante un enlace o acción visible
-  desde la página principal.
-- [x] Permitir asignar, sustituir y retirar platos desde la interfaz.
-- [x] Mostrar la lista de la compra consolidada con sus estados de carga y error.
-- [x] Añadir pruebas frontend del calendario, sus interacciones y los estados de carga y error.
-- [x] Verificar lint, build y tests con `npm run prep` después de completar el frontend.
-
-> Estado final: `/meal-plans` ofrece el calendario semanal, las operaciones de
-> asignar, sustituir y retirar, y la lista de compra; la home enlaza de forma
-> visible al planificador.
-
-### Reparto recomendado
-
-- `database-engineer`: esquema relacional, restricciones de unicidad, índices y migraciones.
-- `backend-engineer`: nuevo agregado, servicios de aplicación, repositorios y endpoints.
-- `frontend-engineer`: calendario semanal, interacción de comidas y lista de la compra.
-- `testing-engineer`: escenarios del agregado, mocks, Mothers y pruebas de integración.
+- [x] Crear y consultar planes semanales.
+- [x] Organizar desayuno, comida y cena para cada día de la semana.
+- [x] Asignar, sustituir y retirar un plato de una franja.
+- [x] Evitar que una franja tenga más de un plato asignado.
+- [x] Navegar entre semanas desde el calendario.
+- [x] Acceder al planificador mediante una acción visible desde la página principal.
+- [x] Consolidar ingredientes repetidos en una lista de la compra.
+- [x] Mostrar estados vacíos, de carga y de error en el plan y la lista de la compra.
 
 ## TASK-003. Búsqueda avanzada y paginada de platos
 
-### Prompt de ejemplo
-
-> Implementa una búsqueda avanzada de platos cocinados por texto, tipos de ingrediente,
-> puntuación mínima y rango de fechas, con ordenación y paginación. Delega el SQL y sus
-> índices en `database-engineer`, la arquitectura y API en `backend-engineer`, la interfaz
-> de búsqueda en `frontend-engineer` y los tests en `testing-engineer`. Pide a los agentes
-> que revisen los contratos compartidos antes de integrar y ejecuta `npm run prep`.
-
 ### Alcance
 
-- [x] Definir un objeto de criterios de búsqueda independiente de PostgreSQL.
-- [x] Añadir filtros combinables, ordenación permitida y paginación con límites seguros.
-- [x] Diseñar los índices necesarios y justificar cada uno.
-- [x] Implementar la consulta en `PostgresCookedDishRepository` con parámetros seguros.
-- [x] Crear el caso de uso de búsqueda sin lógica de negocio en la ruta.
-- [x] Exponer `GET /api/cooked-dishes` con los nuevos parámetros.
-- [x] Devolver resultados y metadatos de paginación.
-- [x] Validar parámetros y responder de forma consistente ante valores inválidos.
-- [x] Crear controles de filtros, ordenación y paginación en la interfaz.
-- [x] Mostrar resultados, metadatos y estados de carga o error de la búsqueda.
-- [x] Probar filtros aislados, combinaciones, ordenación y límites de página.
-- [x] Añadir tests de integración que detecten errores en el SQL real.
-- [x] Verificar lint, build y tests con `npm run prep`.
-
-### Reparto recomendado
-
-- `database-engineer`: estrategia SQL, índices y revisión del plan de consulta.
-- `backend-engineer`: criterios de dominio/aplicación, repositorio, caso de uso y API.
-- `frontend-engineer`: filtros, resultados paginados y estados de la interfaz.
-- `testing-engineer`: matriz de casos, datos de prueba y tests unitarios/de integración.
+- [x] Buscar platos por texto libre.
+- [x] Filtrar por tipos de ingrediente, puntuación mínima y rango de fechas.
+- [x] Combinar varios filtros en una misma búsqueda.
+- [x] Ordenar por las opciones admitidas por el producto.
+- [x] Navegar por resultados paginados y consultar sus metadatos.
+- [x] Informar de filtros inválidos con mensajes comprensibles.
+- [x] Mostrar estados de carga, sin resultados y error.
+- [x] Conservar en los resultados la información de valoraciones de cada plato.
 
 ## TASK-004. Historial auditable de cambios en platos
 
-### Prompt de ejemplo
-
-> Implementa un historial auditable para la creación y modificación de platos cocinados.
-> Coordina a `database-engineer` para la persistencia, `backend-engineer` para los eventos,
-> suscriptores, caso de uso y API, `frontend-engineer` para la interfaz de consulta, y
-> `testing-engineer` para las pruebas de todo el flujo. Evita acoplar el dominio a
-> PostgreSQL y valida el resultado completo con `npm run prep`.
-
 ### Alcance
 
-- [x] Crear la persistencia inmutable de eventos de auditoría.
-- [x] Registrar tipo de cambio, entidad, datos relevantes, autor y fecha.
-- [x] Publicar eventos de dominio al crear o modificar un plato.
-- [x] Implementar un suscriptor que transforme esos eventos en entradas de auditoría.
-- [x] Mantener las rutas API y el agregado libres de detalles de infraestructura.
-- [x] Crear un caso de uso para consultar el historial de un plato.
-- [x] Exponer `GET /api/cooked-dishes/:uuid/history`.
-- [x] Registrar el suscriptor y sus dependencias en DIOD.
-- [x] Crear una vista de historial con cambios ordenados cronológicamente.
-- [x] Mostrar los detalles de cada cambio y sus estados de carga o error.
-- [x] Probar serialización, publicación, suscripción y persistencia.
-- [x] Verificar que un fallo de auditoría tenga el comportamiento transaccional acordado.
-- [x] Verificar lint, build y tests con `npm run prep`.
-
-### Reparto recomendado
-
-- `database-engineer`: modelo append-only, índices y política de integridad.
-- `backend-engineer`: eventos, suscriptor, repositorio de auditoría, caso de uso y API.
-- `frontend-engineer`: vista cronológica, detalle de cambios e integración con la API.
-- `testing-engineer`: mocks del bus, pruebas de eventos, suscriptores e integración.
+- [x] Registrar la creación y las modificaciones de un plato.
+- [x] Guardar el tipo de cambio, los datos relevantes, el autor y la fecha.
+- [x] Mantener las entradas del historial inmutables.
+- [x] Consultar el historial completo desde el detalle del plato.
+- [x] Ordenar los cambios cronológicamente y mostrar su detalle.
+- [x] Mostrar estados de carga, historial vacío y error.
 
 ## TASK-006. Interfaz para actualizar platos
-
-### Prompt de ejemplo
-
-> Implementa una interfaz que permita actualizar platos cocinados existentes. Delega
-> la edición y sus estados en `frontend-engineer`, los cambios necesarios del contrato
-> y la API en `backend-engineer`, y la estrategia de pruebas en `testing-engineer`.
-> Revisa la integración completa y ejecuta `npm run prep` al terminar.
 
 ### Alcance
 
@@ -167,26 +61,117 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [ ] Crear un formulario de edición precargado con los datos actuales del plato.
 - [ ] Permitir actualizar el nombre, la descripción y los ingredientes del plato.
 - [ ] Validar los campos antes de enviar los cambios.
-- [ ] Integrar el formulario con la API de actualización de platos.
+- [ ] Guardar los cambios y mantener el plato sin modificar cuando se cancele la edición.
 - [ ] Mostrar estados de carga, éxito y error durante la actualización.
 - [ ] Reflejar los cambios guardados en la interfaz sin mostrar datos obsoletos.
-- [ ] Añadir pruebas frontend del formulario, sus validaciones y sus estados.
-- [ ] Verificar lint, build y tests con `npm run prep`.
 
-### Reparto recomendado
+## TASK-007. Favoritos personales
 
-- `backend-engineer`: revisar o completar el caso de uso y la ruta API de actualización.
-- `frontend-engineer`: acción de edición, formulario, validaciones e integración con la API.
-- `testing-engineer`: pruebas de componentes, interacciones, errores y actualización correcta.
+### Alcance
 
-## Criterios comunes de coordinación
+- [ ] Marcar y desmarcar un plato como favorito desde el listado y el detalle.
+- [ ] Mostrar inmediatamente el estado actualizado de la acción.
+- [ ] Consultar una vista que contenga únicamente los platos favoritos.
+- [ ] Mantener los favoritos al recargar o volver a iniciar sesión.
+- [ ] Mostrar un estado vacío con una acción para descubrir platos.
+- [ ] Resolver de forma comprensible los errores al cambiar un favorito.
 
-- [ ] Antes de programar, acordar contratos entre dominio, repositorios y esquema SQL.
-- [ ] Permitir trabajo paralelo solo cuando esos contratos estén definidos.
-- [ ] No colocar reglas de negocio en rutas API ni implementaciones PostgreSQL.
-- [ ] Añadir `import "reflect-metadata"` como primer import de cada nueva ruta API.
-- [ ] Decorar los servicios inyectables con `@Service()` y registrarlos en DIOD.
-- [ ] Mantener las convenciones existentes para Mothers y mocks.
-- [ ] Hacer que el agente principal revise el diff integrado, no solo los resultados aislados.
-- [ ] Considerar terminada una tarea únicamente cuando `npm run prep` pase correctamente.
-- [ ] Invocar `harness-retro` tras finalizar cada tarea para generar retros y propuestas de parche de configuración (NO aplicar cambios en código de producción).
+## TASK-008. Etiquetas y colecciones de platos
+
+### Alcance
+
+- [ ] Crear, renombrar y eliminar colecciones.
+- [ ] Añadir y retirar platos de una colección.
+- [ ] Asignar varias etiquetas a un plato.
+- [ ] Filtrar platos por una o varias etiquetas.
+- [ ] Consultar el contenido y el número de platos de cada colección.
+- [ ] Evitar nombres de colección duplicados para una misma persona.
+
+## TASK-009. Duplicar y adaptar un plato
+
+### Alcance
+
+- [ ] Ofrecer una acción de duplicado desde el detalle del plato.
+- [ ] Precargar la copia con el nombre, descripción e ingredientes originales.
+- [ ] Permitir editar todos los datos antes de guardar la variante.
+- [ ] Identificar el plato del que procede cada variante.
+- [ ] Navegar entre un plato original y sus variantes.
+- [ ] Cancelar el proceso sin crear datos parciales.
+
+## TASK-010. Escalado de cantidades por raciones
+
+### Alcance
+
+- [ ] Definir el número de raciones base de cada plato.
+- [ ] Seleccionar el número de raciones deseado en el detalle.
+- [ ] Recalcular todas las cantidades de forma proporcional.
+- [ ] Mantener unidades y redondeos comprensibles para la persona usuaria.
+- [ ] Restaurar fácilmente las cantidades originales.
+- [ ] Usar las cantidades escaladas al añadir el plato a la lista de la compra.
+
+## TASK-011. Control de alérgenos y preferencias alimentarias
+
+### Alcance
+
+- [ ] Configurar alérgenos y preferencias alimentarias personales.
+- [ ] Identificar los alérgenos presentes en los ingredientes de cada plato.
+- [ ] Mostrar advertencias visibles en listados y detalles.
+- [ ] Filtrar platos compatibles con las preferencias seleccionadas.
+- [ ] Explicar qué ingrediente provoca cada incompatibilidad.
+- [ ] Solicitar confirmación antes de planificar un plato incompatible.
+
+## TASK-012. Inventario de despensa
+
+### Alcance
+
+- [ ] Registrar ingredientes disponibles con cantidad, unidad y fecha de caducidad opcional.
+- [ ] Actualizar o retirar existencias de la despensa.
+- [ ] Mostrar ingredientes próximos a caducar.
+- [ ] Comparar un plato con las existencias disponibles.
+- [ ] Indicar qué ingredientes faltan y en qué cantidad.
+- [ ] Descontar existencias al confirmar que se ha cocinado un plato.
+
+## TASK-013. Sugerencias según la despensa
+
+### Alcance
+
+- [ ] Consultar platos ordenados por porcentaje de ingredientes disponibles.
+- [ ] Priorizar ingredientes próximos a caducar.
+- [ ] Mostrar qué ingredientes faltan para completar cada plato.
+- [ ] Excluir platos incompatibles con las preferencias alimentarias.
+- [ ] Ajustar las sugerencias al número de raciones deseado.
+- [ ] Añadir los ingredientes faltantes a la lista de la compra.
+
+## TASK-014. Importación de recetas
+
+### Alcance
+
+- [ ] Pegar el contenido de una receta para iniciar la importación.
+- [ ] Extraer nombre, descripción, raciones e ingredientes cuando estén disponibles.
+- [ ] Mostrar los campos detectados y los que requieren corrección.
+- [ ] Editar el resultado antes de confirmar la creación.
+- [ ] Detectar posibles duplicados por nombre e ingredientes.
+- [ ] Cancelar la importación sin guardar información parcial.
+
+## TASK-015. Compartir planes semanales
+
+### Alcance
+
+- [ ] Invitar a otra persona mediante un enlace con caducidad.
+- [ ] Aceptar o rechazar una invitación.
+- [ ] Consultar quién tiene acceso al plan.
+- [ ] Diferenciar permisos de lectura y edición.
+- [ ] Reflejar los cambios de colaboradores sin mostrar información obsoleta.
+- [ ] Revocar el acceso de una persona o invalidar el enlace compartido.
+
+## TASK-016. Modo de cocina paso a paso
+
+### Alcance
+
+- [ ] Definir y ordenar los pasos de preparación de un plato.
+- [ ] Iniciar el modo de cocina desde el detalle.
+- [ ] Avanzar y retroceder entre pasos sin perder el progreso.
+- [ ] Mostrar en cada paso los ingredientes y cantidades relevantes.
+- [ ] Incluir temporizadores opcionales asociados a un paso.
+- [ ] Recuperar una sesión de cocina interrumpida.
+- [ ] Confirmar la finalización y registrar cuándo se cocinó el plato.

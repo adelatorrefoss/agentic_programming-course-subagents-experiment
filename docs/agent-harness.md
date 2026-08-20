@@ -125,6 +125,10 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
 - Define shared contracts before starting parallel work.
 - Start each delegation from `.agents/DELEGATION_TEMPLATE.md`, including named
   ownership, input/output contracts, dependency order, and stop conditions.
+- Build each implementation/delegation prompt from the selected task title and
+  functional scope, then add role ownership, test expectations, architecture
+  conventions, validation commands, review, and closeout gates from the harness.
+  Do not duplicate those harness concerns in product TODO catalogs.
 - Keep frontend, database, backend, and testing responsibilities separate.
 - Ask the main agent to review the integrated diff, not only isolated agent results.
 - Create the implementation commit before invoking the native `/review`
@@ -143,6 +147,16 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
 - Map every acceptance criterion and checked TODO item to an implementation
   artifact and a passing verification in the coordination record. The closeout
   validator rejects missing, placeholder, or pending evidence.
+
+The former common coordination checklist is owned by these harness sources:
+
+- contract agreement and safe parallelization: `.agents/DELEGATION_TEMPLATE.md`;
+- Onion Architecture, thin API routes, `reflect-metadata`, `@Service()` and DIOD:
+  `.agents/agents/backend-engineer.md`;
+- Object Mothers, mocks and frontend interaction coverage:
+  `.agents/agents/testing-engineer.md`;
+- integrated-diff review: `.agents/agents/code-review.agent.md` and this workflow;
+- `npm run prep` and `harness-retro`: `AGENTS.md` and the development cycle gate below.
 - Preserve existing user changes and avoid unrelated production edits.
 - Record agent-harness recommendations in `TODO-AGENT-HARNESS.md`.
 - Record test infrastructure recommendations in `TODO-TEST-INFRASTRUCTURE.md`.

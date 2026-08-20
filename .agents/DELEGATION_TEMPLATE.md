@@ -19,6 +19,19 @@ commit when the originating artifacts can share the same commit.
 - Task branch (`task/TASK-XXX`):
 - Shared-service isolation plan (PostgreSQL/Ollama namespacing or serialized commands):
 
+## Harness-generated task brief
+
+The task lead must construct delegation prompts from the selected task title and
+functional scope. Product TODO files are not a source for role assignment,
+testing strategy, architecture conventions, validation commands, review gates,
+or closeout instructions. Add those concerns from this template, `AGENTS.md`,
+the applicable role-agent definitions, and the harness workflow.
+
+- Functional source (title and scope):
+- Functional outcome to preserve verbatim:
+- Applicable role agents selected by the harness:
+- Harness constraints added to delegation prompts:
+
 ## Ownership and contracts
 
 | Agent | Owns | Inputs | Required output | Must not change |

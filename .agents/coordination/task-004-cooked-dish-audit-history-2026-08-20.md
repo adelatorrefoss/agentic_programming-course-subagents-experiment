@@ -52,16 +52,16 @@ Frontend component-test capability checkpoint:
 - Implementation commit subject: `feat(TASK-004): add auditable cooked dish history`
 - Agent output references: `task004_database`, `task004_backend`, `task004_frontend`, `task004_testing`.
 - Contract-verification handoffs: Database delivered append-only DDL, ambient transaction context and 4 real SQL tests; backend delivered events/upsert/subscriber/API/DIOD with 19 focused tests; frontend delivered accessible timeline and 7 RTL/helper tests; testing delivered 24 cross-layer tests including second-connection rollback proof. Primary corrected the integrated persistence-to-API projection and verified it against the frontend parser.
-- Implementation commit: pending
+- Implementation commit: `5aa0477`
 - Code-review agent: `code-review`
-- PR code review commit range: pending
-- Code-review verdict: pending
-- Code-review evidence: pending
-- Code-review report: pending
-- Remediation required: pending
-- Remediation commit subject: pending
-- Remediation commit: pending
-- Post-remediation validation commands and results: pending
+- PR code review commit range: `5aa0477^..5aa0477`
+- Code-review verdict: `APPROVED`
+- Code-review evidence: No findings; preflight and diff check passed, and 8 focused suites / 25 tests passed including append-only SQL, API/UI behavior and second-connection rollback.
+- Code-review report: `.agents/reviews/TASK-004-5aa0477.md`
+- Remediation required: no
+- Remediation commit subject: none (no findings)
+- Remediation commit: none (no findings)
+- Post-remediation validation commands and results: no remediation; implementation `npm run prep` passed.
 - Harness retro report: pending
 - Harness retro commit subject: `chore(TASK-004): record harness retro`
 - Harness retro commit: pending
@@ -71,7 +71,7 @@ Frontend component-test capability checkpoint:
 
 | Round | Commit range | Verdict | Report | Findings / remediation |
 | --- | --- | --- | --- | --- |
-| 1 | pending | pending | pending | pending |
+| 1 | `5aa0477^..5aa0477` | `APPROVED` | `.agents/reviews/TASK-004-5aa0477.md` | No findings; 8 suites / 25 focused tests passed. |
 
 ## Acceptance evidence
 

@@ -4,7 +4,7 @@
 
 - Task: Add advanced, safely paginated cooked-dish search.
 - Task identifier (`TASK-XXX`): `TASK-003`
-- Lifecycle: `in-progress`
+- Lifecycle: `closed`
 - Expected outcome: Search by text, ingredient types, minimum rating and date range with allow-listed sorting, metadata, UI controls and robust states.
 - Scope boundaries: Preserve create/by-id/similarity behavior; evolve list GET to a paginated envelope and update all current consumers.
 
@@ -65,8 +65,8 @@ Frontend component-test capability checkpoint:
 - Incremental coordination rule: User requested that every task commit include its current coordination record. Persisted as harness improvement `AH-020`; all commits after the request include this record.
 - Harness retro report: CI failure retro added completed recommendation AH-023 requiring full Git history before commit-backed coordination validation and a regression guard. It also consolidated the duplicate pending AH-021 register row; AH-001 through AH-023 are complete.
 - Harness retro commit subject: `chore(TASK-003): record CI checkout harness retro`
-- Harness retro commit: current retro commit; AH-023 was already implemented and verified in `679e411`.
-- Final sign-off: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests; `npm run agents:validate` passed; review `APPROVED`; AH-020/AH-021/AH-022 implemented; worktree checked clean after this closeout commit.
+- Harness retro commit: `e2981e4`; AH-023 was implemented in `679e411` and documented during the harness-improvement closeout.
+- Final sign-off: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests; `npm run agents:validate` passed including the CI history regression; review `APPROVED`; AH-001 through AH-023 complete; final validations and clean worktree check required after this closeout commit.
 
 ### Code-review rounds
 

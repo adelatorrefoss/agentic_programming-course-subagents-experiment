@@ -35,6 +35,21 @@ The least-privilege role matrix is maintained in
 `.agents/agent-tool-matrix.conf`; `npm run agents:validate` rejects a
 definition whose tools differ from its matrix entry.
 
+### CI history requirement
+
+Closeout validation resolves the implementation, remediation, and review-range
+commits recorded under `.agents/coordination/`. CI must therefore fetch the
+complete Git history before running `npm run agents:validate`:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+```
+
+`scripts/agent-harness/test-ci-checkout-history.sh` guards this prerequisite as
+part of `npm run agents:validate`.
+
 ## Commit messages
 
 Every task commit must include its task identifier in the subject:

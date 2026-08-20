@@ -13,11 +13,15 @@ The record is the handoff contract for the task. It must preserve:
   range, `APPROVED` verdict, review evidence, and remediation commit when
   findings were accepted;
 - post-remediation validation, harness-retro report, and final sign-off.
+- one executable producer-to-consumer contract row for every runtime boundary
+  owned by different agents, including its fixture, consumer assertion, exact
+  passing command, and `producer-to-consumer:` evidence;
 - one evidence row for every acceptance criterion and checked TODO item, naming
   both the implementation artifact and a passing verification.
 
 Run `npm run agents:validate` before closeout. It rejects records with missing,
-placeholder, or pending acceptance evidence.
+placeholder, or pending acceptance evidence, and cross-agent evidence made only
+of separate role-local suites.
 
 Commit subjects must include the task identifier, for example
 `feat(TASK-002): add weekly meal planning`. Use `fix(TASK-002): ...` for review

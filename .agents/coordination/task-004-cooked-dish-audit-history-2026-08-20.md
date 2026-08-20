@@ -64,8 +64,14 @@ Frontend component-test capability checkpoint:
 - Post-remediation validation commands and results: no remediation; implementation `npm run prep` passed.
 - Harness retro report: TASK-004 exposed two immediate harness gaps: cross-agent boundaries need executable producer-to-consumer contract evidence (AH-025), and commands writing shared `.next` state need serialization or isolation (AH-026). The retro, evidence, root causes and complete action register are persisted in `TODO-AGENT-HARNESS.md`.
 - Harness retro commit subject: `chore(TASK-004): record harness retro`
-- Harness retro commit: pending
+- Harness retro commit: `7ad870c`
 - Final sign-off: Initial `npm run prep` passed lint, Next build, 138 regular tests and 11 CI tests; final validation will be repeated after review/retro.
+
+### Cross-agent boundary contracts
+
+| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| Backend history projection → frontend history parser | `backend-engineer` | `frontend-engineer` | `CookedDishHistorySearcher` output created from a domain audit entry | `parseCookedDishHistory({items: producerFixture})` accepts and preserves the projection | `npx jest --runInBand --runTestsByPath tests/contexts/dishes/cooked-dish-history/application/search/CookedDishHistorySearcher.test.ts` | producer-to-consumer: PASS; backend-produced fixture passed directly through the frontend parser (3 tests) |
 
 ### Code-review rounds
 
@@ -91,4 +97,6 @@ Frontend component-test capability checkpoint:
 | AC-12 | Agreed fail-closed atomic behavior on audit failure | Ambient `PostgresTransactionManager`, propagating event bus and transactional upserter | Real create/update rollback tests observe committed state from a second connection |
 | AC-13 | `npm run prep` | Entire TASK-004 implementation | Passed lint, build, 138 regular tests and 11 CI tests |
 | AC-14 | Common coordination contracts and conventions | This record, thin routes, `@Service()` registrations and test conventions | Preflight, build, full tests and integrated diff inspection passed |
-| AC-15 | Harness retrospective and applicable TODOs | pending | pending |
+| AC-15 | Harness retrospective and applicable TODOs | `TODO-AGENT-HARNESS.md`, AH-025 contract gate and AH-026 shared-build lock | Contract and lock regressions plus `npm run agents:validate` passed |
+| AH-025 | Executable producer-to-consumer evidence for every cross-agent boundary | `.agents/DELEGATION_TEMPLATE.md`, closeout validator/regression and backend-to-frontend TASK-004 contract test | Focused contract Jest suite rejects incompatible local-only shape; lifecycle regression and `npm run agents:validate` |
+| AH-026 | Serialize or isolate commands writing shared `.next` state | `run-with-next-lock.sh`, concurrency regression and documented agent guidance | Two concurrent wrapper commands wait/succeed/release in order; `npm run agents:validate` |

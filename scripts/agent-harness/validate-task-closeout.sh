@@ -23,6 +23,19 @@ is_legacy_review_exception() {
 	esac
 }
 
+is_legacy_boundary_exception() {
+	local record_name="$1"
+
+	case "$record_name" in
+		code-review-workflow-2026-08-20.md | harness-todos-2026-08-20.md | harness-todos-ah009-ah012-2026-08-20.md | task-001-home-rating-summary-2026-08-20.md | task-002-weekly-meal-planner-2026-08-20.md | task-003-advanced-cooked-dish-search-2026-08-20.md)
+			return 0
+			;;
+		*)
+			return 1
+			;;
+	esac
+}
+
 field_value() {
 	local label="$1"
 	local record="$2"
@@ -166,6 +179,46 @@ for record in "$COORDINATION_DIR"/*.md; do
 	if ! grep -q '^| ID | Acceptance criterion / TODO item | Implementation artifact | Passing verification |$' "$record"; then
 		echo "${record}: missing acceptance evidence table" >&2
 		record_error=true
+	fi
+
+	if ! is_legacy_boundary_exception "$record_name"; then
+		if ! grep -q '^### Cross-agent boundary contracts$' "$record"; then
+			echo "${record}: missing Cross-agent boundary contracts section" >&2
+			record_error=true
+		elif grep -q '^none (no cross-agent runtime boundaries)$' "$record"; then
+			:
+		elif ! grep -q '^| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |$' "$record"; then
+			echo "${record}: missing cross-agent boundary contract table" >&2
+			record_error=true
+		else
+			boundary_rows="$(awk '
+				/^### Cross-agent boundary contracts$/ { in_section = 1; next }
+				in_section && /^###? / { exit }
+				in_section && /^\|/ && $0 !~ /^\| Boundary / && $0 !~ /^\| ---/ { print }
+			' "$record")"
+			if [[ -z "$boundary_rows" ]]; then
+				echo "${record}: no cross-agent boundary contract rows" >&2
+				record_error=true
+			elif ! printf '%s\n' "$boundary_rows" | awk -F'|' '
+				function trim(value) {
+					gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+					gsub(/`/, "", value)
+					return value
+				}
+				{
+					for (column = 2; column <= 8; column++) {
+						value[column] = trim($column)
+						lower = tolower(value[column])
+						if (lower == "" || lower == "pending" || lower == "todo" || lower == "n/a" || lower == "tbd") exit 1
+					}
+					if (value[3] == value[4]) exit 1
+					if (tolower(value[8]) !~ /^producer-to-consumer:[[:space:]]*pass/) exit 1
+				}
+			'; then
+				echo "${record}: cross-agent boundary evidence is missing, local-only, or incompatible" >&2
+				record_error=true
+			fi
+		fi
 	fi
 
 	evidence_rows="$(grep -E '^\| (AC|AH|TASK)-[^|]+\|' "$record" || true)"

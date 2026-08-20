@@ -4,6 +4,7 @@ import { CookedDishNotFoundError } from "../../../../../../src/contexts/dishes/c
 import { CookedDishMother } from "../../../cooked-dishes/domain/CookedDishMother";
 import { MockCookedDishRepository } from "../../../cooked-dishes/infrastructure/MockCookedDishRepository";
 import { MockCookedDishAuditRepository } from "../../infrastructure/MockCookedDishAuditRepository";
+import { parseCookedDishHistory } from "../../../../../../src/app/cooked-dishes/[id]/cooked-dish-history-api";
 
 describe("CookedDishHistorySearcher should", () => {
 	it("project audit persistence into the public history contract", async () => {
@@ -51,6 +52,35 @@ describe("CookedDishHistorySearcher should", () => {
 				],
 			},
 		]);
+	});
+
+	it("pass the backend projection through the frontend history parser", async () => {
+		const dishes = new MockCookedDishRepository();
+		const audits = new MockCookedDishAuditRepository();
+		const dish = CookedDishMother.create();
+		const entry = CookedDishAuditEntry.fromPrimitives({
+			id: "cross-agent-event",
+			type: "updated",
+			entity: { type: "cooked_dish", id: dish.id.value },
+			author: "chef",
+			occurredAt: "2026-08-20T11:00:00.000Z",
+			changes: {
+				previous: { ...dish.toPrimitives(), name: "Old name" },
+				current: dish.toPrimitives(),
+				fields: { name: { from: "Old name", to: dish.name } },
+			},
+		});
+		dishes.shouldSearchByIdReturn(dish);
+		audits.shouldSearchByDishIdReturn([entry]);
+
+		const producerFixture = await new CookedDishHistorySearcher(
+			dishes,
+			audits,
+		).search(dish.id.value);
+
+		expect(parseCookedDishHistory({ items: producerFixture })).toEqual(
+			producerFixture,
+		);
 	});
 
 	it("reject a missing dish without reading audits", async () => {

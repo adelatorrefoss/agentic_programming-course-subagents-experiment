@@ -30,8 +30,8 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-022 | Medium | Name newly spawned agent threads with the current task identifier and role; when reusing a persistent legacy thread, spawn a correctly named nested worker and expose that current name in user-visible status. | Task Lead | ✅ Done |
 | AH-023 | High | Fetch complete Git history in CI before validating commit-backed coordination evidence, and keep a harness regression check that rejects shallow checkout configuration for that validation job. | Test Infrastructure | ✅ Done |
 | AH-024 | High | Make push plus successful monitoring of the corresponding GitHub Actions run the final task-completion gate, and include its URL and result in the HIL handoff. | Task Lead | ✅ Done |
-| AH-025 | High | Require a producer-to-consumer contract test for every shared boundary implemented by different agents, and record its passing command in the integration handoff before the implementation commit. | Task Lead | ⏳ Pending |
-| AH-026 | Medium | Serialize or isolate delegated commands that write shared build state (especially Next.js `.next`), while allowing independent read-only and focused test work to remain parallel. | Developer Experience | ⏳ Pending |
+| AH-025 | High | Require a producer-to-consumer contract test for every shared boundary implemented by different agents, and record its passing command in the integration handoff before the implementation commit. | Task Lead | ✅ Done |
+| AH-026 | Medium | Serialize or isolate delegated commands that write shared build state (especially Next.js `.next`), while allowing independent read-only and focused test work to remain parallel. | Developer Experience | ✅ Done |
 
 ## TASK-004 harness retrospective — 2026-08-20
 
@@ -123,6 +123,31 @@ broader workspace isolation would add cost without evidence that it is needed.
   and retain parallelism for independent focused tests.
 - Track build-lock diagnostics separately from product failures so orchestration
   problems do not trigger unnecessary application changes.
+
+### AH-025 completion evidence
+
+- `.agents/DELEGATION_TEMPLATE.md` and the coordination conventions require one
+  row per cross-agent runtime boundary naming the producer fixture, consumer
+  assertion, exact command and `producer-to-consumer: PASS` evidence.
+- `scripts/agent-harness/validate-task-closeout.sh` rejects closed records with
+  missing rows, same-agent ownership, placeholders, or role-local-only evidence.
+- `scripts/agent-harness/test-task-closeout-lifecycle.sh` rejects a fixture whose
+  producer and consumer suites are locally green but do not cross the boundary,
+  then accepts the same fixture with complete executable contract evidence.
+- TASK-004 now passes a real `CookedDishHistorySearcher` result directly through
+  `parseCookedDishHistory`; the focused Jest command and `npm run
+  agents:validate` provide the recorded passing evidence.
+
+### AH-026 completion evidence
+
+- `scripts/agent-harness/run-with-next-lock.sh` serializes shared `.next` writers
+  with an atomic lock, bounded wait, owner diagnostics and trap-based cleanup.
+- `scripts/agent-harness/test-next-build-lock.sh` starts two concurrent wrapper
+  invocations and proves that the second waits, both commands succeed in order,
+  and the lock is released.
+- The regression runs from `validate-agent-config.sh`; the delegation template
+  and harness guide distinguish exclusive generated-state commands from work
+  that remains safe to parallelize.
 
 ## Maintenance rules
 

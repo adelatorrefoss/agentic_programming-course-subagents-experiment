@@ -50,6 +50,27 @@ complete Git history before running `npm run agents:validate`:
 `scripts/agent-harness/test-ci-checkout-history.sh` guards this prerequisite as
 part of `npm run agents:validate`.
 
+### Shared Next.js build state
+
+All agents in a task share the same worktree, so commands that write `.next`
+must use the repository lock wrapper:
+
+```bash
+bash scripts/agent-harness/run-with-next-lock.sh npm run build
+bash scripts/agent-harness/run-with-next-lock.sh npm run prep
+```
+
+The wrapper waits while another shared-state command is running and releases
+the lock when its command exits. A long-running `npm run dev` may also use the
+wrapper, but it holds the lock until the server stops. Do not delete
+`.next-build.lock` while its recorded process is active.
+
+Read-only inspection, linting, and focused tests that do not invoke a Next.js
+build may continue in parallel. Commands writing other shared generated state,
+such as coverage or generated clients, need their own lock or an isolated
+output directory. `npm run agents:validate` runs a deterministic concurrency
+regression for the Next.js lock.
+
 ## Commit messages
 
 Every task commit must include its task identifier in the subject:
@@ -81,6 +102,12 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
   result and remediation commit in the task coordination record.
 - Persist one coordination record per multi-agent task under
   `.agents/coordination/`.
+- For every runtime boundary implemented by different agents, pass a
+  producer-shaped fixture directly through the consumer assertion in one
+  executable contract test. Record its exact passing command and
+  `producer-to-consumer:` result in the integration handoff before the
+  implementation commit; separate producer and consumer unit suites do not
+  satisfy this gate.
 - Map every acceptance criterion and checked TODO item to an implementation
   artifact and a passing verification in the coordination record. The closeout
   validator rejects missing, placeholder, or pending evidence.
@@ -106,7 +133,8 @@ The agent may update that TODO file, but it must not modify production code or C
    its verdict and evidence. See [the mandatory review convention](agents/task-code-review-workflow.md).
 6. Apply accepted findings and commit the remediation changes with a message
    starting with `fix(TASK-XXX):`.
-7. Run `npm run prep`, which includes regular and `.ci` tests, after remediation.
+7. Run `bash scripts/agent-harness/run-with-next-lock.sh npm run prep`, which
+   includes regular and `.ci` tests, after remediation.
 8. Validate the completed coordination record with `npm run agents:validate`;
    it rejects missing review evidence and non-approved verdicts.
 9. Execute `harness-retro`, update the harness TODO register, and commit the

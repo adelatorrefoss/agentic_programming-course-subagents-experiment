@@ -75,6 +75,19 @@ verified against that contract, including applicable boundary semantics such as
 - Harness retro commit:
 - Final sign-off:
 
+### Cross-agent boundary contracts
+
+Every runtime boundary whose producer and consumer were implemented by
+different agents needs one executable contract test. The fixture must be shaped
+by the producer and passed directly to the named consumer assertion; separate
+role-local suites are not contract evidence. Record the exact passing command
+before creating the implementation commit. Use `none (no cross-agent runtime
+boundaries)` only when the task genuinely has no such boundary.
+
+| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+|  |  |  |  |  |  | `producer-to-consumer: ...` |
+
 The pushed commit, GitHub Actions run URL, and remote CI result belong in the
 post-push HIL handoff. Do not persist them in a follow-up evidence commit.
 
@@ -96,3 +109,13 @@ cannot be closed while an artifact or verification is missing or pending.
 | ID | Acceptance criterion / TODO item | Implementation artifact | Passing verification |
 | --- | --- | --- | --- |
 | AC-01 |  |  |  |
+## Shared generated-state commands
+
+Commands that write the shared Next.js `.next` directory (including `npm run
+build` and `npm run prep`) must run through:
+
+```bash
+bash scripts/agent-harness/run-with-next-lock.sh <command> [arguments...]
+```
+
+Read-only work and focused tests that do not build Next.js may run concurrently.

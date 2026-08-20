@@ -152,3 +152,5 @@ if [[ "$failure_count" -gt 0 ]]; then
 fi
 
 echo "Agent configuration valid: ${agent_count} definition(s)."
+
+bash scripts/agent-harness/test-next-build-lock.sh

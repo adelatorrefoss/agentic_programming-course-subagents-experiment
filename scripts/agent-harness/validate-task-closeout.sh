@@ -59,6 +59,17 @@ commit_is_in_range() {
 		! git merge-base --is-ancestor "$commit" "$range_base"
 }
 
+boundary_section_declares_none() {
+	local record="$1"
+
+	awk '
+		/^### Cross-agent boundary contracts$/ { in_section = 1; next }
+		in_section && /^###? / { exit }
+		in_section && /^none \(no cross-agent runtime boundaries\)$/ { found = 1 }
+		END { exit(found ? 0 : 1) }
+	' "$record"
+}
+
 for record in "$COORDINATION_DIR"/*.md; do
 	[[ -f "$record" ]] || continue
 	[[ "$(basename "$record")" == "README.md" ]] && continue
@@ -185,7 +196,7 @@ for record in "$COORDINATION_DIR"/*.md; do
 		if ! grep -q '^### Cross-agent boundary contracts$' "$record"; then
 			echo "${record}: missing Cross-agent boundary contracts section" >&2
 			record_error=true
-		elif grep -q '^none (no cross-agent runtime boundaries)$' "$record"; then
+		elif boundary_section_declares_none "$record"; then
 			:
 		elif ! grep -q '^| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |$' "$record"; then
 			echo "${record}: missing cross-agent boundary contract table" >&2

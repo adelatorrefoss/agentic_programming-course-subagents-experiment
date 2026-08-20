@@ -36,6 +36,8 @@ cat >"$fixture_dir/local-only.md" <<'EOF'
 - Remediation required: no
 - Remediation commit: none (no findings)
 
+none (no cross-agent runtime boundaries)
+
 ### Cross-agent boundary contracts
 
 | Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |
@@ -50,7 +52,7 @@ cat >"$fixture_dir/local-only.md" <<'EOF'
 EOF
 
 if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
-	echo "Cross-agent boundary evidence with a missing producer fixture was accepted." >&2
+	echo "A sentinel outside the boundary section bypassed an invalid contract table." >&2
 	exit 1
 fi
 

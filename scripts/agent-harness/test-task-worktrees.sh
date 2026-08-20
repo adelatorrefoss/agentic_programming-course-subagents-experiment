@@ -16,6 +16,7 @@ printf 'base\n' > "${repository}/README.md"
 cp "${script_dir}/../../compose.yml" "${repository}/compose.yml"
 git -C "$repository" add README.md compose.yml
 git -C "$repository" commit -qm 'test: initialize fixture'
+git -C "$repository" branch -M main
 
 run_harness() {
 	(cd "$repository" && AGENT_WORKTREE_ROOT="$managed_root" bash "$worktree_script" "$@")

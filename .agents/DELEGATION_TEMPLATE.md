@@ -15,12 +15,19 @@ commit when the originating artifacts can share the same commit.
 - Lifecycle: `in-progress` (change to `closed` only after all closeout evidence is complete)
 - Expected outcome:
 - Scope boundaries:
+- Task worktree path (from `task-worktree.sh create TASK-XXX`):
+- Task branch (`task/TASK-XXX`):
+- Shared-service isolation plan (PostgreSQL/Ollama namespacing or serialized commands):
 
 ## Ownership and contracts
 
 | Agent | Owns | Inputs | Required output | Must not change |
 | --- | --- | --- | --- | --- |
 |  |  |  |  |  |
+
+Every agent must acknowledge that all task reads, writes, generated output,
+tests, and commits stay inside the task worktree above. Linked worktrees isolate
+repository and `.next` state; they do not isolate PostgreSQL or Ollama.
 
 Shared contracts must be explicit before parallel work begins:
 
@@ -74,6 +81,8 @@ verified against that contract, including applicable boundary semantics such as
 - Harness retro commit subject: `chore(TASK-XXX): ...`
 - Harness retro commit:
 - Final sign-off:
+- Task-lead integration method and target (merge or cherry-pick):
+- Clean worktree removal evidence (`task-worktree.sh finish TASK-XXX`):
 
 ### Cross-agent boundary contracts
 

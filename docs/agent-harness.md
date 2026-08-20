@@ -52,8 +52,9 @@ part of `npm run agents:validate`.
 
 ### Shared Next.js build state
 
-All agents in a task share the same worktree, so commands that write `.next`
-must use the repository lock wrapper:
+Separate task worktrees isolate `.next` between tasks. Agents collaborating on
+the same task still share that task's worktree, so commands that write its
+`.next` must use the repository lock wrapper:
 
 ```bash
 bash scripts/agent-harness/run-with-next-lock.sh npm run build
@@ -97,6 +98,30 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
 
 ## Coordination best practices
 
+- Run concurrently implemented tasks in separate linked worktrees. Create one
+  from the task lead's intended base with:
+
+  ```bash
+  bash scripts/agent-harness/task-worktree.sh create TASK-004 [start-point]
+  ```
+
+  The default root is a sibling directory named
+  `.<repository>-task-worktrees`; set `AGENT_WORKTREE_ROOT` to an absolute path
+  outside the repository when another location is needed. The command accepts
+  only `TASK-` followed by at least three digits, creates branch
+  `task/TASK-004`, and rejects an existing branch or path. `list` reports only
+  managed worktrees under that root.
+- Give every delegated agent the exact worktree path and require all reads,
+  edits, tests, generated output, and commits for that task to happen there.
+  Linked worktrees isolate tracked files, untracked files, and `.next`, but
+  PostgreSQL and Ollama remain shared services. Parallel tasks must namespace
+  database/schema/test data and ports where supported, or serialize checks
+  that mutate shared service state.
+- The task lead reviews and integrates each task branch explicitly, using a
+  merge or cherry-pick according to the task's commit contract. After
+  integration, run `task-worktree.sh finish TASK-004`. Cleanup refuses dirty
+  worktrees, uses no force option, and preserves the branch for deliberate
+  deletion later. Never treat cleanup as integration.
 - Define shared contracts before starting parallel work.
 - Start each delegation from `.agents/DELEGATION_TEMPLATE.md`, including named
   ownership, input/output contracts, dependency order, and stop conditions.
@@ -130,8 +155,9 @@ The agent may update that TODO file, but it must not modify production code or C
 
 ## Development cycle gate
 
-1. Define contracts and the delegation brief.
-2. Delegate bounded implementation work, invoking `frontend-engineer` for UI,
+1. Create the task worktree and define contracts and the delegation brief
+   inside it.
+2. Delegate bounded implementation work in that task worktree, invoking `frontend-engineer` for UI,
    React, or Next.js App Router changes alongside the other relevant role
    agents.
 3. Integrate and validate the complete diff.
@@ -148,3 +174,5 @@ The agent may update that TODO file, but it must not modify production code or C
    retrospective separately.
 10. Finish every task with all task changes recorded in a convention-compliant
     commit; completed task work must not remain uncommitted.
+11. Let the task lead integrate the task branch, then remove only its clean
+    linked worktree with the harness command.

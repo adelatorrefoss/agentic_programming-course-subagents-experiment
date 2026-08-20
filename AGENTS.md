@@ -13,6 +13,10 @@ npm run test
 # Task lifecycle
 
 - Start every task with `npm run task:preflight`.
+- Give every parallel task its own linked worktree with
+  `bash scripts/agent-harness/task-worktree.sh create TASK-XXX`. Agents for that
+  task must work only in the reported path; the task lead integrates its
+  `task/TASK-XXX` branch explicitly.
 - Map every acceptance criterion and checked TODO item to an implementation
   artifact and a passing verification in the task coordination record.
 - Run `npm run prep` before closing the task.
@@ -33,6 +37,8 @@ npm run test
   require another CI run.
 - Finish every task with its own commit whose subject follows the convention
   below. Do not leave completed task changes uncommitted.
+- After integration, use `task-worktree.sh finish TASK-XXX`; it removes only a
+  clean managed worktree, never forces removal, and preserves the task branch.
 
 Full workflows:
 

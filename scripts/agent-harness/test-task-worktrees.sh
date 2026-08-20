@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+worktree_script="${script_dir}/task-worktree.sh"
+fixture_root="$(mktemp -d)"
+trap 'rm -rf "$fixture_root"' EXIT
+repository="${fixture_root}/repository"
+managed_root="${fixture_root}/managed-worktrees"
+
+mkdir -p "$repository"
+git -C "$repository" init -q
+git -C "$repository" config user.name 'Harness Test'
+git -C "$repository" config user.email 'harness@example.invalid'
+printf 'base\n' > "${repository}/README.md"
+git -C "$repository" add README.md
+git -C "$repository" commit -qm 'test: initialize fixture'
+
+run_harness() {
+	(cd "$repository" && AGENT_WORKTREE_ROOT="$managed_root" bash "$worktree_script" "$@")
+}
+
+run_harness create TASK-101 >/dev/null
+run_harness create TASK-102 >/dev/null
+printf 'one\n' > "${managed_root}/TASK-101/task-one.txt"
+printf 'two\n' > "${managed_root}/TASK-102/task-two.txt"
+mkdir -p "${managed_root}/TASK-101/.next" "${managed_root}/TASK-102/.next"
+printf 'first\n' > "${managed_root}/TASK-101/.next/owner"
+printf 'second\n' > "${managed_root}/TASK-102/.next/owner"
+
+[[ ! -e "${managed_root}/TASK-102/task-one.txt" ]]
+[[ ! -e "${managed_root}/TASK-101/task-two.txt" ]]
+[[ "$(<"${managed_root}/TASK-101/.next/owner")" == first ]]
+[[ "$(<"${managed_root}/TASK-102/.next/owner")" == second ]]
+[[ "$(run_harness list | wc -l)" -eq 2 ]]
+
+if run_harness create TASK-101 >/dev/null 2>&1; then
+	echo 'duplicate task identifier was accepted' >&2
+	exit 1
+fi
+for unsafe_id in '../TASK-103' 'TASK-1' 'TASK-104/other' 'task-104'; do
+	if run_harness create "$unsafe_id" >/dev/null 2>&1; then
+		echo "unsafe task identifier was accepted: ${unsafe_id}" >&2
+		exit 1
+	fi
+done
+if run_harness finish TASK-101 >/dev/null 2>&1; then
+	echo 'dirty worktree was removed' >&2
+	exit 1
+fi
+[[ -d "${managed_root}/TASK-101" ]]
+
+git -C "${managed_root}/TASK-102" add task-two.txt
+git -C "${managed_root}/TASK-102" commit -qm 'test: task two change'
+rm -rf "${managed_root}/TASK-102/.next"
+run_harness finish TASK-102 >/dev/null
+[[ ! -e "${managed_root}/TASK-102" ]]
+git -C "$repository" show-ref --verify --quiet refs/heads/task/TASK-102
+
+echo 'Task worktree regression tests passed.'

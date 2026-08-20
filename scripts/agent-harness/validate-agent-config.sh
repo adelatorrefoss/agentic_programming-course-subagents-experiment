@@ -154,3 +154,4 @@ fi
 echo "Agent configuration valid: ${agent_count} definition(s)."
 
 bash scripts/agent-harness/test-next-build-lock.sh
+bash scripts/agent-harness/test-task-worktrees.sh

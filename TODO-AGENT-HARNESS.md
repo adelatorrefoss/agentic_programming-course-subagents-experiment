@@ -34,6 +34,24 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-026 | Medium | Serialize or isolate delegated commands that write shared build state (especially Next.js `.next`), while allowing independent read-only and focused test work to remain parallel. | Developer Experience | ✅ Done |
 | AH-027 | Medium | Require mutation-tool onboarding to probe the repository's actual test environments before selecting coverage analysis, and document an evidence-based fallback when file-level environments are incompatible with per-test coverage. | Test Infrastructure | ✅ Done |
 | AH-028 | High | Require tools that create instrumented or generated sandboxes to clean them after success and failure, and exclude their temp/report paths from repository-wide lint, formatting, test discovery, and Git. | Developer Experience | ✅ Done |
+| AH-029 | High | Isolate parallel tasks in dedicated linked Git worktrees and task branches, with validated identifiers, explicit task-lead integration, and cleanup that refuses dirty worktrees. | Developer Experience | ✅ Done |
+
+### AH-029 completion evidence
+
+- `scripts/agent-harness/task-worktree.sh` creates, lists, and safely finishes a
+  dedicated `task/TASK-XXX` worktree under an external configurable root. It
+  rejects unsafe identifiers, duplicate branches/paths and in-repository roots;
+  cleanup uses no force, refuses tracked or untracked changes, and preserves the
+  task branch for explicit task-lead integration and later deletion.
+- `scripts/agent-harness/test-task-worktrees.sh` creates two real linked
+  worktrees in a temporary repository, proves task files and `.next` output are
+  isolated, checks duplicate/unsafe input rejection, and proves a dirty
+  worktree cannot be removed. It is part of `npm run agents:validate` through
+  `validate-agent-config.sh`.
+- `AGENTS.md`, `docs/agent-harness.md`, the delegation template, and coordination
+  README require agents to stay in the assigned worktree and make the task lead
+  merge or cherry-pick deliberately. They also state that PostgreSQL and Ollama
+  remain shared and require namespacing or serialization.
 
 ## TASK-004 harness retrospective — 2026-08-20
 

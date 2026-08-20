@@ -18,6 +18,9 @@ The record is the handoff contract for the task. It must preserve:
   passing command, and `producer-to-consumer:` evidence;
 - one evidence row for every acceptance criterion and checked TODO item, naming
   both the implementation artifact and a passing verification.
+- the dedicated `task/TASK-XXX` branch and linked-worktree path used for
+  parallel execution, the shared PostgreSQL/Ollama isolation plan, and the task
+  lead's explicit merge/cherry-pick integration method and clean removal evidence.
 
 Run `npm run agents:validate` before closeout. It rejects records with missing,
 placeholder, or pending acceptance evidence, and cross-agent evidence made only

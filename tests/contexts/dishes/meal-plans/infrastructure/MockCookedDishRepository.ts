@@ -1,6 +1,8 @@
 import { CookedDish } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDish";
 import { CookedDishId } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDishId";
 import { CookedDishRepository } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDishRepository";
+import { CookedDishSearchCriteria } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDishSearchCriteria";
+import { CookedDishRepositorySearchResult } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDishSearchResult";
 
 export class MockCookedDishRepository implements CookedDishRepository {
 	private defaultResult: CookedDish | null = null;
@@ -26,6 +28,12 @@ export class MockCookedDishRepository implements CookedDishRepository {
 
 	async searchAll(): Promise<CookedDish[]> {
 		return [];
+	}
+
+	async search(
+		_criteria: CookedDishSearchCriteria,
+	): Promise<CookedDishRepositorySearchResult> {
+		return { items: [], totalItems: 0 };
 	}
 
 	async searchByRecentSimilarIngredients(

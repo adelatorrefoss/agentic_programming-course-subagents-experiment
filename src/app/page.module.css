@@ -450,6 +450,124 @@
 	animation: fadeIn 0.6s ease;
 }
 
+.searchForm {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.875rem;
+	padding: 1rem;
+	background: var(--bg-secondary);
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-md);
+}
+
+.searchForm label,
+.searchFieldWide {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	font-size: 0.75rem;
+	color: var(--text-secondary);
+}
+
+.searchFieldWide,
+.searchTypes,
+.searchActions {
+	grid-column: 1 / -1;
+}
+
+.searchForm input[type='search'],
+.searchForm input[type='date'],
+.searchForm select {
+	width: 100%;
+	min-width: 0;
+	padding: 0.65rem 0.7rem;
+	background: var(--bg-input);
+	color: var(--text-primary);
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-sm);
+	font: inherit;
+}
+
+.searchForm input:focus,
+.searchForm select:focus {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.searchTypes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem 1.25rem;
+	padding: 0;
+	border: 0;
+}
+
+.searchTypes legend {
+	width: 100%;
+	font-size: 0.75rem;
+	color: var(--text-secondary);
+	margin-bottom: 0.35rem;
+}
+
+.searchTypes label {
+	flex-direction: row;
+	align-items: center;
+	cursor: pointer;
+}
+
+.searchActions,
+.pagination,
+.searchError {
+	display: flex;
+	gap: 0.75rem;
+}
+
+.searchActions button,
+.pagination button,
+.searchError button {
+	padding: 0.65rem 0.9rem;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--border-subtle);
+	background: var(--bg-tertiary);
+	color: var(--text-primary);
+	cursor: pointer;
+}
+
+.searchActions button[type='submit'] {
+	background: var(--accent);
+	color: var(--bg-primary);
+	border-color: var(--accent);
+}
+
+.searchActions button:disabled,
+.pagination button:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.searchStatus {
+	padding: 1.5rem;
+	text-align: center;
+	color: var(--text-muted);
+	background: var(--bg-secondary);
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-md);
+}
+
+.searchError {
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+	color: var(--danger);
+	background: rgba(239, 68, 68, 0.1);
+	border: 1px solid rgba(239, 68, 68, 0.3);
+	border-radius: var(--radius-md);
+}
+
+.pagination {
+	justify-content: space-between;
+}
+
 .cookedDishesList {
 	display: flex;
 	flex-direction: column;
@@ -535,5 +653,15 @@
 
 	.subtitle {
 		font-size: 0.9375rem;
+	}
+
+	.searchForm {
+		grid-template-columns: 1fr;
+	}
+
+	.searchForm label,
+	.searchTypes,
+	.searchActions {
+		grid-column: 1;
 	}
 }

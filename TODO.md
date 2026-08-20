@@ -98,19 +98,19 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 
 ### Alcance
 
-- [ ] Definir un objeto de criterios de búsqueda independiente de PostgreSQL.
-- [ ] Añadir filtros combinables, ordenación permitida y paginación con límites seguros.
-- [ ] Diseñar los índices necesarios y justificar cada uno.
-- [ ] Implementar la consulta en `PostgresCookedDishRepository` con parámetros seguros.
-- [ ] Crear el caso de uso de búsqueda sin lógica de negocio en la ruta.
-- [ ] Exponer `GET /api/cooked-dishes` con los nuevos parámetros.
-- [ ] Devolver resultados y metadatos de paginación.
-- [ ] Validar parámetros y responder de forma consistente ante valores inválidos.
-- [ ] Crear controles de filtros, ordenación y paginación en la interfaz.
-- [ ] Mostrar resultados, metadatos y estados de carga o error de la búsqueda.
-- [ ] Probar filtros aislados, combinaciones, ordenación y límites de página.
-- [ ] Añadir tests de integración que detecten errores en el SQL real.
-- [ ] Verificar lint, build y tests con `npm run prep`.
+- [x] Definir un objeto de criterios de búsqueda independiente de PostgreSQL.
+- [x] Añadir filtros combinables, ordenación permitida y paginación con límites seguros.
+- [x] Diseñar los índices necesarios y justificar cada uno.
+- [x] Implementar la consulta en `PostgresCookedDishRepository` con parámetros seguros.
+- [x] Crear el caso de uso de búsqueda sin lógica de negocio en la ruta.
+- [x] Exponer `GET /api/cooked-dishes` con los nuevos parámetros.
+- [x] Devolver resultados y metadatos de paginación.
+- [x] Validar parámetros y responder de forma consistente ante valores inválidos.
+- [x] Crear controles de filtros, ordenación y paginación en la interfaz.
+- [x] Mostrar resultados, metadatos y estados de carga o error de la búsqueda.
+- [x] Probar filtros aislados, combinaciones, ordenación y límites de página.
+- [x] Añadir tests de integración que detecten errores en el SQL real.
+- [x] Verificar lint, build y tests con `npm run prep`.
 
 ### Reparto recomendado
 

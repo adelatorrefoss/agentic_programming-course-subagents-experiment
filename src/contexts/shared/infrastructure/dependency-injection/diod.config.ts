@@ -7,6 +7,7 @@ import { CookedDishRatingsSummarizer } from "../../../dishes/cooked-dish-ratings
 import { CookedDishRatingRepository } from "../../../dishes/cooked-dish-ratings/domain/CookedDishRatingRepository";
 import { PostgresCookedDishRatingRepository } from "../../../dishes/cooked-dish-ratings/infrastructure/PostgresCookedDishRatingRepository";
 import { CookedDishCreator } from "../../../dishes/cooked-dishes/application/create/CookedDishCreator";
+import { CookedDishesSearcher } from "../../../dishes/cooked-dishes/application/search/CookedDishesSearcher";
 import { AllCookedDishesSearcher } from "../../../dishes/cooked-dishes/application/search-all/AllCookedDishesSearcher";
 import { CookedDishByIdSearcher } from "../../../dishes/cooked-dishes/application/search-by-id/CookedDishByIdSearcher";
 import { CookedDishesBySimilarIngredientsSearcher } from "../../../dishes/cooked-dishes/application/search-by-similar-ingredients/CookedDishesBySimilarIngredientsSearcher";
@@ -85,6 +86,7 @@ builder.registerAndUse(PostgresCookedDishRepository);
 builder.registerAndUse(CookedDishCreator);
 builder.registerAndUse(AllCookedDishesSearcher);
 builder.registerAndUse(CookedDishByIdSearcher);
+builder.registerAndUse(CookedDishesSearcher);
 builder.registerAndUse(CookedDishesBySimilarIngredientsSearcher);
 
 // WeeklyMealPlan

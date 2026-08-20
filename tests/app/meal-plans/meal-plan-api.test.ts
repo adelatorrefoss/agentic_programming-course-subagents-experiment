@@ -148,13 +148,29 @@ describe("meal-plan API adapter should", () => {
 		);
 	});
 
-	it("parse current and paginated cooked-dish catalog responses", async () => {
+	it("consume only the final paginated cooked-dish catalog", async () => {
 		const dishes = [
 			{ id: "dish-1", name: "Rice", description: "Simple rice" },
 		];
-		expect(parseCookedDishCatalog(dishes)).toEqual(dishes);
 		expect(parseCookedDishCatalog({ items: dishes })).toEqual(dishes);
-		fetchMock.mockResolvedValue(response(200, dishes));
+		expect(() => parseCookedDishCatalog(dishes)).toThrow(
+			"Cooked dish catalog has an invalid response shape",
+		);
+		fetchMock.mockResolvedValue(
+			response(200, {
+				items: dishes,
+				pagination: {
+					page: 1,
+					pageSize: 50,
+					totalItems: 1,
+					totalPages: 1,
+				},
+			}),
+		);
 		await expect(loadCookedDishCatalog()).resolves.toEqual(dishes);
+		expect(fetchMock).toHaveBeenCalledWith(
+			"/api/cooked-dishes?page=1&pageSize=50&sortBy=name&sortDirection=asc",
+			undefined,
+		);
 	});
 });

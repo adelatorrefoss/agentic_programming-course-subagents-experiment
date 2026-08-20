@@ -1,11 +1,14 @@
 import { CookedDish } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDish";
 import { CookedDishId } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDishId";
 import { CookedDishRepository } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDishRepository";
+import { CookedDishSearchCriteria } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDishSearchCriteria";
+import { CookedDishRepositorySearchResult } from "../../../../../src/contexts/dishes/cooked-dishes/domain/CookedDishSearchResult";
 
 export class MockCookedDishRepository implements CookedDishRepository {
 	private readonly mockSave = jest.fn();
 	private readonly mockSearchById = jest.fn();
 	private readonly mockSearchAll = jest.fn();
+	private readonly mockSearch = jest.fn();
 	private readonly mockSearchByRecentSimilarIngredients = jest.fn();
 
 	async save(dish: CookedDish): Promise<void> {
@@ -32,6 +35,16 @@ export class MockCookedDishRepository implements CookedDishRepository {
 
 	shouldSearchAllReturn(dishes: CookedDish[]): void {
 		this.mockSearchAll.mockReturnValue(dishes);
+	}
+
+	async search(
+		_criteria: CookedDishSearchCriteria,
+	): Promise<CookedDishRepositorySearchResult> {
+		return this.mockSearch() as CookedDishRepositorySearchResult;
+	}
+
+	shouldSearchReturn(result: CookedDishRepositorySearchResult): void {
+		this.mockSearch.mockReturnValue(result);
 	}
 
 	async searchByRecentSimilarIngredients(

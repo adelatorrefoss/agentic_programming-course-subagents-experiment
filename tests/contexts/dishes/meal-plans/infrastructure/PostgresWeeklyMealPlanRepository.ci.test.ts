@@ -8,6 +8,7 @@ import { WeeklyMealPlanShoppingListGenerator } from "../../../../../src/contexts
 import { WeeklyMealPlanAlreadyExistsError } from "../../../../../src/contexts/dishes/meal-plans/domain/WeeklyMealPlanAlreadyExistsError";
 import { WeeklyMealPlanSlotAlreadyOccupiedError } from "../../../../../src/contexts/dishes/meal-plans/domain/WeeklyMealPlanSlotAlreadyOccupiedError";
 import { PostgresWeeklyMealPlanRepository } from "../../../../../src/contexts/dishes/meal-plans/infrastructure/PostgresWeeklyMealPlanRepository";
+import { EmbeddingsGenerator } from "../../../../../src/contexts/shared/domain/EmbeddingsGenerator";
 import { PostgresConnection } from "../../../../../src/contexts/shared/infrastructure/postgres/PostgresConnection";
 import { CookedDishMother } from "../../../dishes/cooked-dishes/domain/CookedDishMother";
 import { WeeklyMealPlanMother } from "../domain/WeeklyMealPlanMother";
@@ -20,7 +21,13 @@ const connection = new PostgresConnection(
 	"postgres",
 );
 const planRepository = new PostgresWeeklyMealPlanRepository(connection);
-const dishRepository = new PostgresCookedDishRepository(connection);
+const unusedEmbeddingsGenerator: EmbeddingsGenerator = {
+	embed: async (): Promise<number[]> => [],
+};
+const dishRepository = new PostgresCookedDishRepository(
+	connection,
+	unusedEmbeddingsGenerator,
+);
 
 async function insertCookedDish(
 	dish: ReturnType<typeof CookedDishMother.create>,

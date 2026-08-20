@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
+
+import {
+	CookedDishSearchCriteria,
+	CookedDishSearchItem,
+	DEFAULT_SEARCH_CRITERIA,
+	IngredientType,
+	loadCookedDishSearch,
+} from "./cooked-dish-search";
 
 import styles from "./page.module.css";
 
@@ -11,14 +19,6 @@ interface SuggestedDish {
 	ingredients: { name: string; type: string }[];
 }
 
-interface CookedDish {
-	id: string;
-	name: string;
-	description: string;
-	ingredients: { name: string; type: string }[];
-	ratingSummary: { average: number | null; total: number };
-}
-
 export default function Home() {
 	const [ingredients, setIngredients] = useState<string[]>(["", "", ""]);
 	const [suggestedDish, setSuggestedDish] = useState<SuggestedDish | null>(
@@ -26,26 +26,85 @@ export default function Home() {
 	);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [cookedDishes, setCookedDishes] = useState<CookedDish[]>([]);
+	const [cookedDishes, setCookedDishes] = useState<CookedDishSearchItem[]>(
+		[],
+	);
 	const [isLoadingDishes, setIsLoadingDishes] = useState(true);
+	const [searchForm, setSearchForm] = useState<CookedDishSearchCriteria>({
+		...DEFAULT_SEARCH_CRITERIA,
+	});
+	const [searchCriteria, setSearchCriteria] =
+		useState<CookedDishSearchCriteria>({ ...DEFAULT_SEARCH_CRITERIA });
+	const [pagination, setPagination] = useState({
+		page: 1,
+		pageSize: 12,
+		totalItems: 0,
+		totalPages: 0,
+	});
+	const [dishSearchError, setDishSearchError] = useState<string | null>(null);
+	const searchRequestIdRef = useRef(0);
 
 	useEffect(() => {
+		const requestId = ++searchRequestIdRef.current;
+		const controller = new AbortController();
 		const fetchCookedDishes = async () => {
+			setIsLoadingDishes(true);
+			setDishSearchError(null);
 			try {
-				const response = await fetch("/api/cooked-dishes");
-				if (response.ok) {
-					const dishes = await response.json();
-					setCookedDishes(dishes);
+				const result = await loadCookedDishSearch(
+					searchCriteria,
+					controller.signal,
+				);
+				if (requestId === searchRequestIdRef.current) {
+					setCookedDishes(result.items);
+					setPagination(result.pagination);
 				}
-			} catch {
-				// Silently fail - dishes will just be empty
+			} catch (searchError) {
+				if (
+					requestId === searchRequestIdRef.current &&
+					!(
+						searchError instanceof DOMException &&
+						searchError.name === "AbortError"
+					)
+				) {
+					setCookedDishes([]);
+					setDishSearchError(
+						"Cooked dishes could not be loaded. Please try again.",
+					);
+				}
 			} finally {
-				setIsLoadingDishes(false);
+				if (requestId === searchRequestIdRef.current) {
+					setIsLoadingDishes(false);
+				}
 			}
 		};
 
 		void fetchCookedDishes();
-	}, []);
+
+		return () => controller.abort();
+	}, [searchCriteria]);
+
+	const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setSearchCriteria({ ...searchForm, page: 1 });
+	};
+
+	const handleSearchReset = () => {
+		const defaults = { ...DEFAULT_SEARCH_CRITERIA };
+		setSearchForm(defaults);
+		setSearchCriteria(defaults);
+	};
+
+	const toggleIngredientType = (type: IngredientType) => {
+		setSearchForm((current) => ({
+			...current,
+			ingredientTypes: current.ingredientTypes.includes(type)
+				? current.ingredientTypes.filter(
+						(candidate) => candidate !== type,
+					)
+				: [...current.ingredientTypes, type],
+		}));
+	};
 
 	const handleIngredientChange = (index: number, value: string) => {
 		const newIngredients = [...ingredients];
@@ -120,14 +179,7 @@ export default function Home() {
 				throw new Error("Failed to save dish");
 			}
 
-			const newCookedDish: CookedDish = {
-				id: uuid,
-				name: suggestedDish.name,
-				description: suggestedDish.description,
-				ingredients: suggestedDish.ingredients,
-				ratingSummary: { average: null, total: 0 },
-			};
-			setCookedDishes([newCookedDish, ...cookedDishes]);
+			setSearchCriteria((current) => ({ ...current, page: 1 }));
 			setSuggestedDish(null);
 		} catch (err) {
 			setError(
@@ -363,98 +415,325 @@ export default function Home() {
 					</section>
 				)}
 
-				{!isLoadingDishes && cookedDishes.length > 0 && (
-					<section className={styles.cookedDishesSection}>
-						<div className={styles.sectionHeader}>
-							<span className={styles.sectionLabel}>
-								Your cooked dishes
+				<section
+					className={styles.cookedDishesSection}
+					aria-labelledby="cooked-dishes-title"
+				>
+					<div className={styles.sectionHeader}>
+						<span
+							id="cooked-dishes-title"
+							className={styles.sectionLabel}
+						>
+							Your cooked dishes
+						</span>
+						{!isLoadingDishes && !dishSearchError && (
+							<span className={styles.counter} aria-live="polite">
+								{pagination.totalItems} dishes
 							</span>
-							<span className={styles.counter}>
-								{cookedDishes.length} dishes
-							</span>
+						)}
+					</div>
+
+					<form
+						className={styles.searchForm}
+						onSubmit={handleSearchSubmit}
+					>
+						<label className={styles.searchFieldWide}>
+							<span>Search name or description</span>
+							<input
+								type="search"
+								value={searchForm.text}
+								maxLength={100}
+								onChange={(event) =>
+									setSearchForm((current) => ({
+										...current,
+										text: event.target.value,
+									}))
+								}
+								placeholder="e.g. soup"
+							/>
+						</label>
+
+						<fieldset className={styles.searchTypes}>
+							<legend>Ingredient types</legend>
+							<label>
+								<input
+									type="checkbox"
+									checked={searchForm.ingredientTypes.includes(
+										"main",
+									)}
+									onChange={() =>
+										toggleIngredientType("main")
+									}
+								/>
+								Main
+							</label>
+							<label>
+								<input
+									type="checkbox"
+									checked={searchForm.ingredientTypes.includes(
+										"household_staple",
+									)}
+									onChange={() =>
+										toggleIngredientType("household_staple")
+									}
+								/>
+								Household staple
+							</label>
+						</fieldset>
+
+						<label>
+							<span>Minimum rating</span>
+							<select
+								value={searchForm.minimumRating}
+								onChange={(event) =>
+									setSearchForm((current) => ({
+										...current,
+										minimumRating: event.target.value,
+									}))
+								}
+							>
+								<option value="">Any rating</option>
+								{[0, 1, 2, 3, 4, 5].map((rating) => (
+									<option key={rating} value={rating}>
+										{rating}+ stars
+									</option>
+								))}
+							</select>
+						</label>
+
+						<label>
+							<span>Cooked from</span>
+							<input
+								type="date"
+								value={searchForm.cookedFrom}
+								max={searchForm.cookedTo || undefined}
+								onChange={(event) =>
+									setSearchForm((current) => ({
+										...current,
+										cookedFrom: event.target.value,
+									}))
+								}
+							/>
+						</label>
+
+						<label>
+							<span>Cooked to</span>
+							<input
+								type="date"
+								value={searchForm.cookedTo}
+								min={searchForm.cookedFrom || undefined}
+								onChange={(event) =>
+									setSearchForm((current) => ({
+										...current,
+										cookedTo: event.target.value,
+									}))
+								}
+							/>
+						</label>
+
+						<label>
+							<span>Sort by</span>
+							<select
+								value={searchForm.sortBy}
+								onChange={(event) =>
+									setSearchForm((current) => ({
+										...current,
+										sortBy: event.target
+											.value as CookedDishSearchCriteria["sortBy"],
+									}))
+								}
+							>
+								<option value="cookedAt">Cooked date</option>
+								<option value="name">Name</option>
+								<option value="rating">Rating</option>
+							</select>
+						</label>
+
+						<label>
+							<span>Direction</span>
+							<select
+								value={searchForm.sortDirection}
+								onChange={(event) =>
+									setSearchForm((current) => ({
+										...current,
+										sortDirection: event.target
+											.value as CookedDishSearchCriteria["sortDirection"],
+									}))
+								}
+							>
+								<option value="desc">Descending</option>
+								<option value="asc">Ascending</option>
+							</select>
+						</label>
+
+						<div className={styles.searchActions}>
+							<button type="submit" disabled={isLoadingDishes}>
+								Search dishes
+							</button>
+							<button type="button" onClick={handleSearchReset}>
+								Reset filters
+							</button>
 						</div>
-						<div className={styles.cookedDishesList}>
-							{cookedDishes.map((dish) => (
-								<Link
-									key={dish.id}
-									href={`/cooked-dishes/${dish.id}`}
-									className={styles.cookedDishCardLink}
+					</form>
+
+					{isLoadingDishes ? (
+						<p className={styles.searchStatus} aria-live="polite">
+							Loading cooked dishes…
+						</p>
+					) : dishSearchError ? (
+						<div role="alert" className={styles.searchError}>
+							<span>{dishSearchError}</span>
+							<button
+								type="button"
+								onClick={() =>
+									setSearchCriteria((current) => ({
+										...current,
+									}))
+								}
+							>
+								Retry
+							</button>
+						</div>
+					) : cookedDishes.length === 0 ? (
+						<p className={styles.searchStatus}>
+							No cooked dishes match these filters.
+						</p>
+					) : (
+						<>
+							<div className={styles.sectionHeader}>
+								<span className={styles.counter}>
+									Showing {cookedDishes.length} of{" "}
+									{pagination.totalItems}
+								</span>
+								<span className={styles.counter}>
+									Page {pagination.page} of{" "}
+									{pagination.totalPages}
+								</span>
+							</div>
+							<div className={styles.cookedDishesList}>
+								{cookedDishes.map((dish) => (
+									<Link
+										key={dish.id}
+										href={`/cooked-dishes/${dish.id}`}
+										className={styles.cookedDishCardLink}
+									>
+										<article
+											className={styles.cookedDishCard}
+										>
+											<h3
+												className={
+													styles.cookedDishCard__name
+												}
+											>
+												{dish.name}
+											</h3>
+											<p
+												className={
+													styles.cookedDishCard__description
+												}
+											>
+												{dish.description}
+											</p>
+											<div
+												className={
+													styles.cookedDishCard__rating
+												}
+												aria-label={
+													dish.ratingSummary.total ===
+													0
+														? "Not rated yet"
+														: `${dish.ratingSummary.average?.toFixed(1)} out of 5 from ${dish.ratingSummary.total} ratings`
+												}
+											>
+												<span aria-hidden="true">
+													★
+												</span>
+												{dish.ratingSummary.total ===
+												0 ? (
+													<span>Not rated yet</span>
+												) : (
+													<>
+														<strong>
+															{dish.ratingSummary.average?.toFixed(
+																1,
+															)}
+														</strong>
+														<span>
+															{dish.ratingSummary
+																.total === 1
+																? "1 rating"
+																: `${dish.ratingSummary.total} ratings`}
+														</span>
+													</>
+												)}
+											</div>
+											<ul
+												className={
+													styles.cookedDishCard__ingredients
+												}
+											>
+												{dish.ingredients.map(
+													(ingredient, index) => (
+														<li
+															key={index}
+															className={`${styles.dish__ingredient} ${
+																ingredient.type ===
+																"main"
+																	? styles[
+																			"dish__ingredient--main"
+																		]
+																	: styles[
+																			"dish__ingredient--staple"
+																		]
+															}`}
+														>
+															{ingredient.name}
+														</li>
+													),
+												)}
+											</ul>
+										</article>
+									</Link>
+								))}
+							</div>
+							<nav
+								className={styles.pagination}
+								aria-label="Cooked dish result pages"
+							>
+								<button
+									type="button"
+									disabled={
+										pagination.page <= 1 || isLoadingDishes
+									}
+									onClick={() =>
+										setSearchCriteria((current) => ({
+											...current,
+											page: current.page - 1,
+										}))
+									}
 								>
-									<article className={styles.cookedDishCard}>
-										<h3
-											className={
-												styles.cookedDishCard__name
-											}
-										>
-											{dish.name}
-										</h3>
-										<p
-											className={
-												styles.cookedDishCard__description
-											}
-										>
-											{dish.description}
-										</p>
-										<div
-											className={
-												styles.cookedDishCard__rating
-											}
-											aria-label={
-												dish.ratingSummary.total === 0
-													? "Not rated yet"
-													: `${dish.ratingSummary.average?.toFixed(1)} out of 5 from ${dish.ratingSummary.total} ratings`
-											}
-										>
-											<span aria-hidden="true">★</span>
-											{dish.ratingSummary.total === 0 ? (
-												<span>Not rated yet</span>
-											) : (
-												<>
-													<strong>
-														{dish.ratingSummary.average?.toFixed(
-															1,
-														)}
-													</strong>
-													<span>
-														{dish.ratingSummary
-															.total === 1
-															? "1 rating"
-															: `${dish.ratingSummary.total} ratings`}
-													</span>
-												</>
-											)}
-										</div>
-										<ul
-											className={
-												styles.cookedDishCard__ingredients
-											}
-										>
-											{dish.ingredients.map(
-												(ingredient, index) => (
-													<li
-														key={index}
-														className={`${styles.dish__ingredient} ${
-															ingredient.type ===
-															"main"
-																? styles[
-																		"dish__ingredient--main"
-																	]
-																: styles[
-																		"dish__ingredient--staple"
-																	]
-														}`}
-													>
-														{ingredient.name}
-													</li>
-												),
-											)}
-										</ul>
-									</article>
-								</Link>
-							))}
-						</div>
-					</section>
-				)}
+									Previous page
+								</button>
+								<button
+									type="button"
+									disabled={
+										pagination.page >=
+											pagination.totalPages ||
+										isLoadingDishes
+									}
+									onClick={() =>
+										setSearchCriteria((current) => ({
+											...current,
+											page: current.page + 1,
+										}))
+									}
+								>
+									Next page
+								</button>
+							</nav>
+						</>
+					)}
+				</section>
 
 				<footer className={styles.footer}>
 					<p>Powered by Codely & Local AI…</p>

@@ -38,10 +38,6 @@ async function requestJson<T>(
 }
 
 export function parseCookedDishCatalog(payload: unknown): CookedDishOption[] {
-	if (Array.isArray(payload)) {
-		return payload as CookedDishOption[];
-	}
-
 	if (
 		typeof payload === "object" &&
 		payload !== null &&
@@ -55,7 +51,9 @@ export function parseCookedDishCatalog(payload: unknown): CookedDishOption[] {
 }
 
 export async function loadCookedDishCatalog(): Promise<CookedDishOption[]> {
-	const payload = await requestJson<unknown>("/api/cooked-dishes");
+	const payload = await requestJson<unknown>(
+		"/api/cooked-dishes?page=1&pageSize=50&sortBy=name&sortDirection=asc",
+	);
 
 	return parseCookedDishCatalog(payload);
 }

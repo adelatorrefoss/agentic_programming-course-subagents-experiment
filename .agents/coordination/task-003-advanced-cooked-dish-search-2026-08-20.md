@@ -52,16 +52,16 @@ Frontend component-test capability checkpoint:
 - Implementation commit subject: `feat(TASK-003): add advanced cooked dish search`
 - Agent output references: `task002_contract_audit` database handoff; `task001_frontend` TASK-003 handoff; `task001_tests` TASK-003 handoff; primary backend integration.
 - Contract-verification handoffs: Database delivered/applied idempotent DDL and safe query, then primary verified 10 real PostgreSQL tests and index presence; frontend delivered envelope-only consumers and accessible home states with lint/build; testing delivered 26 focused domain/use-case/API/React tests plus build.
-- Implementation commit: `679e411`
+- Implementation commit: `17d704e`
 - Code-review agent: `code-review`
-- PR code review commit range: `679e411^..679e411`
+- PR code review commit range: `17d704e^..2a0aef1`
 - Code-review verdict: `APPROVED`
-- Code-review evidence: Full-history checkout is configured before agent validation; the regression check is included in `agents:validate`; focused checkout-history validation, complete agent validation, and committed-diff whitespace checks passed.
-- Code-review report: `.agents/reviews/TASK-003-679e411.md`
-- Remediation required: no
-- Remediation commit subject: none (no findings)
-- Remediation commit: none (no findings)
-- Post-remediation validation commands and results: No remediation required; implementation validation passed `npm run agents:validate` and `npm run prep` with 105 regular and 11 CI tests.
+- Code-review evidence: Executable remote-CI verification rejects missing, pending, failed, and mismatched evidence, accepts matching success, and keeps the final run URL/result in the HIL handoff; shell syntax checks, focused fixtures, and `npm run agents:validate` passed.
+- Code-review report: `.agents/reviews/TASK-003-2a0aef1.md`
+- Remediation required: yes
+- Remediation commit subject: `fix(TASK-003): enforce post-push CI verification`
+- Remediation commit: `2a0aef1`
+- Post-remediation validation commands and results: `bash scripts/agent-harness/test-verify-remote-ci.sh` and `npm run agents:validate` passed; final `npm run prep` required before push.
 - Incremental coordination rule: User requested that every task commit include its current coordination record. Persisted as harness improvement `AH-020`; all commits after the request include this record.
 - Harness retro report: CI failure retro added completed recommendation AH-023 requiring full Git history before commit-backed coordination validation and a regression guard. It also consolidated the duplicate pending AH-021 register row; AH-001 through AH-023 are complete.
 - Harness retro commit subject: `chore(TASK-003): record CI checkout harness retro`
@@ -76,6 +76,7 @@ Frontend component-test capability checkpoint:
 | 2 | `2403e63..999670c` | `APPROVED` | `.agents/reviews/TASK-003-999670c.md` | All three findings reconfirmed fixed; 6 suites/48 focused tests passed. |
 | 3 | `679e411^..679e411` | `APPROVED` | `.agents/reviews/TASK-003-679e411.md` | Full-history checkout and its regression guard passed focused and complete agent validation. |
 | 4 | `17d704e^..17d704e` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-003-17d704e.md` | Remote CI was documentation-only and persisted evidence would recurse; executable verification and HIL-only evidence requested. |
+| 5 | `17d704e^..2a0aef1` | `APPROVED` | `.agents/reviews/TASK-003-2a0aef1.md` | Executable verifier covers all evidence states and HIL-only reporting avoids recursive closeout commits. |
 
 ## Acceptance evidence
 

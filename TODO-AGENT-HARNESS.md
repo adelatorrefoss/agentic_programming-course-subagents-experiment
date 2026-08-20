@@ -25,6 +25,7 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-017 | Medium | Persist every code-review round and its findings, remediation commit, and verdict in the task coordination record and under `.agents/reviews/`, rather than retaining only the final approval. | Task Lead | ✅ Done |
 | AH-018 | Medium | Audit required frontend component-test capabilities before delegation and provision `jsdom` plus React Testing Library before implementation when acceptance criteria require interactive UI proof. | Test Infrastructure | ✅ Done |
 | AH-019 | Medium | Use a stable icon/emoticon for every user-visible workflow update: 🗄️ database, ⚙️ backend, 🎨 frontend, 🧪 testing, 🔍 review, 🧰 retro, ✅ HIL/cierre. | Task Lead | ✅ Done |
+| AH-020 | High | Include the current task coordination record in every task commit so implementation, review, remediation and harness progress remain incrementally auditable. | Task Lead | ✅ Done |
 
 ## Maintenance rules
 

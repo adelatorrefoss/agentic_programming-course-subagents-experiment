@@ -8,11 +8,17 @@ para comenzar la siguiente tarea.
 
 El cierre se ejecuta en este orden:
 
+Durante todo el workflow, cada commit de la tarea debe incluir la versión
+actualizada de su archivo `.agents/coordination/`. El registro debe describir el
+estado alcanzado por ese mismo commit (artefactos, verificaciones, revisión o
+retro); no se permite acumular toda la trazabilidad en un commit final.
+
 1. Completar la implementación y vincular cada criterio de aceptación o TODO
    marcado con su artefacto y una verificación aprobada en el registro de
    coordinación.
 2. Ejecutar `npm run prep` y corregir cualquier fallo.
-3. Crear el commit de implementación `feat(TASK-XXX): ...`.
+3. Actualizar el registro de coordinación y crear el commit de implementación
+   `feat(TASK-XXX): ...`, incluyendo ambos cambios.
 4. Invocar `code-review` con el rango exacto de commits, persistir su informe en
    `.agents/reviews/` y repetir el ciclo `fix(TASK-XXX): ...` hasta obtener
    `APPROVED`.
@@ -26,8 +32,9 @@ El cierre se ejecuta en este orden:
    registro de coordinación; no puede quedar simplemente pendiente.
 9. Verificar las mejoras del harness y crear un segundo commit independiente:
    `chore(TASK-XXX): implement harness retro todos`.
-10. Actualizar el registro de coordinación con los commits, verificaciones,
-    informe del retro y sign-off final.
+10. Completar el registro de coordinación con los commits, verificaciones,
+    informe del retro y sign-off final; como en cada commit anterior, incluir
+    esa actualización en el commit correspondiente.
 11. Ejecutar `npm run prep`, `npm run agents:validate` y comprobar que
     `git status --short` no contiene cambios de la tarea sin registrar.
 12. Mostrar al usuario un resumen visual HIL (human in the loop) con la

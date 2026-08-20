@@ -81,7 +81,7 @@ Frontend component-test capability checkpoint:
 | 2 | `dd04873^..dd04873` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-dd04873.md` | Scope the no-boundaries sentinel to its section; reclaim abandoned build locks safely and test both failure paths. |
 | 3 | `dd04873^..27fee8a` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-27fee8a.md` | Out-of-section sentinel fixed; replace unsafe PID reclamation and make in-section `none` exclusive. |
 | 4 | `dd04873^..40e7150` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-004-40e7150.md` | Prior findings resolved; move persistent lock out of tracked worktree and avoid unsafe truncating opens. |
-| 5 | final clean-worktree lock remediation to be reviewed | remediation implemented | review report to follow | Default lock is Git-internal, non-truncating and rejects symlinks; temp-repository regression preserves status and content. |
+| 5 | `dd04873^..7a0d0e4` | `APPROVED` | `.agents/reviews/TASK-004-7a0d0e4.md` | All sentinel, ownership-race, surviving-child, clean-worktree, truncation and symlink findings resolved; focused regressions passed. |
 
 ## Acceptance evidence
 

@@ -52,16 +52,16 @@ Frontend component-test capability checkpoint:
 - Implementation commit subject: `feat(TASK-003): add advanced cooked dish search`
 - Agent output references: `task002_contract_audit` database handoff; `task001_frontend` TASK-003 handoff; `task001_tests` TASK-003 handoff; primary backend integration.
 - Contract-verification handoffs: Database delivered/applied idempotent DDL and safe query, then primary verified 10 real PostgreSQL tests and index presence; frontend delivered envelope-only consumers and accessible home states with lint/build; testing delivered 26 focused domain/use-case/API/React tests plus build.
-- Implementation commit: `09c4e33`
+- Implementation commit: `679e411`
 - Code-review agent: `code-review`
-- PR code review commit range: `2403e63..999670c`
+- PR code review commit range: `679e411^..679e411`
 - Code-review verdict: `APPROVED`
-- Code-review evidence: The complete committed range and affected context were inspected. `git diff --check` passed and focused verification passed with 6 suites and 48 tests, including the real PostgreSQL repository suite. Page and offset are operationally bounded with tested edges; the meal planner retrieves and terminates across all catalog pages and proves access to dish 51; literal backslash, percent, underscore and apostrophe matching is proven against PostgreSQL. SQL parameterization, allow-listed ordering, count semantics, UTC date bounds, null ratings, consistent 400 responses, paginated consumers, home race protection/accessibility and index rationale were reconfirmed. Coordination and harness commits accurately preserve the earlier findings and workflow state.
-- Code-review report: `.agents/reviews/TASK-003-999670c.md`
-- Remediation required: yes
-- Remediation commit subject: `fix(TASK-003): harden search pagination and catalog completeness`
-- Remediation commit: `8e5b34c`
-- Post-remediation validation commands and results: `npm run prep` passed lint, Next build, 105 regular tests and 11 CI tests.
+- Code-review evidence: Full-history checkout is configured before agent validation; the regression check is included in `agents:validate`; focused checkout-history validation, complete agent validation, and committed-diff whitespace checks passed.
+- Code-review report: `.agents/reviews/TASK-003-679e411.md`
+- Remediation required: no
+- Remediation commit subject: none (no findings)
+- Remediation commit: none (no findings)
+- Post-remediation validation commands and results: No remediation required; implementation validation passed `npm run agents:validate` and `npm run prep` with 105 regular and 11 CI tests.
 - Incremental coordination rule: User requested that every task commit include its current coordination record. Persisted as harness improvement `AH-020`; all commits after the request include this record.
 - Harness retro report: TASK-003 retro added AH-021 for time-boxed external-service tests with actionable diagnostics. AH-020 was confirmed implemented and not duplicated. User feedback additionally produced AH-022 for task/role-specific agent thread names. Both new items are implemented and verified.
 - Harness retro commit subject: `chore(TASK-003): record advanced search harness retro`
@@ -74,6 +74,7 @@ Frontend component-test capability checkpoint:
 | --- | --- | --- | --- | --- |
 | 1 | `2403e63..09c4e33` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-003-09c4e33.md` | Bound page/offset, paginate the full planner catalog and add real backslash coverage. Remediated by `8e5b34c`. |
 | 2 | `2403e63..999670c` | `APPROVED` | `.agents/reviews/TASK-003-999670c.md` | All three findings reconfirmed fixed; 6 suites/48 focused tests passed. |
+| 3 | `679e411^..679e411` | `APPROVED` | `.agents/reviews/TASK-003-679e411.md` | Full-history checkout and its regression guard passed focused and complete agent validation. |
 
 ## Acceptance evidence
 
@@ -94,4 +95,4 @@ Frontend component-test capability checkpoint:
 | AC-13 | Full lint, build and tests | Entire TASK-003 implementation | Post-remediation `npm run prep` passed: lint, Next build, 105 regular and 11 CI tests |
 | AC-14 | Invoke harness-retro and register recommendations | AH-021/AH-022 in `TODO-AGENT-HARNESS.md` | External runner self-test and real 10-test PostgreSQL run passed; naming guidance documented |
 | AC-15 | Persist coordination with each originating change | `AH-020`, closeout workflow and delegation template | Documentation inspection and `npm run agents:validate` passed |
-| AC-16 | CI can validate historical coordination commit evidence | `.github/workflows/ci.yml` full-history checkout and `test-ci-checkout-history.sh` regression check | `npm run agents:validate` and a depth-1 reproduction prove the failure mode; final `npm run prep` required |
+| AC-16 | CI can validate historical coordination commit evidence | `.github/workflows/ci.yml` full-history checkout and `test-ci-checkout-history.sh` regression check | `npm run agents:validate`, depth-1 failure reproduction, `npm run prep`, and independent review `APPROVED` |

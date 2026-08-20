@@ -39,10 +39,13 @@ solo para el avance de coordinación cuando existen artefactos asociados.
     esa actualización en el commit correspondiente.
 11. Ejecutar `npm run prep`, `npm run agents:validate` y comprobar que
     `git status --short` no contiene cambios de la tarea sin registrar.
-12. Mostrar al usuario un resumen visual HIL (human in the loop) con la
+12. Publicar todos los commits completados y monitorizar hasta su finalización
+    el run de GitHub Actions correspondiente al commit publicado. No cerrar la
+    tarea si CI falla o si todavía está en curso; registrar la URL y el resultado.
+13. Mostrar al usuario un resumen visual HIL (human in the loop) con la
     funcionalidad entregada, verificaciones, resultado de revisión, cambios del
-    harness, commits, advertencias relevantes y estado de preparación para la
-    siguiente tarea.
+    harness, commits, CI remoto, advertencias relevantes y estado de preparación
+    para la siguiente tarea.
 
 El resumen HIL es una puerta de visibilidad, no una sustitución de las
 evidencias persistidas. Si queda una advertencia, un bloqueo o trabajo fuera de
@@ -94,6 +97,7 @@ muestran el nombre actual, no el identificador legado.
 │ Harness retro   2 TODOs registrados              ✅ │
 │ Harness TODOs   2 implementados y verificados    ✅ │
 │ Coordination    Evidencias completas             ✅ │
+│ Remote CI       GitHub Actions                   ✅ │
 │ Worktree        Limpio                           ✅ │
 └─ Siguiente tarea: lista para comenzar ─────────────┘
 

@@ -29,6 +29,7 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-021 | Medium | Time-box focused tests that depend on external services and emit an actionable diagnostic on timeout or sandbox denial, so agents can distinguish infrastructure access failures from product failures without waiting indefinitely. | Test Infrastructure | ✅ Done |
 | AH-022 | Medium | Name newly spawned agent threads with the current task identifier and role; when reusing a persistent legacy thread, spawn a correctly named nested worker and expose that current name in user-visible status. | Task Lead | ✅ Done |
 | AH-023 | High | Fetch complete Git history in CI before validating commit-backed coordination evidence, and keep a harness regression check that rejects shallow checkout configuration for that validation job. | Test Infrastructure | ✅ Done |
+| AH-024 | High | Make push plus successful monitoring of the corresponding GitHub Actions run the final task-completion gate, and include its URL and result in the HIL handoff. | Task Lead | ✅ Done |
 
 ## Maintenance rules
 

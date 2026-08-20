@@ -4,7 +4,7 @@
 
 - Task: Add advanced, safely paginated cooked-dish search.
 - Task identifier (`TASK-XXX`): `TASK-003`
-- Lifecycle: `closed`
+- Lifecycle: `in-progress`
 - Expected outcome: Search by text, ingredient types, minimum rating and date range with allow-listed sorting, metadata, UI controls and robust states.
 - Scope boundaries: Preserve create/by-id/similarity behavior; evolve list GET to a paginated envelope and update all current consumers.
 
@@ -97,3 +97,4 @@ Frontend component-test capability checkpoint:
 | AC-15 | Persist coordination with each originating change | `AH-020`, closeout workflow and delegation template | Documentation inspection and `npm run agents:validate` passed |
 | AC-16 | CI can validate historical coordination commit evidence | `.github/workflows/ci.yml` full-history checkout and `test-ci-checkout-history.sh` regression check | `npm run agents:validate`, depth-1 failure reproduction, `npm run prep`, and independent review `APPROVED` |
 | AH-023 | Require full history for commit-backed CI validation and guard the configuration | `fetch-depth: 0`, `test-ci-checkout-history.sh`, and completed `TODO-AGENT-HARNESS.md` entry | Focused guard and `npm run agents:validate` passed; code review `APPROVED` |
+| AH-024 | Require push and successful remote CI monitoring before task completion | `AGENTS.md`, task closeout workflow, delegation template, and completed harness TODO entry | Documentation inspection; remote run URL and success required before final handoff |

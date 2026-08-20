@@ -73,6 +73,9 @@ verified against that contract, including applicable boundary semantics such as
 - Harness retro report:
 - Harness retro commit subject: `chore(TASK-XXX): ...`
 - Harness retro commit:
+- Pushed commit:
+- GitHub Actions run:
+- Remote CI result:
 - Final sign-off:
 
 ### Code-review rounds

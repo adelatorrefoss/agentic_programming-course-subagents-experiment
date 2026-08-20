@@ -119,9 +119,10 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
   that mutate shared service state.
 - The task lead reviews and integrates each task branch explicitly, using a
   merge or cherry-pick according to the task's commit contract. After
-  integration, run `task-worktree.sh finish TASK-004`. Cleanup refuses dirty
-  worktrees, uses no force option, and preserves the branch for deliberate
-  deletion later. Never treat cleanup as integration.
+  integration and green main CI, run `task-worktree.sh finish TASK-004`.
+  Cleanup refuses dirty worktrees, requires the task branch to be merged into
+  `main`, deletes that local branch, and uses no force option. Never treat
+  cleanup as integration.
 - Task branches are validated locally but are not pushed and do not receive
   remote CI. This is the repository's trunk-based workflow: feature branches
   are local working branches only. After integration into `main`, push `main` and run

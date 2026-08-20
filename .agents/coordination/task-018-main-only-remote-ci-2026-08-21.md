@@ -69,3 +69,4 @@ none (no cross-agent runtime boundaries)
 | AC-02 | Main push and CI are the remote completion gate | `verify-remote-ci.sh` | Main-only branch check and final remote CI run |
 | AC-03 | Task-branch CI cannot satisfy the gate | `test-verify-remote-ci.sh` | Positive main fixture and negative task-branch/override fixtures pass |
 | AC-04 | Integration prefers rebase then non-fast-forward merge, with a direct merge fallback | `AGENTS.md`, `docs/agent-harness.md`, closeout workflow, delegation template | Lifecycle source scan documents clean-rebase and conflict-heavy fallback paths |
+| AC-05 | Delete the local feature branch after successful main integration | `task-worktree.sh`, `test-task-worktrees.sh`, lifecycle documentation | Regression test confirms merged branches are deleted and unmerged branches are protected |

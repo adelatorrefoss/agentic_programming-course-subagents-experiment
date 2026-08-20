@@ -38,4 +38,9 @@ if verify_fixture "$fixture_dir/task-branch.json" >/dev/null 2>&1; then
 	exit 1
 fi
 
+if REMOTE_CI_EXPECTED_BRANCH="task/TASK-018" verify_fixture "$fixture_dir/task-branch.json" >/dev/null 2>&1; then
+	echo "Remote CI verifier allowed overriding the mandatory main branch." >&2
+	exit 1
+fi
+
 echo "Remote CI verification tests passed."

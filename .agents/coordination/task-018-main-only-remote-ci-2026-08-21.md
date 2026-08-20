@@ -37,13 +37,13 @@ none (no cross-agent runtime boundaries)
 ## Integration handoff
 
 - Implementation commit subject: `docs(TASK-018): require main-only remote CI`
-- Implementation commit: pending
+- Implementation commit: `44814fe`
 - Code-review agent: `code-review`
-- PR code review commit range: pending
-- Code-review verdict: pending
-- Code-review evidence: pending
-- Code-review report: pending
-- Remediation required: pending
+- PR code review commit range: `44814fe^..44814fe`
+- Code-review verdict: `CHANGES_REQUESTED`
+- Code-review evidence: Review found that `REMOTE_CI_EXPECTED_BRANCH` could bypass the mandatory `main` branch requirement.
+- Code-review report: `.agents/reviews/TASK-018-44814fe.md`
+- Remediation required: yes
 - Remediation commit subject: `none (no findings)`
 - Remediation commit: pending
 - Post-remediation validation commands and results: pending
@@ -58,4 +58,4 @@ none (no cross-agent runtime boundaries)
 
 | Round | Commit range | Verdict | Report | Findings / remediation |
 | --- | --- | --- | --- | --- |
-| 1 | pending | pending | pending | pending |
+| 1 | `44814fe^..44814fe` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-018-44814fe.md` | Removed branch override; remediation follows |

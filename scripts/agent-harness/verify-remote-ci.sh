@@ -2,7 +2,7 @@
 set -euo pipefail
 
 commit_sha="${REMOTE_CI_EXPECTED_SHA:-$(git rev-parse HEAD)}"
-expected_branch="${REMOTE_CI_EXPECTED_BRANCH:-main}"
+expected_branch="main"
 repository="${REMOTE_CI_REPOSITORY:-}"
 
 if [[ -z "$repository" ]]; then

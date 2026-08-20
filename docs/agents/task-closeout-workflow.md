@@ -39,9 +39,12 @@ solo para el avance de coordinación cuando existen artefactos asociados.
     esa actualización en el commit correspondiente.
 11. Ejecutar `npm run prep`, `npm run agents:validate` y comprobar que
     `git status --short` no contiene cambios de la tarea sin registrar.
-12. Publicar todos los commits completados y monitorizar hasta su finalización
-    el run de GitHub Actions correspondiente al commit publicado. No cerrar la
-    tarea si CI falla o si todavía está en curso; registrar la URL y el resultado.
+12. Publicar todos los commits completados y ejecutar
+    `npm run task:verify-remote-ci` hasta que confirme que el run de GitHub
+    Actions correspondiente al `HEAD` publicado terminó correctamente. No
+    cerrar la tarea si CI falla o sigue en curso. Registrar la URL y el resultado
+    en el handoff HIL, sin crear un commit posterior de evidencia (ese nuevo
+    commit necesitaría su propio run).
 13. Mostrar al usuario un resumen visual HIL (human in the loop) con la
     funcionalidad entregada, verificaciones, resultado de revisión, cambios del
     harness, commits, CI remoto, advertencias relevantes y estado de preparación

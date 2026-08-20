@@ -75,6 +75,7 @@ Frontend component-test capability checkpoint:
 | 1 | `2403e63..09c4e33` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-003-09c4e33.md` | Bound page/offset, paginate the full planner catalog and add real backslash coverage. Remediated by `8e5b34c`. |
 | 2 | `2403e63..999670c` | `APPROVED` | `.agents/reviews/TASK-003-999670c.md` | All three findings reconfirmed fixed; 6 suites/48 focused tests passed. |
 | 3 | `679e411^..679e411` | `APPROVED` | `.agents/reviews/TASK-003-679e411.md` | Full-history checkout and its regression guard passed focused and complete agent validation. |
+| 4 | `17d704e^..17d704e` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-003-17d704e.md` | Remote CI was documentation-only and persisted evidence would recurse; executable verification and HIL-only evidence requested. |
 
 ## Acceptance evidence
 
@@ -97,4 +98,4 @@ Frontend component-test capability checkpoint:
 | AC-15 | Persist coordination with each originating change | `AH-020`, closeout workflow and delegation template | Documentation inspection and `npm run agents:validate` passed |
 | AC-16 | CI can validate historical coordination commit evidence | `.github/workflows/ci.yml` full-history checkout and `test-ci-checkout-history.sh` regression check | `npm run agents:validate`, depth-1 failure reproduction, `npm run prep`, and independent review `APPROVED` |
 | AH-023 | Require full history for commit-backed CI validation and guard the configuration | `fetch-depth: 0`, `test-ci-checkout-history.sh`, and completed `TODO-AGENT-HARNESS.md` entry | Focused guard and `npm run agents:validate` passed; code review `APPROVED` |
-| AH-024 | Require push and successful remote CI monitoring before task completion | `AGENTS.md`, task closeout workflow, delegation template, and completed harness TODO entry | Documentation inspection; remote run URL and success required before final handoff |
+| AH-024 | Require push and successful remote CI monitoring before task completion | `task:verify-remote-ci`, its fixture suite, lifecycle guidance, and completed harness TODO entry | Missing, pending, failed, mismatched and successful response cases; remote run URL and success required before final handoff |

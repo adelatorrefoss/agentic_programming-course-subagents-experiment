@@ -32,6 +32,8 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-024 | High | Make push plus successful monitoring of the corresponding GitHub Actions run the final task-completion gate, and include its URL and result in the HIL handoff. | Task Lead | ✅ Done |
 | AH-025 | High | Require a producer-to-consumer contract test for every shared boundary implemented by different agents, and record its passing command in the integration handoff before the implementation commit. | Task Lead | ✅ Done |
 | AH-026 | Medium | Serialize or isolate delegated commands that write shared build state (especially Next.js `.next`), while allowing independent read-only and focused test work to remain parallel. | Developer Experience | ✅ Done |
+| AH-027 | Medium | Require mutation-tool onboarding to probe the repository's actual test environments before selecting coverage analysis, and document an evidence-based fallback when file-level environments are incompatible with per-test coverage. | Test Infrastructure | ⏳ Pending |
+| AH-028 | High | Require tools that create instrumented or generated sandboxes to clean them after success and failure, and exclude their temp/report paths from repository-wide lint, formatting, test discovery, and Git. | Developer Experience | ⏳ Pending |
 
 ## TASK-004 harness retrospective — 2026-08-20
 
@@ -148,6 +150,88 @@ broader workspace isolation would add cost without evidence that it is needed.
 - The regression runs from `validate-agent-config.sh`; the delegation template
   and harness guide distinguish exclusive generated-state commands from work
   that remains safe to parallelize.
+
+## TASK-005 harness retrospective — 2026-08-20
+
+### Short summary
+
+Stryker integrated successfully, but two dry-run failure modes exposed missing
+tool-onboarding safeguards: coverage analysis assumed a uniform Jest
+environment, and abandoned instrumented sandboxes were later traversed by
+repository-wide ESLint. Configuration changes (`coverageAnalysis: "off"`,
+`cleanTempDir: "always"`, and explicit ignores) produced a clean 149-test dry
+run without weakening the regular `prep` gate.
+
+### Timeline
+
+- Initial Stryker dry runs using `perTest` and `all` coverage analysis failed
+  when the existing Jest suite selected `jsdom` through file-level environment
+  directives alongside Node tests.
+- Changing coverage analysis to `off` allowed Stryker to execute the existing
+  mixed-environment suite correctly.
+- Failed exploratory runs left `.stryker-tmp` instrumented sandboxes behind.
+- A later `eslint . --fix` recursively inspected those generated copies,
+  creating avoidable noise and work outside the intended source tree.
+- Stryker was configured with `cleanTempDir: "always"`; `.stryker-tmp/**/*`
+  and `reports/mutation/**/*` were added to ESLint ignores, while both output
+  roots were excluded from Git.
+- `npm run test:mutation:dry` then passed with 123 instrumented source files,
+  2,343 mutants and all 149 Jest tests; independent review of
+  `b7cc5bc^..b7cc5bc` returned `APPROVED`.
+
+### Root causes
+
+| Cause | Classification | Confidence | Impact |
+| --- | --- | --- | --- |
+| Mutation-tool setup selected coverage modes before proving compatibility with the repository's mixed file-level Jest environments. | Test infrastructure / configuration | High | `perTest` and `all` produced false-negative onboarding failures until coverage analysis was disabled. |
+| Generated-sandbox lifecycle relied on successful tool termination and did not initially protect broad repository scanners from abandoned instrumented files. | Developer experience / environment | High | Failed dry runs polluted later lint-fix traversal and risked modifying or reporting generated copies. |
+
+AH-026 remains relevant to concurrent writers of shared generated state, but it
+does not cover environment compatibility or cleanup after a failed single-tool
+run. AH-027 and AH-028 therefore add distinct controls rather than duplicating
+the existing serialization recommendation.
+
+### Evidence
+
+- `stryker.config.mjs` uses the existing Jest config with
+  `coverageAnalysis: "off"`, `tempDirName: ".stryker-tmp"`, and
+  `cleanTempDir: "always"`.
+- `eslint.config.mjs` excludes `.stryker-tmp/**/*` and
+  `reports/mutation/**/*`; `.gitignore` excludes both output roots.
+- `.agents/coordination/task-005-mutation-testing-2026-08-20.md` maps AC-01
+  through AC-04 to the committed configuration and passing verification.
+- `.agents/reviews/TASK-005-b7cc5bc.md` records the independent dry-run
+  reproduction: 123 source files, 2,343 mutants and 149 passing tests.
+
+### Prioritized remediation plan and applicability
+
+| Order | ID | Applicability to current harness | Action | Proposed verification evidence |
+| --- | --- | --- | --- | --- |
+| Immediate | AH-028 | Applicable now; Stryker creates instrumented copies and repository commands scan from `.`. | Add a harness validation rule or documented tool-onboarding checklist requiring unconditional temp cleanup plus matching scanner and Git exclusions for every declared generated root. | A regression fixture with a generated sandbox must be ignored by lint/test discovery and Git; force a failed dry run, verify the temp root is removed, then run `npm run lint -- --no-fix` and `npm run agents:validate`. |
+| Short-term | AH-027 | Applicable now; Jest contains both Node and file-level `jsdom` environments. | Add a mutation-onboarding compatibility check that inventories Jest environment selection, tries supported coverage modes, records failures, and permits `off` only with a passing full dry run and rationale. | Run the probe against one Node and one file-level-jsdom suite; retain the failed-mode diagnostic and prove `npm run test:mutation:dry` executes all discovered tests successfully. |
+
+No broader long-term recommendation is justified by the evidence. These two
+controls address the observed configuration and generated-artifact lifecycle
+failures directly.
+
+### Follow-up tasks
+
+| ID | Suggested owner | Estimate | Deliverable |
+| --- | --- | --- | --- |
+| AH-027 | Test Infrastructure | 1–2 hours | Environment inventory/probe, documented coverage-mode decision rule, and a mixed-environment regression fixture. |
+| AH-028 | Developer Experience | 1–2 hours | Generated-root onboarding checklist/validator and failure-path cleanup plus scanner-ignore regression checks. |
+
+### Preventive checks and monitoring
+
+- Before accepting mutation configuration, enumerate Jest environment sources,
+  including file-level docblocks, and run a dry test with each represented
+  environment.
+- Treat `coverageAnalysis: "off"` as a compatibility decision supported by a
+  complete dry run, not as an unexplained default.
+- For every tool-owned temp or report root, require three protections: cleanup
+  on failure, exclusion from broad scanners, and exclusion from Git.
+- After an intentionally failed tool run, check both filesystem cleanup and a
+  clean `git status --short` before running repository-wide fix commands.
 
 ## Maintenance rules
 

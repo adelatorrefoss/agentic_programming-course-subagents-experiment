@@ -68,3 +68,4 @@ none (no cross-agent runtime boundaries)
 | AC-01 | Feature branches remain local-only | `AGENTS.md`, `docs/agent-harness.md`, closeout workflow | Source scan and final `npm run agents:validate` |
 | AC-02 | Main push and CI are the remote completion gate | `verify-remote-ci.sh` | Main-only branch check and final remote CI run |
 | AC-03 | Task-branch CI cannot satisfy the gate | `test-verify-remote-ci.sh` | Positive main fixture and negative task-branch/override fixtures pass |
+| AC-04 | Integration prefers rebase then non-fast-forward merge, with a direct merge fallback | `AGENTS.md`, `docs/agent-harness.md`, closeout workflow, delegation template | Lifecycle source scan documents clean-rebase and conflict-heavy fallback paths |

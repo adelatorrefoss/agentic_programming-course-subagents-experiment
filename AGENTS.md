@@ -36,6 +36,11 @@ npm run test
   until the pushed `main` `HEAD` has passed CI. Record the run URL and result in the
   final HIL handoff; do not create a follow-up evidence commit, which would
   require another CI run.
+- Integration strategy: update local `main`, attempt `git rebase main` on the
+  feature branch, then integrate it with `git merge --no-ff`. If the rebase is
+  conflict-heavy or otherwise impractical, abort it and perform the
+  `git merge --no-ff` directly on `main`, resolving conflicts there before the
+  final validations and push.
 - Finish every task with its own commit whose subject follows the convention
   below. Do not leave completed task changes uncommitted.
 - After integration, use `task-worktree.sh finish TASK-XXX`; it removes only a

@@ -127,6 +127,11 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
   are local working branches only. After integration into `main`, push `main` and run
   `npm run task:verify-remote-ci`; the verifier requires the matching SHA on
   `head_branch=main`.
+- Before integration, update local `main` and attempt to rebase the feature
+  branch onto it. When the rebase is clean, integrate with `git merge --no-ff`.
+  If it becomes conflict-heavy or impractical, abort the rebase and use
+  `git merge --no-ff` directly on `main`, resolving conflicts there before
+  running final validations.
 - Define shared contracts before starting parallel work.
 - Start each delegation from `.agents/DELEGATION_TEMPLATE.md`, including named
   ownership, input/output contracts, dependency order, and stop conditions.

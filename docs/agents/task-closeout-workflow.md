@@ -41,7 +41,10 @@ solo para el avance de coordinación cuando existen artefactos asociados.
     `git status --short` no contiene cambios de la tarea sin registrar.
 12. Seguir el flujo trunk-based: no publicar la rama de tarea ni ejecutar CI
     remoto para ella; las feature branches son solo locales. Integrarla en
-    `main`, publicar `main` y ejecutar `npm run task:verify-remote-ci` hasta que
+    `main` intentando primero actualizar `main`, hacer `git rebase main` y
+    después `git merge --no-ff`. Si el rebase se complica, abortarlo y hacer
+    `git merge --no-ff` directamente en `main`, resolviendo allí los conflictos.
+    Después publicar `main` y ejecutar `npm run task:verify-remote-ci` hasta que
     confirme que el run de GitHub Actions del `HEAD` de `main` terminó
     correctamente. No cerrar la tarea si CI falla o sigue en curso. Registrar la
     URL y el resultado en el handoff HIL, sin crear un commit posterior de

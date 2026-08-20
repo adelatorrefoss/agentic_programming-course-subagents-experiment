@@ -94,7 +94,9 @@ verified against that contract, including applicable boundary semantics such as
 - Harness retro commit subject: `chore(TASK-XXX): ...`
 - Harness retro commit:
 - Final sign-off:
-- Task-lead integration method and target (merge or cherry-pick):
+- Task-lead integration method and target (rebase onto updated `main`, then
+  `merge --no-ff`; fallback to direct `merge --no-ff` on `main` if rebase is
+  conflict-heavy):
 - Clean worktree removal evidence (`task-worktree.sh finish TASK-XXX`):
 
 ### Cross-agent boundary contracts

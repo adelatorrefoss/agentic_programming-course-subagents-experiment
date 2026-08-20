@@ -67,10 +67,18 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 - [x] Añadir tests de reglas, casos de uso, errores y persistencia.
 - [x] Comprobar concurrencia al asignar dos platos a la misma franja.
 - [x] Verificar que las rutas solo coordinan entrada, caso de uso y respuesta HTTP.
-- [x] Crear una vista semanal para consultar y gestionar las comidas planificadas.
-- [x] Permitir asignar, sustituir y retirar platos desde la interfaz.
-- [x] Mostrar la lista de la compra consolidada con sus estados de carga y error.
-- [x] Verificar lint, build y tests con `npm run prep`.
+- [ ] Crear una vista semanal para consultar y gestionar las comidas planificadas.
+- [ ] Hacer que la vista semanal sea accesible mediante un enlace o acción visible
+  desde la página principal.
+- [ ] Permitir asignar, sustituir y retirar platos desde la interfaz.
+- [ ] Mostrar la lista de la compra consolidada con sus estados de carga y error.
+- [ ] Añadir pruebas frontend del calendario, sus interacciones y los estados de carga y error.
+- [ ] Verificar lint, build y tests con `npm run prep` después de completar el frontend.
+
+> Estado actual: la persistencia, el dominio, los casos de uso y las rutas bajo
+> `/api/meal-plans` existen y tienen pruebas. No existe todavía una página o
+> componentes React desde los que una persona pueda utilizar el planificador y
+> la lista de la compra en el navegador.
 
 ### Reparto recomendado
 

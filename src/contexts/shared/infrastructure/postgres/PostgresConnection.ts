@@ -1,7 +1,9 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import postgres from "postgres";
 
 export class PostgresConnection {
-	public readonly sql: postgres.Sql;
+	private readonly rootSql: postgres.Sql;
+	private readonly transactionContext = new AsyncLocalStorage<postgres.Sql>();
 
 	constructor(
 		host: string,
@@ -10,7 +12,7 @@ export class PostgresConnection {
 		password: string,
 		database: string,
 	) {
-		this.sql = postgres({
+		this.rootSql = postgres({
 			host,
 			port,
 			user,
@@ -20,8 +22,25 @@ export class PostgresConnection {
 		});
 	}
 
+	get sql(): postgres.Sql {
+		return this.transactionContext.getStore() ?? this.rootSql;
+	}
+
+	async transaction<T>(operation: () => Promise<T>): Promise<T> {
+		if (this.transactionContext.getStore()) {
+			return operation();
+		}
+
+		return this.rootSql.begin((transactionSql) =>
+			this.transactionContext.run(
+				transactionSql as unknown as postgres.Sql,
+				operation,
+			),
+		) as Promise<T>;
+	}
+
 	async end(): Promise<void> {
-		await this.sql.end();
+		await this.rootSql.end();
 	}
 
 	async truncateAll(): Promise<void> {

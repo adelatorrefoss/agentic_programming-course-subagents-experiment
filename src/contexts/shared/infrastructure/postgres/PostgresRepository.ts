@@ -8,10 +8,10 @@ import { PostgresConnection } from "./PostgresConnection";
 
 @Service()
 export abstract class PostgresRepository<T extends AggregateRoot> {
-	protected readonly sql: postgres.Sql;
+	constructor(private readonly connection: PostgresConnection) {}
 
-	constructor(connection: PostgresConnection) {
-		this.sql = connection.sql;
+	protected get sql(): postgres.Sql {
+		return this.connection.sql;
 	}
 
 	protected abstract toAggregate(row: Row): T;

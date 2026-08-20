@@ -12,6 +12,10 @@ export class MockCookedDishRepository implements CookedDishRepository {
 		return Promise.resolve();
 	}
 
+	async update(_dish: CookedDish): Promise<void> {
+		return Promise.resolve();
+	}
+
 	async searchById(id: CookedDishId): Promise<CookedDish | null> {
 		return this.results.has(id.value)
 			? (this.results.get(id.value) ?? null)

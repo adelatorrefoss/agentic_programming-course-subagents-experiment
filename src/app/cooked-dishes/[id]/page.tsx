@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
+import { CookedDishHistory } from "./CookedDishHistory";
+
 import styles from "./page.module.css";
 
 interface CookedDish {
@@ -235,6 +237,8 @@ export default function CookedDishDetail() {
 						)}
 					</section>
 				</article>
+
+				<CookedDishHistory dishId={id} />
 
 				<section
 					className={styles.ratings}

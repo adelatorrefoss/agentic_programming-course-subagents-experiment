@@ -21,7 +21,7 @@ export class HttpNextResponse {
 					params: {},
 				},
 			},
-			{ status: 404 },
+			{ status: 400 },
 		);
 	}
 

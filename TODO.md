@@ -131,19 +131,19 @@ Estas tareas están diseñadas para practicar la coordinación entre los cuatro 
 
 ### Alcance
 
-- [ ] Crear la persistencia inmutable de eventos de auditoría.
-- [ ] Registrar tipo de cambio, entidad, datos relevantes, autor y fecha.
-- [ ] Publicar eventos de dominio al crear o modificar un plato.
-- [ ] Implementar un suscriptor que transforme esos eventos en entradas de auditoría.
-- [ ] Mantener las rutas API y el agregado libres de detalles de infraestructura.
-- [ ] Crear un caso de uso para consultar el historial de un plato.
-- [ ] Exponer `GET /api/cooked-dishes/:uuid/history`.
-- [ ] Registrar el suscriptor y sus dependencias en DIOD.
-- [ ] Crear una vista de historial con cambios ordenados cronológicamente.
-- [ ] Mostrar los detalles de cada cambio y sus estados de carga o error.
-- [ ] Probar serialización, publicación, suscripción y persistencia.
-- [ ] Verificar que un fallo de auditoría tenga el comportamiento transaccional acordado.
-- [ ] Verificar lint, build y tests con `npm run prep`.
+- [x] Crear la persistencia inmutable de eventos de auditoría.
+- [x] Registrar tipo de cambio, entidad, datos relevantes, autor y fecha.
+- [x] Publicar eventos de dominio al crear o modificar un plato.
+- [x] Implementar un suscriptor que transforme esos eventos en entradas de auditoría.
+- [x] Mantener las rutas API y el agregado libres de detalles de infraestructura.
+- [x] Crear un caso de uso para consultar el historial de un plato.
+- [x] Exponer `GET /api/cooked-dishes/:uuid/history`.
+- [x] Registrar el suscriptor y sus dependencias en DIOD.
+- [x] Crear una vista de historial con cambios ordenados cronológicamente.
+- [x] Mostrar los detalles de cada cambio y sus estados de carga o error.
+- [x] Probar serialización, publicación, suscripción y persistencia.
+- [x] Verificar que un fallo de auditoría tenga el comportamiento transaccional acordado.
+- [x] Verificar lint, build y tests con `npm run prep`.
 
 ### Reparto recomendado
 

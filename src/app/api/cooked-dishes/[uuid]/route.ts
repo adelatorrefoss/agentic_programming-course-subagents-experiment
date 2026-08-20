@@ -2,13 +2,13 @@ import "reflect-metadata";
 
 import { NextRequest, NextResponse } from "next/server";
 
-import { CookedDishCreator } from "../../../../contexts/dishes/cooked-dishes/application/create/CookedDishCreator";
 import { CookedDishByIdSearcher } from "../../../../contexts/dishes/cooked-dishes/application/search-by-id/CookedDishByIdSearcher";
+import { CookedDishUpserter } from "../../../../contexts/dishes/cooked-dishes/application/upsert/CookedDishUpserter";
 import { container } from "../../../../contexts/shared/infrastructure/dependency-injection/diod.config";
 import { HttpNextResponse } from "../../../../contexts/shared/infrastructure/http/HttpNextResponse";
 
-const creator = container.get(CookedDishCreator);
 const searcher = container.get(CookedDishByIdSearcher);
+const upserter = container.get(CookedDishUpserter);
 
 export async function GET(
 	_request: NextRequest,
@@ -29,10 +29,24 @@ export async function PUT(
 	{ params }: { params: Promise<{ uuid: string }> },
 ): Promise<NextResponse> {
 	const { uuid } = await params;
+	const author = request.headers.get("X-Actor-Id")?.trim();
+
+	if (!author) {
+		return HttpNextResponse.badRequest("X-Actor-Id header is required");
+	}
+
 	const body = await request.json();
 	const { name, description, ingredients } = body;
 
-	await creator.create(uuid, name, description, ingredients);
+	const result = await upserter.upsert(
+		uuid,
+		name,
+		description,
+		ingredients,
+		author,
+	);
 
-	return HttpNextResponse.created();
+	return result === "created"
+		? HttpNextResponse.created()
+		: HttpNextResponse.ok({ status: result });
 }

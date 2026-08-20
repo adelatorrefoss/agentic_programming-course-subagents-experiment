@@ -6,6 +6,7 @@ import { CookedDishRepositorySearchResult } from "../../../../../src/contexts/di
 
 export class MockCookedDishRepository implements CookedDishRepository {
 	private readonly mockSave = jest.fn();
+	private readonly mockUpdate = jest.fn();
 	private readonly mockSearchById = jest.fn();
 	private readonly mockSearchAll = jest.fn();
 	private readonly mockSearch = jest.fn();
@@ -19,6 +20,16 @@ export class MockCookedDishRepository implements CookedDishRepository {
 
 	shouldSave(dish: CookedDish): void {
 		this.mockSave(dish.toPrimitives());
+	}
+
+	async update(dish: CookedDish): Promise<void> {
+		expect(this.mockUpdate).toHaveBeenCalledWith(dish.toPrimitives());
+
+		return Promise.resolve();
+	}
+
+	shouldUpdate(dish: CookedDish): void {
+		this.mockUpdate(dish.toPrimitives());
 	}
 
 	async searchById(_id: CookedDishId): Promise<CookedDish | null> {

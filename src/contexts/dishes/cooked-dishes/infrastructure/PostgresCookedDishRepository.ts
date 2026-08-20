@@ -38,6 +38,21 @@ export class PostgresCookedDishRepository
 		`;
 	}
 
+	async update(dish: CookedDish): Promise<void> {
+		const primitives = dish.toPrimitives();
+		const embedding = await this.generateEmbedding(dish);
+
+		await this.execute`
+			UPDATE dishes.cooked_dishes
+			SET
+				name = ${primitives.name},
+				description = ${primitives.description},
+				ingredients = ${this.sql.json(primitives.ingredients)},
+				embedding = ${embedding}
+			WHERE id = ${primitives.id};
+		`;
+	}
+
 	async searchById(id: CookedDishId): Promise<CookedDish | null> {
 		return this.searchOne`
 			SELECT id, name, description, ingredients

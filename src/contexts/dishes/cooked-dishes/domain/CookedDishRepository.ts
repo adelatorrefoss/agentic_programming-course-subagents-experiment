@@ -5,6 +5,7 @@ import { CookedDishRepositorySearchResult } from "./CookedDishSearchResult";
 
 export abstract class CookedDishRepository {
 	abstract save(dish: CookedDish): Promise<void>;
+	abstract update(dish: CookedDish): Promise<void>;
 
 	abstract searchById(id: CookedDishId): Promise<CookedDish | null>;
 

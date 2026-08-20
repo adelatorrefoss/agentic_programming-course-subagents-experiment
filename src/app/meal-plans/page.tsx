@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 
 import {
 	daysForWeek,
@@ -36,37 +42,79 @@ export default function MealPlansPage() {
 	const [planError, setPlanError] = useState<string | null>(null);
 	const [catalogError, setCatalogError] = useState<string | null>(null);
 	const [listError, setListError] = useState<string | null>(null);
+	const activeWeekRef = useRef(weekStart);
+	const planRequestIdRef = useRef(0);
+	const shoppingRequestIdRef = useRef(0);
+	const mutationRequestIdRef = useRef(0);
 	const days = useMemo(() => daysForWeek(weekStart), [weekStart]);
 
-	const refreshShoppingList = useCallback(async (planId: string) => {
-		setIsLoadingList(true);
-		setListError(null);
-		try {
-			setShoppingList(await loadShoppingList(planId));
-		} catch {
-			setShoppingList([]);
-			setListError("The shopping list could not be loaded.");
-		} finally {
-			setIsLoadingList(false);
-		}
-	}, []);
+	const refreshShoppingList = useCallback(
+		async (planId: string, expectedWeek = activeWeekRef.current) => {
+			if (activeWeekRef.current !== expectedWeek) {
+				return;
+			}
+
+			const requestId = ++shoppingRequestIdRef.current;
+			const isCurrentRequest = () =>
+				requestId === shoppingRequestIdRef.current &&
+				activeWeekRef.current === expectedWeek;
+
+			setIsLoadingList(true);
+			setListError(null);
+			try {
+				const items = await loadShoppingList(planId);
+				if (isCurrentRequest()) {
+					setShoppingList(items);
+				}
+			} catch {
+				if (isCurrentRequest()) {
+					setShoppingList([]);
+					setListError("The shopping list could not be loaded.");
+				}
+			} finally {
+				if (isCurrentRequest()) {
+					setIsLoadingList(false);
+				}
+			}
+		},
+		[],
+	);
 
 	const loadWeek = useCallback(async () => {
+		activeWeekRef.current = weekStart;
+		const requestId = ++planRequestIdRef.current;
+		shoppingRequestIdRef.current += 1;
+		mutationRequestIdRef.current += 1;
+		const isCurrentRequest = () =>
+			requestId === planRequestIdRef.current &&
+			activeWeekRef.current === weekStart;
+
 		setIsLoadingPlan(true);
 		setIsLoadingList(true);
+		setPendingCell(null);
 		setPlanError(null);
 		setListError(null);
 		try {
 			const loadedPlan = await loadOrCreateMealPlan(weekStart);
+			if (!isCurrentRequest()) {
+				return;
+			}
+
 			setPlan(loadedPlan);
-			await refreshShoppingList(loadedPlan.id);
+			await refreshShoppingList(loadedPlan.id, weekStart);
 		} catch {
-			setPlan(null);
-			setShoppingList([]);
-			setPlanError("This week could not be loaded. Please try again.");
-			setIsLoadingList(false);
+			if (isCurrentRequest()) {
+				setPlan(null);
+				setShoppingList([]);
+				setPlanError(
+					"This week could not be loaded. Please try again.",
+				);
+				setIsLoadingList(false);
+			}
 		} finally {
-			setIsLoadingPlan(false);
+			if (isCurrentRequest()) {
+				setIsLoadingPlan(false);
+			}
 		}
 	}, [refreshShoppingList, weekStart]);
 
@@ -87,10 +135,30 @@ export default function MealPlansPage() {
 		void loadDishes();
 	}, []);
 
-	const refreshAfterMutation = async (planId: string) => {
-		const updatedPlan = await loadMealPlan(weekStart);
+	const changeWeek = (offset: number) => {
+		const nextWeek = moveWeek(weekStart, offset);
+		activeWeekRef.current = nextWeek;
+		planRequestIdRef.current += 1;
+		shoppingRequestIdRef.current += 1;
+		mutationRequestIdRef.current += 1;
+		setWeekStart(nextWeek);
+	};
+
+	const refreshAfterMutation = async (
+		planId: string,
+		mutationWeek: string,
+		mutationRequestId: number,
+	) => {
+		const updatedPlan = await loadMealPlan(mutationWeek);
+		if (
+			activeWeekRef.current !== mutationWeek ||
+			mutationRequestIdRef.current !== mutationRequestId
+		) {
+			return;
+		}
+
 		setPlan(updatedPlan);
-		await refreshShoppingList(planId);
+		await refreshShoppingList(planId, mutationWeek);
 	};
 
 	const handleDishChange = async (
@@ -105,6 +173,8 @@ export default function MealPlansPage() {
 			(meal) => meal.day === day && meal.slot === slot,
 		);
 		const cell = `${day}-${slot}`;
+		const mutationWeek = weekStart;
+		const mutationRequestId = ++mutationRequestIdRef.current;
 		setPendingCell(cell);
 		setPlanError(null);
 		try {
@@ -113,11 +183,25 @@ export default function MealPlansPage() {
 				{ day, slot, cookedDishId },
 				Boolean(existing),
 			);
-			await refreshAfterMutation(plan.id);
+			await refreshAfterMutation(
+				plan.id,
+				mutationWeek,
+				mutationRequestId,
+			);
 		} catch {
-			setPlanError("The meal could not be saved. Please try again.");
+			if (
+				activeWeekRef.current === mutationWeek &&
+				mutationRequestIdRef.current === mutationRequestId
+			) {
+				setPlanError("The meal could not be saved. Please try again.");
+			}
 		} finally {
-			setPendingCell(null);
+			if (
+				activeWeekRef.current === mutationWeek &&
+				mutationRequestIdRef.current === mutationRequestId
+			) {
+				setPendingCell(null);
+			}
 		}
 	};
 
@@ -126,15 +210,33 @@ export default function MealPlansPage() {
 			return;
 		}
 		const cell = `${day}-${slot}`;
+		const mutationWeek = weekStart;
+		const mutationRequestId = ++mutationRequestIdRef.current;
 		setPendingCell(cell);
 		setPlanError(null);
 		try {
 			await removeMeal(plan.id, day, slot);
-			await refreshAfterMutation(plan.id);
+			await refreshAfterMutation(
+				plan.id,
+				mutationWeek,
+				mutationRequestId,
+			);
 		} catch {
-			setPlanError("The meal could not be removed. Please try again.");
+			if (
+				activeWeekRef.current === mutationWeek &&
+				mutationRequestIdRef.current === mutationRequestId
+			) {
+				setPlanError(
+					"The meal could not be removed. Please try again.",
+				);
+			}
 		} finally {
-			setPendingCell(null);
+			if (
+				activeWeekRef.current === mutationWeek &&
+				mutationRequestIdRef.current === mutationRequestId
+			) {
+				setPendingCell(null);
+			}
 		}
 	};
 
@@ -156,19 +258,11 @@ export default function MealPlansPage() {
 						className={styles.weekNavigation}
 						aria-label="Week navigation"
 					>
-						<button
-							type="button"
-							onClick={() =>
-								setWeekStart(moveWeek(weekStart, -1))
-							}
-						>
+						<button type="button" onClick={() => changeWeek(-1)}>
 							Previous
 						</button>
 						<strong>Week of {formatDay(weekStart).date}</strong>
-						<button
-							type="button"
-							onClick={() => setWeekStart(moveWeek(weekStart, 1))}
-						>
+						<button type="button" onClick={() => changeWeek(1)}>
 							Next
 						</button>
 					</nav>
@@ -204,24 +298,30 @@ export default function MealPlansPage() {
 								role="grid"
 								aria-label="Weekly meal plan"
 							>
-								<div
-									className={styles.corner}
-									aria-hidden="true"
-								/>
-								{days.map((day) => {
-									const label = formatDay(day);
+								<div role="row" className={styles.headerRow}>
+									<div
+										role="columnheader"
+										className={styles.corner}
+									>
+										<span className={styles.visuallyHidden}>
+											Meal slot
+										</span>
+									</div>
+									{days.map((day) => {
+										const label = formatDay(day);
 
-									return (
-										<div
-											key={day}
-											role="columnheader"
-											className={styles.dayHeader}
-										>
-											<strong>{label.weekday}</strong>
-											<span>{label.date}</span>
-										</div>
-									);
-								})}
+										return (
+											<div
+												key={day}
+												role="columnheader"
+												className={styles.dayHeader}
+											>
+												<strong>{label.weekday}</strong>
+												<span>{label.date}</span>
+											</div>
+										);
+									})}
+								</div>
 								{MEAL_SLOTS.map((slot) => (
 									<MealRow
 										key={slot}
@@ -330,7 +430,8 @@ function MealRow({
 						candidate.day === day && candidate.slot === slot,
 				);
 				const cell = `${day}-${slot}`;
-				const busy = pendingCell === cell;
+				const isPendingCell = pendingCell === cell;
+				const isMutationPending = pendingCell !== null;
 
 				return (
 					<div role="gridcell" className={styles.mealCell} key={cell}>
@@ -340,7 +441,7 @@ function MealRow({
 						<select
 							id={cell}
 							value={meal?.cookedDishId ?? ""}
-							disabled={busy || dishes.length === 0}
+							disabled={isMutationPending || dishes.length === 0}
 							onChange={(event) =>
 								onChange(day, slot, event.target.value)
 							}
@@ -355,11 +456,11 @@ function MealRow({
 						{meal && (
 							<button
 								type="button"
-								disabled={busy}
+								disabled={isMutationPending}
 								onClick={() => onRemove(day, slot)}
 								aria-label={`Remove ${slot} on ${formatDay(day).weekday}`}
 							>
-								{busy ? "…" : "Remove"}
+								{isPendingCell ? "…" : "Remove"}
 							</button>
 						)}
 					</div>

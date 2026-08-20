@@ -10,7 +10,7 @@
 .plannerPanel, .shoppingPanel { background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.25rem; }
 .gridWrapper { overflow-x: auto; padding-bottom: .35rem; }
 .grid { min-width: 1040px; display: grid; grid-template-columns: 110px repeat(7, minmax(125px, 1fr)); gap: 1px; background: var(--border-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
-.mealRow { display: contents; }
+.headerRow, .mealRow { display: contents; }
 .corner, .dayHeader, .slotHeader, .mealCell { background: var(--bg-secondary); padding: .8rem; }
 .dayHeader { display: flex; flex-direction: column; text-align: center; }
 .dayHeader span { color: var(--text-muted); font-size: .75rem; }

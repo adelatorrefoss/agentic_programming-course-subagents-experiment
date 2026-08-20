@@ -1,3 +1,5 @@
+name: agentic_programming-course-subagents-experiment
+
 services:
   postgres:
     image: supabase/postgres:17.6.1.008

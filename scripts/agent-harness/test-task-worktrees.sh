@@ -13,7 +13,8 @@ git -C "$repository" init -q
 git -C "$repository" config user.name 'Harness Test'
 git -C "$repository" config user.email 'harness@example.invalid'
 printf 'base\n' > "${repository}/README.md"
-git -C "$repository" add README.md
+cp "${script_dir}/../../compose.yml" "${repository}/compose.yml"
+git -C "$repository" add README.md compose.yml
 git -C "$repository" commit -qm 'test: initialize fixture'
 
 run_harness() {
@@ -22,6 +23,17 @@ run_harness() {
 
 run_harness create TASK-101 >/dev/null
 run_harness create TASK-102 >/dev/null
+run_harness create TASK-103B >/dev/null
+
+compose_project_name() {
+	(cd "$1" && docker compose config --format json | node -e \
+		'let input = ""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => process.stdout.write(JSON.parse(input).name));')
+}
+
+canonical_compose_project="$(compose_project_name "$repository")"
+[[ "$canonical_compose_project" == agentic_programming-course-subagents-experiment ]]
+[[ "$(compose_project_name "${managed_root}/TASK-101")" == "$canonical_compose_project" ]]
+[[ "$(compose_project_name "${managed_root}/TASK-103B")" == "$canonical_compose_project" ]]
 printf 'one\n' > "${managed_root}/TASK-101/task-one.txt"
 printf 'two\n' > "${managed_root}/TASK-102/task-two.txt"
 mkdir -p "${managed_root}/TASK-101/.next" "${managed_root}/TASK-102/.next"
@@ -32,18 +44,19 @@ printf 'second\n' > "${managed_root}/TASK-102/.next/owner"
 [[ ! -e "${managed_root}/TASK-101/task-two.txt" ]]
 [[ "$(<"${managed_root}/TASK-101/.next/owner")" == first ]]
 [[ "$(<"${managed_root}/TASK-102/.next/owner")" == second ]]
-[[ "$(run_harness list | wc -l)" -eq 2 ]]
+[[ "$(run_harness list | wc -l)" -eq 3 ]]
 
 if run_harness create TASK-101 >/dev/null 2>&1; then
 	echo 'duplicate task identifier was accepted' >&2
 	exit 1
 fi
-for unsafe_id in '../TASK-103' 'TASK-1' 'TASK-104/other' 'task-104'; do
+for unsafe_id in '../TASK-103' 'TASK-1' 'TASK-104/other' 'task-104' 'TASK-104bb'; do
 	if run_harness create "$unsafe_id" >/dev/null 2>&1; then
 		echo "unsafe task identifier was accepted: ${unsafe_id}" >&2
 		exit 1
 	fi
 done
+run_harness finish TASK-103B >/dev/null
 if run_harness finish TASK-101 >/dev/null 2>&1; then
 	echo 'dirty worktree was removed' >&2
 	exit 1

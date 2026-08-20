@@ -76,6 +76,18 @@ harness definido en `AGENTS.md`, `.agents/DELEGATION_TEMPLATE.md` y
 - [ ] Mostrar un estado vacío con una acción para descubrir platos.
 - [ ] Resolver de forma comprensible los errores al cambiar un favorito.
 
+## TASK-007B. Eliminar advertencias de seguridad y runtime del CI
+
+### Alcance
+
+- [x] Actualizar el árbol de dependencias para eliminar las 16 vulnerabilidades
+  notificadas por npm, sin introducir saltos mayores innecesarios.
+- [x] Actualizar las Actions del workflow a versiones que se ejecuten sobre
+  Node.js 24.
+- [x] Ejecutar el CI del proyecto con Node.js 24.
+- [x] Mantener el árbol instalado sin vulnerabilidades conocidas.
+- [x] Publicar la rama y confirmar que el `HEAD` supera GitHub Actions.
+
 ## TASK-008. Etiquetas y colecciones de platos
 
 ### Alcance

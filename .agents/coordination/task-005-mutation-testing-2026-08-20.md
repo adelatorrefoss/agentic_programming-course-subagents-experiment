@@ -21,7 +21,7 @@
 - Remediation commit: none (no findings)
 - Harness retro report: `TODO-AGENT-HARNESS.md` TASK-005 retrospective; applicable TODOs `AH-027` and `AH-028` recorded pending implementation.
 - Harness retro commit subject: `chore(TASK-005): record harness retro`
-- Harness retro commit: pending
+- Harness retro commit: `a3b08bd`
 - Final sign-off: pending
 
 ### Code-review rounds
@@ -38,4 +38,4 @@
 | AC-02 | TypeScript/TSX source uses the existing Jest configuration | `stryker.config.mjs`, `jest.config.js` | Stryker dry run passed with mixed Node/jsdom environments |
 | AC-03 | Human-readable console and HTML reports are configured without polluting Git | `stryker.config.mjs`, `.gitignore` | Configuration loaded successfully; report/temp paths ignored |
 | AC-04 | Existing project checks remain green | Entire TASK-005 change | `npm run prep` passed: lint, build, 139 regular tests and 11 CI tests |
-| AC-05 | Harness retrospective and applicable TODOs | pending | pending |
+| AC-05 | Harness retrospective and applicable TODOs | `TODO-AGENT-HARNESS.md`, mutation config validator and regression script | `AH-027` and `AH-028` marked done; focused scripts and `npm run agents:validate` passed |

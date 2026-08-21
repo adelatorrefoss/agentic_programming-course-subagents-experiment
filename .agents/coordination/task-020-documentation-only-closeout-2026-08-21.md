@@ -30,14 +30,14 @@ none (no cross-agent runtime boundaries)
 ## Integration handoff
 
 - Implementation commit subject: `feat(TASK-020): validate documentation-only closeout`
-- Implementation commit: pending
+- Implementation commit: `fd0b38b`
 - Code-review agent: `code-review`
-- PR code review commit range: pending
-- Code-review verdict: pending
-- Code-review evidence: pending
-- Code-review report: pending
-- Remediation required: pending
-- Remediation commit subject: pending
+- PR code review commit range: `fd0b38b^..fd0b38b`
+- Code-review verdict: `CHANGES_REQUESTED`
+- Code-review evidence: The complete committed diff and surrounding closeout logic were inspected; `npm run task:preflight`, `bash -n`, `git diff --check`, and `npm run agents:validate` passed. A significant range-association bypass remained.
+- Code-review report: `.agents/reviews/TASK-020-fd0b38b.md`
+- Remediation required: yes
+- Remediation commit subject: `fix(TASK-020): bind documentation range to implementation`
 - Remediation commit: pending
 - Post-remediation validation commands and results: pending
 - Harness retro report: pending
@@ -51,14 +51,14 @@ none (no cross-agent runtime boundaries)
 
 | Round | Commit range | Verdict | Report | Findings / remediation |
 | --- | --- | --- | --- | --- |
-| 1 | pending | pending | pending | pending |
+| 1 | `fd0b38b^..fd0b38b` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-020-fd0b38b.md` | Bind the documentation-only range to the declared implementation commit and add an unrelated-range rejection fixture |
 
 ## Acceptance evidence
 
 | ID | Acceptance criterion / TODO item | Implementation artifact | Passing verification |
 | --- | --- | --- | --- |
-| AC-01 | Documentation-only tasks can omit code review after objective range validation. | `validate-task-closeout.sh` | Documentation-only fixture and `npm run agents:validate` pass |
-| AC-02 | A task containing code cannot claim the exception. | `validate-task-closeout.sh`, lifecycle regression | Known code range rejection fixture passes |
-| AC-03 | Unsupported or incomplete classifications cannot bypass review. | `validate-task-closeout.sh`, lifecycle regression | Unsupported classification rejection fixture passes |
+| AC-01 | Documentation-only tasks can omit code review after objective range validation. | `validate-task-closeout.sh` | Exact implementation-range fixture and `npm run agents:validate` pass |
+| AC-02 | A task containing code cannot claim the exception. | `validate-task-closeout.sh`, lifecycle regression | Unrelated historical range and known code range rejection fixtures pass |
+| AC-03 | Unsupported or incomplete classifications cannot bypass review. | `validate-task-closeout.sh`, lifecycle regression | Unsupported classification and mismatched implementation-range fixtures are rejected |
 | AC-04 | Validated documentation-only tasks still push main and monitor remote CI. | `AGENTS.md`, delegation template, harness and closeout documentation | Documentation scan, shell syntax check, and `npm run agents:validate` pass |
 | AC-05 | Code tasks retain code review, push, and remote-CI monitoring. | Validator default and lifecycle documentation | Existing closeout and remote-CI regression suites pass via `npm run agents:validate` |

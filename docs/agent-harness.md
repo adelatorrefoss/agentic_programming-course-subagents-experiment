@@ -150,8 +150,9 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
 - Create the implementation commit before invoking the native `/review`
   command through the `code-review` agent. Treat it as a PR review of that
   commit, not as a pre-commit lint step. A `documentation-only` task may omit
-  this step only after the closeout validator proves its exact commit range
-  contains exclusively supported documentation paths.
+  this step only after the closeout validator proves the exact
+  `<Implementation commit>^..<Implementation commit>` range contains
+  exclusively supported documentation paths.
 - Apply all accepted review changes in a second commit and record the review
   result and remediation commit in the task coordination record.
 - Persist one coordination record per multi-agent task under

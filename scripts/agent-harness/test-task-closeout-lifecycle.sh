@@ -21,6 +21,7 @@ cat >"$fixture_dir/documentation-only.md" <<'EOF'
 - Task identifier (`TASK-XXX`): `TASK-997`
 - Lifecycle: `closed`
 - Change classification: `documentation-only`
+- Implementation commit: `6405f4f`
 - Documentation-only commit range: `6405f4f^..6405f4f`
 - Documentation-only evidence: The range contains only Markdown documentation and coordination files.
 - Code-review agent: skipped (documentation-only)
@@ -40,12 +41,21 @@ EOF
 
 bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null
 
+sed -i 's/Implementation commit: `6405f4f`/Implementation commit: `5aa0477`/' "$fixture_dir/documentation-only.md"
+if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
+	echo "An unrelated historical documentation range bypassed review for a code implementation." >&2
+	exit 1
+fi
+sed -i 's/Implementation commit: `5aa0477`/Implementation commit: `6405f4f`/' "$fixture_dir/documentation-only.md"
+
 sed -i 's/6405f4f\^\.\.6405f4f/5aa0477^..5aa0477/' "$fixture_dir/documentation-only.md"
+sed -i 's/Implementation commit: `6405f4f`/Implementation commit: `5aa0477`/' "$fixture_dir/documentation-only.md"
 if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
 	echo "A task containing code bypassed review as documentation-only." >&2
 	exit 1
 fi
 sed -i 's/5aa0477\^\.\.5aa0477/6405f4f^..6405f4f/' "$fixture_dir/documentation-only.md"
+sed -i 's/Implementation commit: `5aa0477`/Implementation commit: `6405f4f`/' "$fixture_dir/documentation-only.md"
 
 sed -i 's/Change classification: `documentation-only`/Change classification: `unsupported`/' "$fixture_dir/documentation-only.md"
 if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then

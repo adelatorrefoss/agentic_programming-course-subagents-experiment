@@ -14,7 +14,7 @@ commit when the originating artifacts can share the same commit.
 - Task identifier (`TASK-XXX`):
 - Lifecycle: `in-progress` (change to `closed` only after all closeout evidence is complete)
 - Change classification: `code` or `documentation-only`
-- Documentation-only commit range: required only for `documentation-only`; exact committed range checked by `npm run agents:validate`
+- Documentation-only commit range: required only for `documentation-only`; must be exactly `<Implementation commit>^..<Implementation commit>` and is checked by `npm run agents:validate`
 - Documentation-only evidence: required only for `documentation-only`; explain why every changed path is documentation
 - Expected outcome:
 - Scope boundaries:

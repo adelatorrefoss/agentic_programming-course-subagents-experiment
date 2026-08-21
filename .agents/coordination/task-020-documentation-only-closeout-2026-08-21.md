@@ -32,12 +32,12 @@ none (no cross-agent runtime boundaries)
 - Implementation commit subject: `feat(TASK-020): validate documentation-only closeout`
 - Implementation commit: `fd0b38b`
 - Code-review agent: `code-review`
-- PR code review commit range: `fd0b38b^..6b0b120`
+- PR code review commit range: `fd0b38b^..562aad0`
 - Code-review verdict: `CHANGES_REQUESTED`
-- Code-review evidence: The complete remediated range was inspected; `npm run task:preflight`, `bash -n`, `git diff --check`, and `npm run agents:validate` passed. Push and remote CI remained mandatory, but the unrelated historical-commit bypass remained.
-- Code-review report: `.agents/reviews/TASK-020-6b0b120.md`
+- Code-review evidence: The complete remediated range was inspected; task identity was correlated across record filename, declared identifier, implementation subject, and exact range. `npm run agents:validate`, `bash -n`, and `git diff --check` passed; push and remote CI remained mandatory. The code-path rejection fixture did not reach path validation.
+- Code-review report: `.agents/reviews/TASK-020-562aad0.md`
 - Remediation required: yes
-- Remediation commit subject: `fix(TASK-020): bind documentation commit to task`
+- Remediation commit subject: `fix(TASK-020): exercise code path rejection`
 - Remediation commit: pending
 - Post-remediation validation commands and results: pending
 - Harness retro report: pending
@@ -53,6 +53,7 @@ none (no cross-agent runtime boundaries)
 | --- | --- | --- | --- | --- |
 | 1 | `fd0b38b^..fd0b38b` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-020-fd0b38b.md` | Bind the documentation-only range to the declared implementation commit and add an unrelated-range rejection fixture |
 | 2 | `fd0b38b^..6b0b120` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-020-6b0b120.md` | Bind the implementation commit to the declared task identifier and coordination-record name |
+| 3 | `fd0b38b^..562aad0` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-020-562aad0.md` | Align the code-range fixture identity so rejection exercises the non-documentation path allowlist |
 
 ## Acceptance evidence
 

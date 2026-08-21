@@ -60,14 +60,23 @@ if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/nul
 fi
 sed -i 's/Implementation commit: `5aa0477`/Implementation commit: `6405f4f`/' "$documentation_record"
 
-sed -i 's/6405f4f\^\.\.6405f4f/5aa0477^..5aa0477/' "$documentation_record"
-sed -i 's/Implementation commit: `6405f4f`/Implementation commit: `5aa0477`/' "$documentation_record"
-if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
+code_record="$fixture_dir/task-004-documentation-only.md"
+mv "$documentation_record" "$code_record"
+sed -i 's/TASK-019/TASK-004/' "$code_record"
+sed -i 's/6405f4f\^\.\.6405f4f/5aa0477^..5aa0477/' "$code_record"
+sed -i 's/Implementation commit: `6405f4f`/Implementation commit: `5aa0477`/' "$code_record"
+if code_rejection="$(bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" 2>&1)"; then
 	echo "A task containing code bypassed review as documentation-only." >&2
 	exit 1
 fi
-sed -i 's/5aa0477\^\.\.5aa0477/6405f4f^..6405f4f/' "$documentation_record"
-sed -i 's/Implementation commit: `5aa0477`/Implementation commit: `6405f4f`/' "$documentation_record"
+if ! grep -Fq "documentation-only task contains non-documentation path" <<<"$code_rejection"; then
+	echo "The code-bearing task was rejected before documentation path validation." >&2
+	exit 1
+fi
+sed -i 's/5aa0477\^\.\.5aa0477/6405f4f^..6405f4f/' "$code_record"
+sed -i 's/Implementation commit: `5aa0477`/Implementation commit: `6405f4f`/' "$code_record"
+sed -i 's/TASK-004/TASK-019/' "$code_record"
+mv "$code_record" "$documentation_record"
 
 sed -i 's/Change classification: `documentation-only`/Change classification: `unsupported`/' "$documentation_record"
 if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then

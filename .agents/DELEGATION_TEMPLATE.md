@@ -13,6 +13,9 @@ commit when the originating artifacts can share the same commit.
 - Task:
 - Task identifier (`TASK-XXX`):
 - Lifecycle: `in-progress` (change to `closed` only after all closeout evidence is complete)
+- Change classification: `code` or `documentation-only`
+- Documentation-only commit range: required only for `documentation-only`; must be exactly `<Implementation commit>^..<Implementation commit>` and is checked by `npm run agents:validate`
+- Documentation-only evidence: required only for `documentation-only`; explain why every changed path is documentation
 - Expected outcome:
 - Scope boundaries:
 - Task worktree path (from `task-worktree.sh create TASK-XXX`):
@@ -81,7 +84,7 @@ verified against that contract, including applicable boundary semantics such as
 - Agent output references:
 - Contract-verification handoffs:
 - Implementation commit:
-- Code-review agent: `code-review`
+- Code-review agent: `code-review`, or `skipped (documentation-only)` after range validation
 - PR code review commit range:
 - Code-review verdict: `APPROVED` or `CHANGES_REQUESTED`
 - Code-review evidence:
@@ -113,9 +116,10 @@ boundaries)` only when the task genuinely has no such boundary.
 |  |  |  |  |  |  | `producer-to-consumer: ...` |
 
 The task branch is not pushed and does not receive remote CI. After the task
-lead integrates it into `main`, the pushed `main` commit, GitHub Actions run
-URL, and remote CI result belong in the post-push HIL handoff. Do not persist
-them in a follow-up evidence commit.
+lead integrates it into `main`, every task—including a validated
+`documentation-only` task—pushes `main`; the GitHub Actions run URL and remote
+CI result belong in the post-push HIL handoff. Do not persist them in a
+follow-up evidence commit.
 
 ### Code-review rounds
 

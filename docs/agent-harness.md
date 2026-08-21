@@ -125,9 +125,10 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
   works from detached CI checkouts. Never treat cleanup as integration.
 - Task branches are validated locally but are not pushed and do not receive
   remote CI. This is the repository's trunk-based workflow: feature branches
-  are local working branches only. After integration into `main`, push `main` and run
-  `npm run task:verify-remote-ci`; the verifier requires the matching SHA on
-  `head_branch=main`.
+  are local working branches only. After integrating any task into `main`, push
+  `main` and run `npm run task:verify-remote-ci`; the verifier requires the
+  matching SHA on `head_branch=main`. This remains mandatory for a validated
+  `documentation-only` task.
 - Before integration, update local `main` and attempt to rebase the feature
   branch onto it. When the rebase is clean, integrate with `git merge --no-ff`.
   If it becomes conflict-heavy or impractical, abort the rebase and use
@@ -148,7 +149,10 @@ Replace `TASK-XXX` with the actual task identifier, such as `TASK-002`.
 - Ask the main agent to review the integrated diff, not only isolated agent results.
 - Create the implementation commit before invoking the native `/review`
   command through the `code-review` agent. Treat it as a PR review of that
-  commit, not as a pre-commit lint step.
+  commit, not as a pre-commit lint step. A `documentation-only` task may omit
+  this step only after the closeout validator proves the exact
+  `<Implementation commit>^..<Implementation commit>` range contains
+  exclusively supported documentation paths.
 - Apply all accepted review changes in a second commit and record the review
   result and remediation commit in the task coordination record.
 - Persist one coordination record per multi-agent task under
@@ -190,9 +194,12 @@ The agent may update that TODO file, but it must not modify production code or C
    React, or Next.js App Router changes alongside the other relevant role
    agents.
 3. Integrate and validate the complete diff.
-4. Commit the implementation and open or identify the PR commit range.
+4. Commit the implementation and identify its exact commit range. Classify the
+   task as `code` or `documentation-only` in the coordination record.
 5. Invoke `code-review` with the exact implementation commit range and record
-   its verdict and evidence. See [the mandatory review convention](agents/task-code-review-workflow.md).
+   its verdict and evidence. A `documentation-only` task skips this step only
+   after `npm run agents:validate` accepts its recorded range. See [the review
+   convention](agents/task-code-review-workflow.md).
 6. Apply accepted findings and commit the remediation changes with a message
    starting with `fix(TASK-XXX):`.
 7. Run `bash scripts/agent-harness/run-with-next-lock.sh npm run prep`, which
@@ -205,3 +212,6 @@ The agent may update that TODO file, but it must not modify production code or C
     commit; completed task work must not remain uncommitted.
 11. Let the task lead integrate the task branch, then remove only its clean
     linked worktree with the harness command.
+
+Every task then pushes `main` and monitors the matching GitHub Actions run,
+including a validated `documentation-only` task.

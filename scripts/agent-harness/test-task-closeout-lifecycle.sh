@@ -15,6 +15,76 @@ EOF
 
 bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null
 
+documentation_record="$fixture_dir/task-019-documentation-only.md"
+
+cat >"$documentation_record" <<'EOF'
+# Documentation-only task
+
+- Task identifier (`TASK-XXX`): `TASK-019`
+- Lifecycle: `closed`
+- Change classification: `documentation-only`
+- Implementation commit: `6405f4f`
+- Documentation-only commit range: `6405f4f^..6405f4f`
+- Documentation-only evidence: The range contains only Markdown documentation and coordination files.
+- Code-review agent: skipped (documentation-only)
+- PR code review commit range: skipped (documentation-only)
+- Code-review verdict: skipped (documentation-only)
+
+### Cross-agent boundary contracts
+
+none (no cross-agent runtime boundaries)
+
+## Acceptance evidence
+
+| ID | Acceptance criterion / TODO item | Implementation artifact | Passing verification |
+| --- | --- | --- | --- |
+| AC-01 | Documentation is updated | `docs/product/user-story-template.md` | Documentation-only range validation passed |
+EOF
+
+bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null
+
+cross_task_record="$fixture_dir/task-997-documentation-only.md"
+mv "$documentation_record" "$cross_task_record"
+sed -i 's/TASK-019/TASK-997/' "$cross_task_record"
+if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
+	echo "A task reused another task's historical documentation commit to bypass review." >&2
+	exit 1
+fi
+sed -i 's/TASK-997/TASK-019/' "$cross_task_record"
+mv "$cross_task_record" "$documentation_record"
+
+sed -i 's/Implementation commit: `6405f4f`/Implementation commit: `5aa0477`/' "$documentation_record"
+if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
+	echo "An unrelated historical documentation range bypassed review for a code implementation." >&2
+	exit 1
+fi
+sed -i 's/Implementation commit: `5aa0477`/Implementation commit: `6405f4f`/' "$documentation_record"
+
+code_record="$fixture_dir/task-004-documentation-only.md"
+mv "$documentation_record" "$code_record"
+sed -i 's/TASK-019/TASK-004/' "$code_record"
+sed -i 's/6405f4f\^\.\.6405f4f/5aa0477^..5aa0477/' "$code_record"
+sed -i 's/Implementation commit: `6405f4f`/Implementation commit: `5aa0477`/' "$code_record"
+if code_rejection="$(bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" 2>&1)"; then
+	echo "A task containing code bypassed review as documentation-only." >&2
+	exit 1
+fi
+if ! grep -Fq "documentation-only task contains non-documentation path" <<<"$code_rejection"; then
+	echo "The code-bearing task was rejected before documentation path validation." >&2
+	exit 1
+fi
+sed -i 's/5aa0477\^\.\.5aa0477/6405f4f^..6405f4f/' "$code_record"
+sed -i 's/Implementation commit: `5aa0477`/Implementation commit: `6405f4f`/' "$code_record"
+sed -i 's/TASK-004/TASK-019/' "$code_record"
+mv "$code_record" "$documentation_record"
+
+sed -i 's/Change classification: `documentation-only`/Change classification: `unsupported`/' "$documentation_record"
+if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
+	echo "An unsupported change classification was accepted." >&2
+	exit 1
+fi
+rm "$documentation_record"
+
 sed -i 's/in-progress/invalid-state/' "$fixture_dir/in-progress.md"
 if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
 	echo "Invalid coordination lifecycle was accepted." >&2

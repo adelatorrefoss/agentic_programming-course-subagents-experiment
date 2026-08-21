@@ -22,7 +22,10 @@ npm run test
 - Run `npm run prep` before closing the task.
 - After the implementation commit, invoke the `code-review` agent with the
   exact commit range. Do not close the task until it returns `APPROVED` and the
-  review evidence is recorded in the coordination record.
+  review evidence is recorded in the coordination record. A task classified as
+  `documentation-only` may skip review only when `npm run agents:validate`
+  confirms that every changed path in its recorded commit range is Markdown,
+  text, or a documentation asset under `docs/`.
 - Invoke `harness-retro` after code review, commit its complete TODO register,
   implement or explicitly justify every applicable harness TODO, and commit
   those improvements separately.
@@ -30,11 +33,12 @@ npm run test
   committed, do not push or run remote CI for the task branch, and integrate it
   into `main` (trunk-based development: feature branches are local working
   branches only). Push `main`, monitor its GitHub Actions run to completion with
-  `npm run task:verify-remote-ci`, and confirm CI is green. Then confirm a clean task
-  worktree and show the user a visual HIL summary of the outcome, review,
+  `npm run task:verify-remote-ci`, and confirm CI is green for every task,
+  including `documentation-only` tasks. Then confirm a clean task worktree and
+  show the user a visual HIL summary of the outcome, applicable review state,
   harness changes, commits, remote CI run, and warnings. A task is not done
-  until the pushed `main` `HEAD` has passed CI. Record the run URL and result in the
-  final HIL handoff; do not create a follow-up evidence commit, which would
+  until the pushed `main` `HEAD` has passed CI. Record the run URL and result in
+  the final HIL handoff; do not create a follow-up evidence commit, which would
   require another CI run.
 - Integration strategy: update local `main`, attempt `git rebase main` on the
   feature branch, then integrate it with `git merge --no-ff`. If the rebase is

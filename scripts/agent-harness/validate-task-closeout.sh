@@ -59,6 +59,93 @@ commit_is_in_range() {
 		! git merge-base --is-ancestor "$commit" "$range_base"
 }
 
+is_documentation_path() {
+	local path="$1"
+
+	case "$path" in
+		*.md | *.mdx | *.rst | *.txt)
+			return 0
+			;;
+		docs/*.gif | docs/*.jpg | docs/*.jpeg | docs/*.png | docs/*.svg | docs/*.webp | docs/*.pdf)
+			return 0
+			;;
+		*)
+			return 1
+			;;
+	esac
+}
+
+validate_documentation_only_range() {
+	local record="$1"
+	local implementation_commit="$2"
+	local task_identifier="$3"
+	local record_name="$4"
+	local documentation_range range_base range_head implementation_sha implementation_parent_sha range_base_sha range_head_sha commit_subject expected_record_prefix changed_paths path
+
+	if [[ ! "$task_identifier" =~ ^TASK-[0-9]{3,}[A-Z]?$ ]]; then
+		echo "${record}: documentation-only task requires a valid Task identifier" >&2
+		return 1
+	fi
+
+	expected_record_prefix="$(printf '%s' "$task_identifier" | tr '[:upper:]' '[:lower:]')"
+	if [[ "$record_name" != "${expected_record_prefix}-"*.md ]]; then
+		echo "${record}: documentation-only record name must start with '${expected_record_prefix}-'" >&2
+		return 1
+	fi
+
+	if [[ ! "$implementation_commit" =~ ^[0-9a-f]{7,40}$ ]] ||
+		! git rev-parse --verify --quiet "${implementation_commit}^{commit}" >/dev/null
+	then
+		echo "${record}: documentation-only task requires an existing Implementation commit" >&2
+		return 1
+	fi
+
+	commit_subject="$(git show -s --format=%s "$implementation_commit")"
+	if [[ "$commit_subject" != *"(${task_identifier})"* ]]; then
+		echo "${record}: Implementation commit subject does not belong to ${task_identifier}" >&2
+		return 1
+	fi
+
+	documentation_range="$(field_value "Documentation-only commit range" "$record")"
+	if [[ ! "$documentation_range" =~ ^([0-9a-f]{7,40})(\^)?\.\.([0-9a-f]{7,40})$ ]]; then
+		echo "${record}: invalid Documentation-only commit range '${documentation_range}'" >&2
+		return 1
+	fi
+
+	range_base="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+	range_head="${BASH_REMATCH[3]}"
+	if ! git rev-parse --verify --quiet "${range_base}^{commit}" >/dev/null ||
+		! git rev-parse --verify --quiet "${range_head}^{commit}" >/dev/null
+	then
+		echo "${record}: Documentation-only commit range must reference existing commits" >&2
+		return 1
+	fi
+
+	implementation_sha="$(git rev-parse "${implementation_commit}^{commit}")"
+	implementation_parent_sha="$(git rev-parse "${implementation_commit}^")"
+	range_base_sha="$(git rev-parse "${range_base}^{commit}")"
+	range_head_sha="$(git rev-parse "${range_head}^{commit}")"
+	if [[ "$range_head_sha" != "$implementation_sha" || "$range_base_sha" != "$implementation_parent_sha" ]]; then
+		echo "${record}: Documentation-only commit range must be exactly Implementation commit^..Implementation commit" >&2
+		return 1
+	fi
+
+	changed_paths="$(git diff --name-only "$range_base" "$range_head")"
+	if [[ -z "$changed_paths" ]]; then
+		echo "${record}: Documentation-only commit range contains no changes" >&2
+		return 1
+	fi
+
+	while IFS= read -r path; do
+		if ! is_documentation_path "$path"; then
+			echo "${record}: documentation-only task contains non-documentation path '${path}'" >&2
+			return 1
+		fi
+	done <<<"$changed_paths"
+
+	return 0
+}
+
 boundary_section_declares_none() {
 	local record="$1"
 
@@ -91,8 +178,12 @@ for record in "$COORDINATION_DIR"/*.md; do
 	record_count=$((record_count + 1))
 	record_error=false
 	record_name="$(basename "$record")"
+	task_identifier="$(field_value 'Task identifier (`TASK-XXX`)' "$record")"
 	lifecycle="$(field_value "Lifecycle" "$record")"
+	change_classification="$(field_value "Change classification" "$record")"
+	implementation_commit="$(field_value "Implementation commit" "$record")"
 	[[ -n "$lifecycle" ]] || lifecycle="closed"
+	[[ -n "$change_classification" ]] || change_classification="code"
 
 	case "$lifecycle" in
 		in-progress)
@@ -108,10 +199,21 @@ for record in "$COORDINATION_DIR"/*.md; do
 			;;
 	esac
 
-	if is_legacy_review_exception "$record_name"; then
+	if [[ "$change_classification" == "documentation-only" ]]; then
+		documentation_evidence="$(field_value "Documentation-only evidence" "$record")"
+		if is_forbidden_value "$documentation_evidence"; then
+			echo "${record}: missing valid Documentation-only evidence" >&2
+			record_error=true
+		fi
+		if ! validate_documentation_only_range "$record" "$implementation_commit" "$task_identifier" "$record_name"; then
+			record_error=true
+		fi
+	elif [[ "$change_classification" != "code" ]]; then
+		echo "${record}: Change classification must be 'code' or 'documentation-only'" >&2
+		record_error=true
+	elif is_legacy_review_exception "$record_name"; then
 		echo "${record}: legacy code-review exception recorded"
 	else
-		implementation_commit="$(field_value "Implementation commit" "$record")"
 		review_agent="$(field_value "Code-review agent" "$record")"
 		review_range="$(field_value "PR code review commit range" "$record")"
 		review_verdict="$(field_value "Code-review verdict" "$record")"

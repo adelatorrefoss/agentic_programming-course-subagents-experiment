@@ -15,6 +15,45 @@ EOF
 
 bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null
 
+cat >"$fixture_dir/documentation-only.md" <<'EOF'
+# Documentation-only task
+
+- Task identifier (`TASK-XXX`): `TASK-997`
+- Lifecycle: `closed`
+- Change classification: `documentation-only`
+- Documentation-only commit range: `6405f4f^..6405f4f`
+- Documentation-only evidence: The range contains only Markdown documentation and coordination files.
+- Code-review agent: skipped (documentation-only)
+- PR code review commit range: skipped (documentation-only)
+- Code-review verdict: skipped (documentation-only)
+
+### Cross-agent boundary contracts
+
+none (no cross-agent runtime boundaries)
+
+## Acceptance evidence
+
+| ID | Acceptance criterion / TODO item | Implementation artifact | Passing verification |
+| --- | --- | --- | --- |
+| AC-01 | Documentation is updated | `docs/product/user-story-template.md` | Documentation-only range validation passed |
+EOF
+
+bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null
+
+sed -i 's/6405f4f\^\.\.6405f4f/5aa0477^..5aa0477/' "$fixture_dir/documentation-only.md"
+if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
+	echo "A task containing code bypassed review as documentation-only." >&2
+	exit 1
+fi
+sed -i 's/5aa0477\^\.\.5aa0477/6405f4f^..6405f4f/' "$fixture_dir/documentation-only.md"
+
+sed -i 's/Change classification: `documentation-only`/Change classification: `unsupported`/' "$fixture_dir/documentation-only.md"
+if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
+	echo "An unsupported change classification was accepted." >&2
+	exit 1
+fi
+rm "$fixture_dir/documentation-only.md"
+
 sed -i 's/in-progress/invalid-state/' "$fixture_dir/in-progress.md"
 if bash scripts/agent-harness/validate-task-closeout.sh "$fixture_dir" >/dev/null 2>&1; then
 	echo "Invalid coordination lifecycle was accepted." >&2

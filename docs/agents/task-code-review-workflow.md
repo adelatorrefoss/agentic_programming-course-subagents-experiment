@@ -2,9 +2,15 @@
 
 ## 💡 Convention
 
-Toda tarea que modifique el repositorio debe pasar por el agente específico
+Toda tarea con cambios de código debe pasar por el agente específico
 `code-review` después del commit de implementación y antes de la validación
 final y del cierre del harness.
+
+Una tarea exclusivamente documental puede omitir la revisión cuando declara
+`Change classification: documentation-only`, registra el rango exacto de
+commits y `npm run agents:validate` confirma que todos los paths modificados son
+Markdown, texto o recursos documentales admitidos dentro de `docs/`. La etiqueta
+declarativa por sí sola no permite omitir la revisión.
 
 El registro de coordinación debe incluir el agente que revisó, un informe
 persistido bajo `.agents/reviews/`, el rango de commits revisado, el veredicto

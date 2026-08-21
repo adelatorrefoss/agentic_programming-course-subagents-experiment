@@ -59,6 +59,57 @@ commit_is_in_range() {
 		! git merge-base --is-ancestor "$commit" "$range_base"
 }
 
+is_documentation_path() {
+	local path="$1"
+
+	case "$path" in
+		*.md | *.mdx | *.rst | *.txt)
+			return 0
+			;;
+		docs/*.gif | docs/*.jpg | docs/*.jpeg | docs/*.png | docs/*.svg | docs/*.webp | docs/*.pdf)
+			return 0
+			;;
+		*)
+			return 1
+			;;
+	esac
+}
+
+validate_documentation_only_range() {
+	local record="$1"
+	local documentation_range range_base range_head changed_paths path
+
+	documentation_range="$(field_value "Documentation-only commit range" "$record")"
+	if [[ ! "$documentation_range" =~ ^([0-9a-f]{7,40})(\^)?\.\.([0-9a-f]{7,40})$ ]]; then
+		echo "${record}: invalid Documentation-only commit range '${documentation_range}'" >&2
+		return 1
+	fi
+
+	range_base="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+	range_head="${BASH_REMATCH[3]}"
+	if ! git rev-parse --verify --quiet "${range_base}^{commit}" >/dev/null ||
+		! git rev-parse --verify --quiet "${range_head}^{commit}" >/dev/null
+	then
+		echo "${record}: Documentation-only commit range must reference existing commits" >&2
+		return 1
+	fi
+
+	changed_paths="$(git diff --name-only "$range_base" "$range_head")"
+	if [[ -z "$changed_paths" ]]; then
+		echo "${record}: Documentation-only commit range contains no changes" >&2
+		return 1
+	fi
+
+	while IFS= read -r path; do
+		if ! is_documentation_path "$path"; then
+			echo "${record}: documentation-only task contains non-documentation path '${path}'" >&2
+			return 1
+		fi
+	done <<<"$changed_paths"
+
+	return 0
+}
+
 boundary_section_declares_none() {
 	local record="$1"
 
@@ -92,7 +143,9 @@ for record in "$COORDINATION_DIR"/*.md; do
 	record_error=false
 	record_name="$(basename "$record")"
 	lifecycle="$(field_value "Lifecycle" "$record")"
+	change_classification="$(field_value "Change classification" "$record")"
 	[[ -n "$lifecycle" ]] || lifecycle="closed"
+	[[ -n "$change_classification" ]] || change_classification="code"
 
 	case "$lifecycle" in
 		in-progress)
@@ -108,7 +161,19 @@ for record in "$COORDINATION_DIR"/*.md; do
 			;;
 	esac
 
-	if is_legacy_review_exception "$record_name"; then
+	if [[ "$change_classification" == "documentation-only" ]]; then
+		documentation_evidence="$(field_value "Documentation-only evidence" "$record")"
+		if is_forbidden_value "$documentation_evidence"; then
+			echo "${record}: missing valid Documentation-only evidence" >&2
+			record_error=true
+		fi
+		if ! validate_documentation_only_range "$record"; then
+			record_error=true
+		fi
+	elif [[ "$change_classification" != "code" ]]; then
+		echo "${record}: Change classification must be 'code' or 'documentation-only'" >&2
+		record_error=true
+	elif is_legacy_review_exception "$record_name"; then
 		echo "${record}: legacy code-review exception recorded"
 	else
 		implementation_commit="$(field_value "Implementation commit" "$record")"

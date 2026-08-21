@@ -6,6 +6,12 @@ Toda tarea que modifique el repositorio debe terminar con un cierre trazable que
 deje la funcionalidad, la revisión, el agent harness y el árbol de trabajo listos
 para comenzar la siguiente tarea.
 
+Las tareas validadas como `documentation-only` conservan todo el workflow pero
+pueden omitir `code-review`. El push de `main` y la monitorización de CI remoto
+siguen siendo obligatorios. El validador comprueba el rango de commits y rechaza
+la excepción de revisión si detecta cualquier path que no sea documentación
+admitida.
+
 El cierre se ejecuta en este orden:
 
 Durante todo el workflow, cada commit de la tarea debe incluir la versión
@@ -23,7 +29,8 @@ solo para el avance de coordinación cuando existen artefactos asociados.
    `feat(TASK-XXX): ...`, incluyendo ambos cambios.
 4. Invocar `code-review` con el rango exacto de commits, persistir su informe en
    `.agents/reviews/` y repetir el ciclo `fix(TASK-XXX): ...` hasta obtener
-   `APPROVED`.
+   `APPROVED`. Omitir este paso únicamente para una clasificación
+   `documentation-only` validada contra el rango exacto de commits.
 5. Ejecutar de nuevo `npm run prep` después de cualquier remediación.
 6. Invocar `harness-retro` y registrar todas sus recomendaciones con IDs
    estables en `TODO-AGENT-HARNESS.md`.
@@ -48,7 +55,8 @@ solo para el avance de coordinación cuando existen artefactos asociados.
     confirme que el run de GitHub Actions del `HEAD` de `main` terminó
     correctamente. No cerrar la tarea si CI falla o sigue en curso. Registrar la
     URL y el resultado en el handoff HIL, sin crear un commit posterior de
-    evidencia (ese nuevo commit necesitaría su propio run).
+    evidencia (ese nuevo commit necesitaría su propio run). Este gate remoto
+    también es obligatorio para una tarea `documentation-only` validada.
 13. Mostrar al usuario un resumen visual HIL (human in the loop) con la
     funcionalidad entregada, verificaciones, resultado de revisión, cambios del
     harness, commits, CI remoto, advertencias relevantes y estado de preparación

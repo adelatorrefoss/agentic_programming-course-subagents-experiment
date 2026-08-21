@@ -32,17 +32,18 @@ none (no cross-agent runtime boundaries)
 - Implementation commit subject: `feat(TASK-020): validate documentation-only closeout`
 - Implementation commit: `fd0b38b`
 - Code-review agent: `code-review`
-- PR code review commit range: `fd0b38b^..562aad0`
-- Code-review verdict: `CHANGES_REQUESTED`
-- Code-review evidence: The complete remediated range was inspected; task identity was correlated across record filename, declared identifier, implementation subject, and exact range. `npm run agents:validate`, `bash -n`, and `git diff --check` passed; push and remote CI remained mandatory. The code-path rejection fixture did not reach path validation.
-- Code-review report: `.agents/reviews/TASK-020-562aad0.md`
+- PR code review commit range: `fd0b38b^..e886e5b`
+- Code-review verdict: `APPROVED`
+- Code-review evidence: The complete remediated range and surrounding closeout logic were inspected. The code-bearing fixture now passes filename, task-identifier, commit-subject, and exact-range gates before asserting the non-documentation-path diagnostic. Cross-task, mismatched-range, code-path, and unsupported-classification regressions pass; `bash -n`, `git diff --check`, the focused lifecycle test, and `npm run agents:validate` passed. Push and remote CI remain mandatory.
+- Code-review report: `.agents/reviews/TASK-020-e886e5b.md`
 - Remediation required: yes
 - Remediation commit subject: `fix(TASK-020): exercise code path rejection`
-- Remediation commit: pending
-- Post-remediation validation commands and results: pending
-- Harness retro report: pending
+- Remediation commit: `e886e5b`
+- Post-remediation validation commands and results: `bash -n`, focused lifecycle regression, `git diff --check`, and `npm run agents:validate` passed; final `npm run prep` pending after retro.
+- Harness retro report: `TODO-AGENT-HARNESS.md`, section “TASK-020 harness retrospective — 2026-08-21”
 - Harness retro commit subject: `chore(TASK-020): record harness retro`
 - Harness retro commit: pending
+- Harness TODO applicability: No new TODO applies; all review findings are fixed with durable regressions, while AH-009, AH-013, and AH-017 already cover evidence, independent review, and iterative review history.
 - Final sign-off: pending
 - Task-lead integration method and target: Rebase task/TASK-020 onto updated main, then merge with `--no-ff` into main; push main and verify remote CI because this task changes shell code.
 - Clean worktree removal evidence: pending
@@ -54,6 +55,7 @@ none (no cross-agent runtime boundaries)
 | 1 | `fd0b38b^..fd0b38b` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-020-fd0b38b.md` | Bind the documentation-only range to the declared implementation commit and add an unrelated-range rejection fixture |
 | 2 | `fd0b38b^..6b0b120` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-020-6b0b120.md` | Bind the implementation commit to the declared task identifier and coordination-record name |
 | 3 | `fd0b38b^..562aad0` | `CHANGES_REQUESTED` | `.agents/reviews/TASK-020-562aad0.md` | Align the code-range fixture identity so rejection exercises the non-documentation path allowlist |
+| 4 | `fd0b38b^..e886e5b` | `APPROVED` | `.agents/reviews/TASK-020-e886e5b.md` | Complete range approved; all bypass regressions pass and remote CI remains mandatory |
 
 ## Acceptance evidence
 

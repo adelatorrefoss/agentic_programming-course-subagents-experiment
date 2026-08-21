@@ -556,6 +556,72 @@ None.
   expected control unless it repeatedly fails or gives misleading recovery
   guidance.
 
+## TASK-020 harness retrospective — 2026-08-21
+
+### Short summary
+
+TASK-020 introduced a narrowly validated `documentation-only` review exception
+while preserving mandatory main push and remote CI. Three review rounds exposed
+range ownership and test-depth gaps; all were remediated before the complete
+range received `APPROVED`. No new harness TODO is warranted.
+
+### Timeline
+
+- `fd0b38b` introduced the documentation-only review exception.
+- Review found that an unrelated historical documentation range could bypass
+  review for a code-bearing task.
+- `6b0b120` bound the range to the declared implementation commit.
+- Review found that both fields could still reuse another task's commit.
+- `562aad0` bound record filename, declared task identifier, commit subject, and
+  exact implementation range.
+- Review found that the code-bearing fixture failed before reaching path
+  validation.
+- `e886e5b` aligned fixture identity and asserted the exact non-documentation
+  path diagnostic.
+- Review of `fd0b38b^..e886e5b` returned `APPROVED`.
+
+### Root causes
+
+| Cause | Classification | Confidence | Impact |
+| --- | --- | --- | --- |
+| The initial exception trusted a caller-selected historical range. | Validator design | High | A code task could omit mandatory review. |
+| Range and implementation identity were not tied to the current task. | Validator design | High | Cross-task commit reuse remained possible after the first fix. |
+| The code-path negative fixture failed at an earlier identity gate. | Test design | High | A path-allowlist regression would not have been detected. |
+
+### Evidence
+
+- Four persisted review rounds record the two security-relevant bypasses, the
+  ineffective negative fixture, and the final approval.
+- `validate-task-closeout.sh` now correlates record filename, `TASK-XXX`, commit
+  subject, exact implementation range, and allowed documentation paths.
+- `test-task-closeout-lifecycle.sh` covers valid documentation, cross-task
+  reuse, mismatched ranges, matching-identity code paths, and unsupported
+  classifications; the code case asserts the intended rejection diagnostic.
+- Lifecycle guidance keeps push of `main` and remote-CI monitoring mandatory
+  for every task.
+
+### Prioritized remediation plan and applicability
+
+| Order | ID | Applicability | Action | Verification evidence |
+| --- | --- | --- | --- | --- |
+| Immediate | none | Completed in TASK-020; no open harness action remains. | Retain exact range, task identity, path checks, and diagnostic-specific fixtures. | Final review `APPROVED`; focused lifecycle test, shell syntax, diff check, and agent validation pass. |
+
+AH-009 already requires evidence-backed acceptance, AH-013 owns independent
+review, and AH-017 owns persisted iterative review rounds. A new generic TODO
+would duplicate those completed controls without an unguarded recurring gap.
+
+### Follow-up tasks
+
+None.
+
+### Preventive checks and monitoring
+
+- Make bypass fixtures pass every preceding gate before asserting the intended
+  rejection.
+- Assert the specific diagnostic for negative validation paths.
+- Retain cross-task historical reuse and exact-range mismatch cases.
+- Review the complete remediated range, not only the latest fix.
+
 ## Maintenance rules
 
 - Keep agent configuration recommendations in this file only.

@@ -59,6 +59,11 @@ Full workflows:
 - Frontend in `src/app/`, API routes in `src/app/api/`.
 - Backend in `src/contexts/`.
 
+# Product documentation
+
+- Use the [GitHub user story template](docs/product/user-story-template.md) when
+  converting functional product work into GitHub Issues.
+
 ## Commit convention
 
 Include the task identifier in every commit subject:

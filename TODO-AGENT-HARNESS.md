@@ -491,6 +491,71 @@ service discovery and an unsafe recovery target.
 - Ensure recovery commands address the same project as the health check.
 - Reject regressions that attempt to bind a second PostgreSQL to the canonical port.
 
+## TASK-019 harness retrospective — 2026-08-21
+
+### Short summary
+
+TASK-019 completed successfully after a brief planning correction: the task
+lead applied the explicitly requested `create-doc` skill, confirmed the target
+path, followed the required documentation structure, and obtained an
+independent `APPROVED` review. No new harness recommendation is warranted.
+
+### Timeline
+
+- Task preflight passed.
+- The initial planning response had not yet applied the requested `create-doc`
+  workflow.
+- The skill was read and its structure, path-confirmation, and `AGENTS.md`
+  indexing requirements were applied.
+- The user confirmed `docs/product/user-story-template.md`.
+- Implementation commit `6405f4f` added the template and index link.
+- Review of `6405f4f^..6405f4f` returned `APPROVED` with no findings.
+- Linked-worktree creation used the expected sandbox approval flow.
+
+### Root causes
+
+| Cause | Classification | Confidence | Impact |
+| --- | --- | --- | --- |
+| Initial planning preceded application of the user-requested documentation skill. | Prompt execution / process | Medium | One clarification round; no incorrect artifact was written. |
+| The linked worktree lives outside the managed writable root. | Environment | High | Expected approval interaction; worktree creation succeeded. |
+
+The first issue was corrected by the existing skill trigger and confirmation
+workflow. The second is expected permission enforcement rather than a harness
+defect.
+
+### Evidence
+
+- `.agents/skills/create-doc/SKILL.md` requires placement under `docs/`, the
+  prescribed convention structure, path confirmation, and an `AGENTS.md` link.
+- `.agents/coordination/task-019-github-user-story-template-2026-08-21.md`
+  records the scope, acceptance evidence, and approved review.
+- `.agents/reviews/TASK-019-6405f4f.md` records `APPROVED` and the passing checks.
+- `docs/product/user-story-template.md` and its `AGENTS.md` reference satisfy
+  the requested documentation outcome.
+
+### Prioritized remediation plan and applicability
+
+| Order | ID | Applicability | Action | Verification evidence |
+| --- | --- | --- | --- | --- |
+| Immediate | none | Not applicable; existing skill rules corrected the omission before implementation. | No harness change. | Confirmed path, compliant document, and `APPROVED` review. |
+| Short-term | none | Not applicable; no recurring or unguarded failure was observed. | No new TODO. | Existing skill and lifecycle checks passed. |
+
+No harness TODO is applicable to this task. Adding one would duplicate existing
+skill activation and path-confirmation rules without evidence of a recurring
+failure.
+
+### Follow-up tasks
+
+None.
+
+### Preventive checks and monitoring
+
+- Read explicitly requested skills before implementation.
+- Continue confirming documentation destinations when required by the skill.
+- Treat successful sandbox escalation for external linked worktrees as an
+  expected control unless it repeatedly fails or gives misleading recovery
+  guidance.
+
 ## Maintenance rules
 
 - Keep agent configuration recommendations in this file only.

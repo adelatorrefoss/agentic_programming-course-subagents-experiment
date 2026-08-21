@@ -78,12 +78,31 @@ is_documentation_path() {
 validate_documentation_only_range() {
 	local record="$1"
 	local implementation_commit="$2"
-	local documentation_range range_base range_head implementation_sha implementation_parent_sha range_base_sha range_head_sha changed_paths path
+	local task_identifier="$3"
+	local record_name="$4"
+	local documentation_range range_base range_head implementation_sha implementation_parent_sha range_base_sha range_head_sha commit_subject expected_record_prefix changed_paths path
+
+	if [[ ! "$task_identifier" =~ ^TASK-[0-9]{3,}[A-Z]?$ ]]; then
+		echo "${record}: documentation-only task requires a valid Task identifier" >&2
+		return 1
+	fi
+
+	expected_record_prefix="$(printf '%s' "$task_identifier" | tr '[:upper:]' '[:lower:]')"
+	if [[ "$record_name" != "${expected_record_prefix}-"*.md ]]; then
+		echo "${record}: documentation-only record name must start with '${expected_record_prefix}-'" >&2
+		return 1
+	fi
 
 	if [[ ! "$implementation_commit" =~ ^[0-9a-f]{7,40}$ ]] ||
 		! git rev-parse --verify --quiet "${implementation_commit}^{commit}" >/dev/null
 	then
 		echo "${record}: documentation-only task requires an existing Implementation commit" >&2
+		return 1
+	fi
+
+	commit_subject="$(git show -s --format=%s "$implementation_commit")"
+	if [[ "$commit_subject" != *"(${task_identifier})"* ]]; then
+		echo "${record}: Implementation commit subject does not belong to ${task_identifier}" >&2
 		return 1
 	fi
 
@@ -159,6 +178,7 @@ for record in "$COORDINATION_DIR"/*.md; do
 	record_count=$((record_count + 1))
 	record_error=false
 	record_name="$(basename "$record")"
+	task_identifier="$(field_value 'Task identifier (`TASK-XXX`)' "$record")"
 	lifecycle="$(field_value "Lifecycle" "$record")"
 	change_classification="$(field_value "Change classification" "$record")"
 	implementation_commit="$(field_value "Implementation commit" "$record")"
@@ -185,7 +205,7 @@ for record in "$COORDINATION_DIR"/*.md; do
 			echo "${record}: missing valid Documentation-only evidence" >&2
 			record_error=true
 		fi
-		if ! validate_documentation_only_range "$record" "$implementation_commit"; then
+		if ! validate_documentation_only_range "$record" "$implementation_commit" "$task_identifier" "$record_name"; then
 			record_error=true
 		fi
 	elif [[ "$change_classification" != "code" ]]; then

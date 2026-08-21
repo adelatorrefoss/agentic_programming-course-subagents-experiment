@@ -12,7 +12,9 @@ commits y `npm run agents:validate` confirma que todos los paths modificados son
 Markdown, texto o recursos documentales admitidos dentro de `docs/`. La etiqueta
 declarativa por sí sola no permite omitir la revisión. El rango debe ser
 exactamente `<Implementation commit>^..<Implementation commit>`; no puede
-reutilizar un rango documental histórico ajeno a la tarea.
+reutilizar un rango documental histórico ajeno a la tarea. El identificador
+debe coincidir también con el prefijo del registro de coordinación y con el
+`TASK-XXX` incluido en el asunto del commit.
 
 El registro de coordinación debe incluir el agente que revisó, un informe
 persistido bajo `.agents/reviews/`, el rango de commits revisado, el veredicto

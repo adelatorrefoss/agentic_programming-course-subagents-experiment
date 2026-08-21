@@ -4,7 +4,7 @@
 
 - Task: Allow documentation-only tasks to skip code review while preserving mandatory main push and remote-CI monitoring.
 - Task identifier (`TASK-XXX`): TASK-020
-- Lifecycle: in-progress
+- Lifecycle: closed
 - Change classification: code
 - Expected outcome: The harness recognizes a narrowly validated documentation-only review exception without weakening remote publication and CI gates.
 - Scope boundaries: Task worktrees, local validation, commits, local main integration, coordination evidence, and harness retro remain required.
@@ -39,14 +39,14 @@ none (no cross-agent runtime boundaries)
 - Remediation required: yes
 - Remediation commit subject: `fix(TASK-020): exercise code path rejection`
 - Remediation commit: `e886e5b`
-- Post-remediation validation commands and results: `bash -n`, focused lifecycle regression, `git diff --check`, and `npm run agents:validate` passed; final `npm run prep` pending after retro.
+- Post-remediation validation commands and results: `bash -n`, focused lifecycle regression, `git diff --check`, `npm run agents:validate`, and final `npm run prep` passed; prep included build, 139 regular tests, and 11 CI tests.
 - Harness retro report: `TODO-AGENT-HARNESS.md`, section “TASK-020 harness retrospective — 2026-08-21”
 - Harness retro commit subject: `chore(TASK-020): record harness retro`
-- Harness retro commit: pending
+- Harness retro commit: `14b8d58`
 - Harness TODO applicability: No new TODO applies; all review findings are fixed with durable regressions, while AH-009, AH-013, and AH-017 already cover evidence, independent review, and iterative review history.
-- Final sign-off: pending
+- Final sign-off: Documentation-only review skipping is bound to task identity, exact implementation commit, and allowed paths; review APPROVED; no harness TODO remains; full local validation passed; push and remote CI remain mandatory.
 - Task-lead integration method and target: Rebase task/TASK-020 onto updated main, then merge with `--no-ff` into main; push main and verify remote CI because this task changes shell code.
-- Clean worktree removal evidence: pending
+- Clean worktree removal evidence: Managed cleanup will run after main integration and green remote CI.
 
 ### Code-review rounds
 

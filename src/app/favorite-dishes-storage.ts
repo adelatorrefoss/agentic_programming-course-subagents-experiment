@@ -36,3 +36,4 @@ export function saveFavoriteDishIds(ids: Set<string>): void {
 		JSON.stringify(Array.from(ids)),
 	);
 }
+

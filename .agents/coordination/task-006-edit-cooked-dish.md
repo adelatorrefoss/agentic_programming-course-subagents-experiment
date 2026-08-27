@@ -4,7 +4,7 @@
 
 - Task: Edit an existing cooked dish from the UI
 - Task identifier (`TASK-XXX`): `TASK-006`
-- Lifecycle: `in-progress`
+- Lifecycle: `closed`
 - Change classification: `code`
 - Expected outcome: A registered user can edit the name, description, and ingredients of an existing cooked dish from the detail page. The edit form is prefilled, validates input, shows loading/success/error states, and cancel preserves original data.
 - Scope boundaries: Edit flow only — no bulk edit, no metadata outside name/description/ingredients.
@@ -65,7 +65,7 @@ For interactive frontend acceptance criteria:
 - Harness retro report: `TODO-AGENT-HARNESS.md` — AH-032 added (enforce task-bootstrap gate before implementation)
 - Harness retro commit subject: `chore(TASK-006): record harness retro`
 - Harness retro commit: `c0e7d9f`
-- Final sign-off: _pending_
+- Final sign-off: All 7 ACs satisfied, 8 tests green, lint clean, build passing, code-review APPROVED, retro done, AH-032 explicitly deferred. Ready for integration into `main`.
 - Task-lead integration method: rebase onto updated `main`, then `git merge --no-ff`; fallback to direct `merge --no-ff` on `main`
 - Clean worktree removal evidence (`task-worktree.sh finish TASK-006`): _pending_
 

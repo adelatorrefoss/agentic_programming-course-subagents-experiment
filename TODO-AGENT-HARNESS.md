@@ -37,6 +37,7 @@ Recommendations for agent harness engineering and agent configuration best pract
 | AH-029 | High | Isolate parallel tasks in dedicated linked Git worktrees and task branches, with validated identifiers, explicit task-lead integration, and cleanup that refuses dirty worktrees. | Developer Experience | ✅ Done |
 | AH-030 | Medium | Validate that product task catalogs contain only functional titles and observable scope, while delegation prompts, role assignments, test strategy, architecture rules, validation commands, and closeout gates remain owned by the harness. | Agent Platform | ✅ Done |
 | AH-031 | High | Make shared-service discovery independent of the current linked-worktree directory, and ensure preflight recovery instructions target the canonical Compose project instead of creating a port-conflicting per-worktree project. | Developer Experience | ✅ Done |
+| AH-032 | High | Require a task-bootstrap gate that creates the managed worktree and coordination record before implementation starts, records the assigned path/branch, and rejects review or closeout evidence created only after the implementation commit. | Agent Platform | ⏳ Pending |
 
 ### AH-031 completion evidence
 
@@ -621,6 +622,88 @@ None.
 - Assert the specific diagnostic for negative validation paths.
 - Retain cross-task historical reuse and exact-range mismatch cases.
 - Review the complete remediated range, not only the latest fix.
+
+## TASK-006 harness retrospective — 2026-08-27
+
+### Short summary
+
+TASK-006 shipped the frontend edit flow successfully, but it did so outside the
+required harness lifecycle: implementation commit `f7582ed` landed before the
+coordination record existed, and this retro is being run only as a corrective
+follow-up. The result was a trustworthy feature change with weaker-than-required
+process evidence and a manual reconstruction cost.
+
+### Timeline
+
+- `f7582ed` implemented the inline cooked-dish edit form and focused frontend
+  tests.
+- Review of `f7582ed^..f7582ed` returned `APPROVED` with three non-blocking
+  notes: ignored PUT response body, dead `if (!id)` guard, and missing tests for
+  add/remove ingredient button flows.
+- At that point the mandatory lifecycle artifacts were incomplete: no original
+  worktree/bootstrap evidence, no persisted coordination record, and no
+  `harness-retro` output.
+- `75683b1` later added `.agents/coordination/task-006-edit-cooked-dish.md`,
+  reconstructing the task brief, acceptance mapping, and review evidence
+  post-hoc.
+- This corrective retro closes the remaining harness gap; PostgreSQL remains
+  unavailable in the sandbox, so `npm run prep` can only be evidenced as
+  lint + build + non-CI tests passing with an explicit environment limitation.
+
+### Root causes
+
+| Cause | Classification | Confidence | Impact |
+| --- | --- | --- | --- |
+| The task was executed without the required harness bootstrap (managed worktree + coordination record) and only later backfilled those artifacts. | Process / coordination | High | Lifecycle evidence was reconstructed after implementation, so task ownership, timing, and closeout traceability are less reliable than a first-pass harnessed run. |
+| The harness relies on documented workflow compliance more than an enforced start gate that blocks implementation/review when bootstrap artifacts are missing or created after the implementation commit. | Workflow automation / validation | High | A task could appear complete after code review even though mandatory orchestration evidence was absent, creating cleanup work and increasing the chance of silent policy drift. |
+
+### Evidence
+
+- User-supplied context states that the original TASK-006 run did not follow the
+  `AGENTS.md` workflow and had no worktree, coordination record, or
+  `harness-retro`.
+- `AGENTS.md` requires task preflight, a dedicated task worktree, a persisted
+  coordination record, `harness-retro`, and final closeout gates.
+- Git history shows `f7582ed` (feature implementation) predates `75683b1`
+  (`chore(TASK-006): add coordination record`), proving the record was added
+  after implementation instead of alongside it.
+- `.agents/coordination/task-006-edit-cooked-dish.md` records the reconstructed
+  implementation and review evidence and still marks the harness retro as
+  pending before this correction.
+- `.agents/reviews/TASK-006-f7582ed.md` records an `APPROVED` verdict and the
+  three non-blocking notes, confirming product quality but not replacing the
+  missing lifecycle artifacts.
+
+### Prioritized remediation plan and applicability
+
+| Order | ID | Applicability | Action | Verification evidence |
+| --- | --- | --- | --- | --- |
+| Immediate | AH-032 | Applicable now; TASK-006 shows that completed code and even approved review can still lack bootstrap-time lifecycle evidence. | Add an enforced task-bootstrap path that creates the managed worktree and coordination record up front, stamps the assigned path/branch, and makes review/closeout validation fail when those artifacts first appear after the implementation commit. | A regression fixture that commits code before bootstrap must be rejected; a correctly bootstrapped fixture must pass `npm run agents:validate` and lifecycle validation with same-commit coordination evidence. |
+
+AH-008, AH-020, and AH-029 remain correct and should continue to govern retro
+gating, same-commit coordination updates, and worktree isolation. TASK-006
+exposes a missing enforcement point between those completed controls rather than
+invalidating them. No separate infrastructure TODO is added for the degraded
+`npm run prep` evidence because AH-012 and AH-021 already cover service
+availability diagnostics and time-bounded external dependency failures.
+
+### Follow-up tasks
+
+| ID | Suggested owner | Estimate | Deliverable |
+| --- | --- | --- | --- |
+| AH-032 | Agent Platform | 2–4 hours | Bootstrap command/validator updates, regression fixtures for late coordination creation, and lifecycle documentation tying review/closeout acceptance to bootstrap-time evidence. |
+
+### Preventive checks and monitoring
+
+- Reject task closeout when the coordination record's first commit is newer than
+  the implementation commit it describes.
+- Verify that the active working directory matches the managed task worktree
+  recorded at bootstrap before implementation and review commands run.
+- Surface a single diagnostic that names the missing bootstrap artifact
+  (worktree, coordination record, or retro) rather than allowing silent
+  after-the-fact reconstruction.
+- When environment limits degrade `npm run prep`, record the passed subset and
+  blocked dependency explicitly in the coordination record and handoff.
 
 ## Maintenance rules
 

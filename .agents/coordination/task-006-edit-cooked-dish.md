@@ -55,19 +55,25 @@ For interactive frontend acceptance criteria:
 - Implementation commit: `f7582ed`
 - Code-review agent: `code-review`
 - PR code review commit range: `f7582ed^..f7582ed`
-- Code-review verdict: _pending_
-- Code-review evidence: _pending_
-- Code-review report: _pending_
-- Remediation required: _pending_
-- Remediation commit subject: _pending_
-- Remediation commit: _pending_
-- Post-remediation validation commands and results: _pending_
-- Harness retro report: _pending_
-- Harness retro commit subject: _pending_
+- Code-review verdict: `APPROVED`
+- Code-review evidence: no significant findings; all 7 ACs verified; 8 tests pass; 3 non-blocking informational notes
+- Code-review report: `.agents/reviews/TASK-006-f7582ed.md`
+- Remediation required: no
+- Remediation commit subject: none (no findings)
+- Remediation commit: none
+- Post-remediation validation commands and results: n/a
+- Harness retro report: `TODO-AGENT-HARNESS.md` — AH-032 added (enforce task-bootstrap gate before implementation)
+- Harness retro commit subject: `chore(TASK-006): record harness retro`
 - Harness retro commit: _pending_
 - Final sign-off: _pending_
 - Task-lead integration method: rebase onto updated `main`, then `git merge --no-ff`; fallback to direct `merge --no-ff` on `main`
 - Clean worktree removal evidence (`task-worktree.sh finish TASK-006`): _pending_
+
+### Harness TODO disposition
+
+| TODO ID | Priority | Decision | Justification |
+| --- | --- | --- | --- |
+| AH-032 | High | **Deferred — out of scope** | AH-032 requires 2–4 h of Agent Platform harness infrastructure work (changes to `task-worktree.sh`, `validate-task-closeout.sh`, regression fixtures). This is not applicable within TASK-006 (UI feature task). AH-032 remains open in `TODO-AGENT-HARNESS.md` for the next harness improvement sprint. |
 
 ### Cross-agent boundary contracts
 
@@ -79,7 +85,7 @@ For interactive frontend acceptance criteria:
 
 | Round | Commit range | Verdict | Report | Findings / remediation |
 | --- | --- | --- | --- | --- |
-| 1 | `f7582ed^..f7582ed` | _pending_ | _pending_ | _pending_ |
+| 1 | `f7582ed^..f7582ed` | `APPROVED` | `.agents/reviews/TASK-006-f7582ed.md` | No significant findings; 3 informational notes (non-blocking); no remediation |
 
 ## Acceptance evidence
 

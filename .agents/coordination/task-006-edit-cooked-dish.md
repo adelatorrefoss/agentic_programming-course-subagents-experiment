@@ -64,7 +64,7 @@ For interactive frontend acceptance criteria:
 - Post-remediation validation commands and results: n/a
 - Harness retro report: `TODO-AGENT-HARNESS.md` — AH-032 added (enforce task-bootstrap gate before implementation)
 - Harness retro commit subject: `chore(TASK-006): record harness retro`
-- Harness retro commit: _pending_
+- Harness retro commit: `c0e7d9f`
 - Final sign-off: _pending_
 - Task-lead integration method: rebase onto updated `main`, then `git merge --no-ff`; fallback to direct `merge --no-ff` on `main`
 - Clean worktree removal evidence (`task-worktree.sh finish TASK-006`): _pending_
@@ -74,6 +74,8 @@ For interactive frontend acceptance criteria:
 | TODO ID | Priority | Decision | Justification |
 | --- | --- | --- | --- |
 | AH-032 | High | **Deferred — out of scope** | AH-032 requires 2–4 h of Agent Platform harness infrastructure work (changes to `task-worktree.sh`, `validate-task-closeout.sh`, regression fixtures). This is not applicable within TASK-006 (UI feature task). AH-032 remains open in `TODO-AGENT-HARNESS.md` for the next harness improvement sprint. |
+
+All new harness TODOs reviewed. No implementable harness improvements identified within TASK-006 scope.
 
 ### Cross-agent boundary contracts
 

@@ -60,7 +60,7 @@ For interactive frontend acceptance criteria:
 - Code-review report: `.agents/reviews/TASK-006-f7582ed.md`
 - Remediation required: no
 - Remediation commit subject: none (no findings)
-- Remediation commit: none
+- Remediation commit: none (no findings)
 - Post-remediation validation commands and results: n/a
 - Harness retro report: `TODO-AGENT-HARNESS.md` — AH-032 added (enforce task-bootstrap gate before implementation)
 - Harness retro commit subject: `chore(TASK-006): record harness retro`
@@ -79,9 +79,7 @@ All new harness TODOs reviewed. No implementable harness improvements identified
 
 ### Cross-agent boundary contracts
 
-| Boundary | Producer agent | Consumer agent | Producer fixture | Consumer assertion | Passing command | Passing evidence |
-| --- | --- | --- | --- | --- | --- | --- |
-| none (no cross-agent runtime boundaries) | — | — | — | — | — | — |
+none (no cross-agent runtime boundaries)
 
 ### Code-review rounds
 

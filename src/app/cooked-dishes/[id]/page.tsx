@@ -8,11 +8,16 @@ import { CookedDishHistory } from "./CookedDishHistory";
 
 import styles from "./page.module.css";
 
+interface Ingredient {
+	name: string;
+	type: string;
+}
+
 interface CookedDish {
 	id: string;
 	name: string;
 	description: string;
-	ingredients: { name: string; type: string }[];
+	ingredients: Ingredient[];
 }
 
 interface RatingSummary {
@@ -43,6 +48,16 @@ export default function CookedDishDetail() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitMessage, setSubmitMessage] = useState<string | null>(null);
 	const [submitError, setSubmitError] = useState<string | null>(null);
+
+	const [isEditing, setIsEditing] = useState(false);
+	const [editName, setEditName] = useState("");
+	const [editDescription, setEditDescription] = useState("");
+	const [editIngredients, setEditIngredients] = useState<Ingredient[]>([]);
+	const [editAuthor, setEditAuthor] = useState("");
+	const [isSaving, setIsSaving] = useState(false);
+	const [editError, setEditError] = useState<string | null>(null);
+	const [editSuccess, setEditSuccess] = useState<string | null>(null);
+	const [editValidationError, setEditValidationError] = useState<string | null>(null);
 
 	const fetchRatingSummary = useCallback(async () => {
 		setRatingsLoading(true);
@@ -127,6 +142,116 @@ export default function CookedDishDetail() {
 		}
 	};
 
+	const startEditing = () => {
+		if (!dish) return;
+		setEditName(dish.name);
+		setEditDescription(dish.description);
+		setEditIngredients(dish.ingredients.map((i) => ({ ...i })));
+		setEditAuthor("");
+		setEditError(null);
+		setEditSuccess(null);
+		setEditValidationError(null);
+		setIsEditing(true);
+	};
+
+	const cancelEditing = () => {
+		setIsEditing(false);
+		setEditError(null);
+		setEditSuccess(null);
+		setEditValidationError(null);
+	};
+
+	const updateIngredientName = (index: number, value: string) => {
+		setEditIngredients((prev) =>
+			prev.map((ing, i) => (i === index ? { ...ing, name: value } : ing)),
+		);
+	};
+
+	const updateIngredientType = (index: number, value: string) => {
+		setEditIngredients((prev) =>
+			prev.map((ing, i) => (i === index ? { ...ing, type: value } : ing)),
+		);
+	};
+
+	const addIngredient = () => {
+		setEditIngredients((prev) => [...prev, { name: "", type: "main" }]);
+	};
+
+	const removeIngredient = (index: number) => {
+		setEditIngredients((prev) => prev.filter((_, i) => i !== index));
+	};
+
+	const saveEdit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setEditValidationError(null);
+		setEditError(null);
+		setEditSuccess(null);
+
+		if (!id) {
+			setEditError("Unable to identify the dish. Please refresh the page.");
+			return;
+		}
+
+		if (!editName.trim()) {
+			setEditValidationError("Dish name is required.");
+			return;
+		}
+
+		if (editIngredients.some((ing) => !ing.name.trim())) {
+			setEditValidationError("All ingredient names must be filled in.");
+			return;
+		}
+
+		if (!editAuthor.trim()) {
+			setEditValidationError("Your name is required to save changes.");
+			return;
+		}
+
+		setIsSaving(true);
+
+		try {
+			const response = await fetch(`/api/cooked-dishes/${id}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					"X-Actor-Id": editAuthor.trim(),
+				},
+				body: JSON.stringify({
+					name: editName.trim(),
+					description: editDescription.trim(),
+					ingredients: editIngredients.map((ing) => ({
+						...ing,
+						name: ing.name.trim(),
+					})),
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error("Could not save changes. Please try again.");
+			}
+
+			setDish({
+				id,
+				name: editName.trim(),
+				description: editDescription.trim(),
+				ingredients: editIngredients.map((ing) => ({
+					...ing,
+					name: ing.name.trim(),
+				})),
+			});
+			setEditSuccess("Changes saved successfully.");
+			setIsEditing(false);
+		} catch (saveError) {
+			setEditError(
+				saveError instanceof Error
+					? saveError.message
+					: "Could not save changes.",
+			);
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
 	if (isLoading) {
 		return (
 			<main className={styles.main}>
@@ -193,49 +318,176 @@ export default function CookedDishDetail() {
 						<h1 className={styles.dishName}>{dish.name}</h1>
 					</header>
 
-					<p className={styles.dishDescription}>{dish.description}</p>
+					{editSuccess && (
+						<p className={styles.formSuccess} role="status">
+							{editSuccess}
+						</p>
+					)}
 
-					<section className={styles.ingredientsSection}>
-						{mainIngredients.length > 0 && (
-							<div className={styles.ingredientGroup}>
-								<h2 className={styles.ingredientGroupTitle}>
-									Main ingredients
-								</h2>
-								<ul className={styles.ingredientsList}>
-									{mainIngredients.map(
-										(ingredient, index) => (
-											<li
-												key={index}
-												className={`${styles.ingredient} ${styles["ingredient--main"]}`}
-											>
-												{ingredient.name}
-											</li>
-										),
-									)}
-								</ul>
-							</div>
-						)}
+					{!isEditing && (
+						<>
+							<p className={styles.dishDescription}>{dish.description}</p>
 
-						{stapleIngredients.length > 0 && (
-							<div className={styles.ingredientGroup}>
-								<h2 className={styles.ingredientGroupTitle}>
-									Pantry staples
-								</h2>
-								<ul className={styles.ingredientsList}>
-									{stapleIngredients.map(
-										(ingredient, index) => (
-											<li
-												key={index}
-												className={`${styles.ingredient} ${styles["ingredient--staple"]}`}
-											>
-												{ingredient.name}
-											</li>
-										),
-									)}
-								</ul>
+							<section className={styles.ingredientsSection}>
+								{mainIngredients.length > 0 && (
+									<div className={styles.ingredientGroup}>
+										<h2 className={styles.ingredientGroupTitle}>
+											Main ingredients
+										</h2>
+										<ul className={styles.ingredientsList}>
+											{mainIngredients.map(
+												(ingredient, index) => (
+													<li
+														key={index}
+														className={`${styles.ingredient} ${styles["ingredient--main"]}`}
+													>
+														{ingredient.name}
+													</li>
+												),
+											)}
+										</ul>
+									</div>
+								)}
+
+								{stapleIngredients.length > 0 && (
+									<div className={styles.ingredientGroup}>
+										<h2 className={styles.ingredientGroupTitle}>
+											Pantry staples
+										</h2>
+										<ul className={styles.ingredientsList}>
+											{stapleIngredients.map(
+												(ingredient, index) => (
+													<li
+														key={index}
+														className={`${styles.ingredient} ${styles["ingredient--staple"]}`}
+													>
+														{ingredient.name}
+													</li>
+												),
+											)}
+										</ul>
+									</div>
+								)}
+							</section>
+
+							<div className={styles.editActions}>
+								<button
+									type="button"
+									className={styles.editButton}
+									onClick={startEditing}
+								>
+									Edit dish
+								</button>
 							</div>
-						)}
-					</section>
+						</>
+					)}
+
+					{isEditing && (
+						<form
+							className={styles.editForm}
+							onSubmit={saveEdit}
+							aria-label="Edit dish"
+						>
+							<label>
+								Dish name
+								<input
+									required
+									maxLength={200}
+									value={editName}
+									onChange={(e) => setEditName(e.target.value)}
+								/>
+							</label>
+
+							<label>
+								Description
+								<textarea
+									rows={4}
+									maxLength={2000}
+									value={editDescription}
+									onChange={(e) => setEditDescription(e.target.value)}
+								/>
+							</label>
+
+							<fieldset className={styles.ingredientsFieldset}>
+								<legend>Ingredients</legend>
+								{editIngredients.map((ing, index) => (
+									<div key={index} className={styles.ingredientRow}>
+										<input
+											aria-label={`Ingredient ${index + 1} name`}
+											required
+											maxLength={200}
+											value={ing.name}
+											onChange={(e) => updateIngredientName(index, e.target.value)}
+											placeholder="Ingredient name"
+										/>
+										<select
+											aria-label={`Ingredient ${index + 1} type`}
+											value={ing.type}
+											onChange={(e) => updateIngredientType(index, e.target.value)}
+										>
+											<option value="main">Main</option>
+											<option value="household_staple">Pantry staple</option>
+										</select>
+										<button
+											type="button"
+											className={styles.removeIngredientButton}
+											onClick={() => removeIngredient(index)}
+											aria-label={`Remove ingredient ${ing.name || index + 1}`}
+										>
+											Remove
+										</button>
+									</div>
+								))}
+								<button
+									type="button"
+									className={styles.addIngredientButton}
+									onClick={addIngredient}
+								>
+									Add ingredient
+								</button>
+							</fieldset>
+
+							<label>
+								Your name
+								<input
+									required
+									maxLength={120}
+									value={editAuthor}
+									onChange={(e) => setEditAuthor(e.target.value)}
+									placeholder="Required to save changes"
+								/>
+							</label>
+
+							{editValidationError && (
+								<p className={styles.formError} role="alert">
+									{editValidationError}
+								</p>
+							)}
+							{editError && (
+								<p className={styles.formError} role="alert">
+									{editError}
+								</p>
+							)}
+
+							<div className={styles.editFormActions}>
+								<button
+									type="submit"
+									className={styles.saveButton}
+									disabled={isSaving}
+								>
+									{isSaving ? "Saving..." : "Save changes"}
+								</button>
+								<button
+									type="button"
+									className={styles.cancelButton}
+									onClick={cancelEditing}
+									disabled={isSaving}
+								>
+									Cancel
+								</button>
+							</div>
+						</form>
+					)}
 				</article>
 
 				<CookedDishHistory dishId={id} />

@@ -5,6 +5,10 @@ import { useParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
 import { CookedDishHistory } from "./CookedDishHistory";
+import {
+	loadFavoriteDishIds,
+	saveFavoriteDishIds,
+} from "../../favorite-dishes-storage";
 
 import styles from "./page.module.css";
 
@@ -48,6 +52,8 @@ export default function CookedDishDetail() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submitMessage, setSubmitMessage] = useState<string | null>(null);
 	const [submitError, setSubmitError] = useState<string | null>(null);
+	const [isFavorite, setIsFavorite] = useState(false);
+	const [favoriteError, setFavoriteError] = useState<string | null>(null);
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [editName, setEditName] = useState("");
@@ -99,6 +105,36 @@ export default function CookedDishDetail() {
 	useEffect(() => {
 		void fetchRatingSummary();
 	}, [fetchRatingSummary]);
+
+	useEffect(() => {
+		try {
+			const favoriteIds = loadFavoriteDishIds();
+			setIsFavorite(favoriteIds.has(id));
+		} catch {
+			setFavoriteError(
+				"Favorites could not be loaded. Please refresh the page.",
+			);
+		}
+	}, [id]);
+
+	const toggleFavorite = () => {
+		setFavoriteError(null);
+		try {
+			const favoriteIds = loadFavoriteDishIds();
+			const nextIsFavorite = !favoriteIds.has(id);
+			if (nextIsFavorite) {
+				favoriteIds.add(id);
+			} else {
+				favoriteIds.delete(id);
+			}
+			saveFavoriteDishIds(favoriteIds);
+			setIsFavorite(nextIsFavorite);
+		} catch {
+			setFavoriteError(
+				"We couldn't update favorites. Please check browser storage and try again.",
+			);
+		}
+	};
 
 	const submitRating = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -316,6 +352,20 @@ export default function CookedDishDetail() {
 					<header className={styles.dishHeader}>
 						<div className={styles.badge}>Cooked</div>
 						<h1 className={styles.dishName}>{dish.name}</h1>
+						<button
+							type="button"
+							className={styles.favoriteButton}
+							onClick={toggleFavorite}
+						>
+							{isFavorite
+								? "Remove from favorites"
+								: "Add to favorites"}
+						</button>
+						{favoriteError && (
+							<p className={styles.formError} role="alert">
+								{favoriteError}
+							</p>
+						)}
 					</header>
 
 					{editSuccess && (

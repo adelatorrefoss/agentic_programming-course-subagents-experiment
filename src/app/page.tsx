@@ -10,6 +10,10 @@ import {
 	IngredientType,
 	loadCookedDishSearch,
 } from "./cooked-dish-search";
+import {
+	loadFavoriteDishIds,
+	saveFavoriteDishIds,
+} from "./favorite-dishes-storage";
 
 import styles from "./page.module.css";
 
@@ -42,7 +46,22 @@ export default function Home() {
 		totalPages: 0,
 	});
 	const [dishSearchError, setDishSearchError] = useState<string | null>(null);
+	const [favoriteDishIds, setFavoriteDishIds] = useState<Set<string>>(
+		() => new Set(),
+	);
+	const [favoritesOnly, setFavoritesOnly] = useState(false);
+	const [favoritesError, setFavoritesError] = useState<string | null>(null);
 	const searchRequestIdRef = useRef(0);
+
+	useEffect(() => {
+		try {
+			setFavoriteDishIds(loadFavoriteDishIds());
+		} catch {
+			setFavoritesError(
+				"Favorites could not be loaded. Please refresh the page.",
+			);
+		}
+	}, []);
 
 	useEffect(() => {
 		const requestId = ++searchRequestIdRef.current;
@@ -191,6 +210,29 @@ export default function Home() {
 	const handleDismissDish = () => {
 		setSuggestedDish(null);
 	};
+
+	const toggleDishFavorite = (dishId: string) => {
+		setFavoritesError(null);
+		const updatedFavoriteIds = new Set(favoriteDishIds);
+		if (updatedFavoriteIds.has(dishId)) {
+			updatedFavoriteIds.delete(dishId);
+		} else {
+			updatedFavoriteIds.add(dishId);
+		}
+
+		try {
+			saveFavoriteDishIds(updatedFavoriteIds);
+			setFavoriteDishIds(updatedFavoriteIds);
+		} catch {
+			setFavoritesError(
+				"We couldn't update favorites. Please check browser storage and try again.",
+			);
+		}
+	};
+
+	const visibleCookedDishes = favoritesOnly
+		? cookedDishes.filter((dish) => favoriteDishIds.has(dish.id))
+		: cookedDishes;
 
 	return (
 		<main className={styles.main}>
@@ -428,10 +470,35 @@ export default function Home() {
 						</span>
 						{!isLoadingDishes && !dishSearchError && (
 							<span className={styles.counter} aria-live="polite">
-								{pagination.totalItems} dishes
+								{favoritesOnly
+									? `${visibleCookedDishes.length} favorite ${visibleCookedDishes.length === 1 ? "dish" : "dishes"}`
+									: `${pagination.totalItems} dishes`}
 							</span>
 						)}
 					</div>
+
+					<div className={styles.searchActions}>
+						<button
+							type="button"
+							onClick={() => setFavoritesOnly((current) => !current)}
+							disabled={isLoadingDishes || !!dishSearchError}
+						>
+							{favoritesOnly
+								? "Show all dishes"
+								: "Show favorites only"}
+						</button>
+					</div>
+					{favoritesError && (
+						<div role="alert" className={styles.searchError}>
+							<span>{favoritesError}</span>
+							<button
+								type="button"
+								onClick={() => setFavoritesError(null)}
+							>
+								Dismiss
+							</button>
+						</div>
+					)}
 
 					<form
 						className={styles.searchForm}
@@ -598,11 +665,24 @@ export default function Home() {
 						<p className={styles.searchStatus}>
 							No cooked dishes match these filters.
 						</p>
+					) : favoritesOnly && visibleCookedDishes.length === 0 ? (
+						<div className={styles.searchStatus}>
+							<p>
+								You do not have favorite dishes in this result
+								set yet.
+							</p>
+							<button
+								type="button"
+								onClick={() => setFavoritesOnly(false)}
+							>
+								View all cooked dishes
+							</button>
+						</div>
 					) : (
 						<>
 							<div className={styles.sectionHeader}>
 								<span className={styles.counter}>
-									Showing {cookedDishes.length} of{" "}
+									Showing {visibleCookedDishes.length} of{" "}
 									{pagination.totalItems}
 								</span>
 								<span className={styles.counter}>
@@ -611,15 +691,18 @@ export default function Home() {
 								</span>
 							</div>
 							<div className={styles.cookedDishesList}>
-								{cookedDishes.map((dish) => (
-									<Link
+								{visibleCookedDishes.map((dish) => (
+									<div
 										key={dish.id}
-										href={`/cooked-dishes/${dish.id}`}
-										className={styles.cookedDishCardLink}
+										className={styles.cookedDishCardWrapper}
 									>
-										<article
-											className={styles.cookedDishCard}
+										<Link
+											href={`/cooked-dishes/${dish.id}`}
+											className={styles.cookedDishCardLink}
 										>
+											<article
+												className={styles.cookedDishCard}
+											>
 											<h3
 												className={
 													styles.cookedDishCard__name
@@ -692,8 +775,20 @@ export default function Home() {
 													),
 												)}
 											</ul>
-										</article>
-									</Link>
+											</article>
+										</Link>
+										<button
+											type="button"
+											className={styles.favoriteButton}
+											onClick={() =>
+												toggleDishFavorite(dish.id)
+											}
+										>
+											{favoriteDishIds.has(dish.id)
+												? `Remove ${dish.name} from favorites`
+												: `Add ${dish.name} to favorites`}
+										</button>
+									</div>
 								))}
 							</div>
 							<nav

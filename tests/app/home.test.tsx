@@ -12,6 +12,7 @@ import {
 import userEvent from "@testing-library/user-event";
 
 import * as searchApi from "../../src/app/cooked-dish-search";
+import { FAVORITE_DISHES_STORAGE_KEY } from "../../src/app/favorite-dishes-storage";
 import Home from "../../src/app/page";
 
 jest.mock("../../src/app/cooked-dish-search", () => {
@@ -59,6 +60,7 @@ function deferred<T>() {
 describe("Home cooked-dish search should", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		window.localStorage.clear();
 	});
 
 	it("show loading then results, rating summaries and pagination metadata", async () => {
@@ -217,5 +219,91 @@ describe("Home cooked-dish search should", () => {
 			screen.queryByText("Loading cooked dishes…"),
 		).not.toBeInTheDocument();
 		expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+	});
+
+	it("mark/unmark favorites, filter by favorites and show empty favorite state action", async () => {
+		loadSearch.mockResolvedValue(
+			result([
+				item("rated", "Rated soup", 4.5, 2),
+				item("new", "New rice", null, 0),
+			]),
+		);
+		const user = userEvent.setup();
+		render(<Home />);
+
+		expect(await screen.findByText("Rated soup")).toBeInTheDocument();
+		await user.click(
+			screen.getByRole("button", {
+				name: "Add Rated soup to favorites",
+			}),
+		);
+		expect(
+			screen.getByRole("button", {
+				name: "Remove Rated soup from favorites",
+			}),
+		).toBeInTheDocument();
+
+		await user.click(
+			screen.getByRole("button", { name: "Show favorites only" }),
+		);
+		expect(screen.getByText("Rated soup")).toBeInTheDocument();
+		expect(screen.queryByText("New rice")).not.toBeInTheDocument();
+
+		await user.click(
+			screen.getByRole("button", {
+				name: "Remove Rated soup from favorites",
+			}),
+		);
+		expect(
+			screen.getByText(
+				"You do not have favorite dishes in this result set yet.",
+			),
+		).toBeInTheDocument();
+		await user.click(
+			screen.getByRole("button", { name: "View all cooked dishes" }),
+		);
+		expect(screen.getByText("New rice")).toBeInTheDocument();
+	});
+
+	it("restore favorites from browser storage on page load", async () => {
+		window.localStorage.setItem(
+			FAVORITE_DISHES_STORAGE_KEY,
+			JSON.stringify(["rated"]),
+		);
+		loadSearch.mockResolvedValue(
+			result([item("rated", "Rated soup", 4.5, 2)]),
+		);
+		render(<Home />);
+
+		expect(await screen.findByText("Rated soup")).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", {
+				name: "Remove Rated soup from favorites",
+			}),
+		).toBeInTheDocument();
+	});
+
+	it("show an actionable error when favorites cannot be updated", async () => {
+		loadSearch.mockResolvedValue(result([item("rated", "Rated soup", 4.5, 2)]));
+		const user = userEvent.setup();
+		const setItemSpy = jest
+			.spyOn(Storage.prototype, "setItem")
+			.mockImplementation(() => {
+				throw new Error("storage unavailable");
+			});
+		render(<Home />);
+
+		expect(await screen.findByText("Rated soup")).toBeInTheDocument();
+		await user.click(
+			screen.getByRole("button", {
+				name: "Add Rated soup to favorites",
+			}),
+		);
+
+		const alert = await screen.findByRole("alert");
+		expect(alert).toHaveTextContent(
+			"We couldn't update favorites. Please check browser storage and try again.",
+		);
+		setItemSpy.mockRestore();
 	});
 });

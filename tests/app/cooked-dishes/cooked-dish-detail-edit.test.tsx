@@ -6,6 +6,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 
 import CookedDishDetail from "../../../src/app/cooked-dishes/[id]/page";
+import { FAVORITE_DISHES_STORAGE_KEY } from "../../../src/app/favorite-dishes-storage";
 
 jest.mock("next/navigation", () => ({
 	useParams: () => ({ id: "dish-1" }),
@@ -60,6 +61,7 @@ async function renderDetailPage() {
 
 beforeEach(() => {
 	jest.clearAllMocks();
+	window.localStorage.clear();
 });
 
 describe("Edit dish should", () => {
@@ -188,5 +190,24 @@ describe("Edit dish should", () => {
 		expect(await screen.findByRole("alert")).toHaveTextContent(/could not save/i);
 		expect(screen.getByRole("form", { name: /edit dish/i })).toBeInTheDocument();
 	});
-});
 
+	it("toggle dish favorites from detail and persist the state", async () => {
+		await renderDetailPage();
+
+		const favoriteButton = screen.getByRole("button", {
+			name: /add to favorites/i,
+		});
+		fireEvent.click(favoriteButton);
+
+		expect(screen.getByRole("button", { name: /remove from favorites/i })).toBeInTheDocument();
+		expect(JSON.parse(window.localStorage.getItem(FAVORITE_DISHES_STORAGE_KEY) ?? "[]")).toContain(
+			"dish-1",
+		);
+
+		fireEvent.click(screen.getByRole("button", { name: /remove from favorites/i }));
+		expect(screen.getByRole("button", { name: /add to favorites/i })).toBeInTheDocument();
+		expect(JSON.parse(window.localStorage.getItem(FAVORITE_DISHES_STORAGE_KEY) ?? "[]")).not.toContain(
+			"dish-1",
+		);
+	});
+});

@@ -218,6 +218,22 @@
 	margin-bottom: 1.5rem;
 }
 
+.favoriteButton {
+	margin-top: 1rem;
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-sm);
+	padding: 0.5rem 0.85rem;
+	font: inherit;
+	font-size: 0.875rem;
+	color: var(--text-primary);
+	background: var(--bg-secondary);
+	cursor: pointer;
+}
+
+.favoriteButton:hover {
+	border-color: var(--accent);
+}
+
 .badge {
 	display: inline-block;
 	font-size: 0.75rem;

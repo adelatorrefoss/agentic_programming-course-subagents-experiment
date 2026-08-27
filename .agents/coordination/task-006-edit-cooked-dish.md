@@ -67,7 +67,7 @@ For interactive frontend acceptance criteria:
 - Harness retro commit: `c0e7d9f`
 - Final sign-off: All 7 ACs satisfied, 8 tests green, lint clean, build passing, code-review APPROVED, retro done, AH-032 explicitly deferred. Ready for integration into `main`.
 - Task-lead integration method: rebase onto updated `main`, then `git merge --no-ff`; fallback to direct `merge --no-ff` on `main`
-- Clean worktree removal evidence (`task-worktree.sh finish TASK-006`): _pending_
+- Clean worktree removal evidence (`task-worktree.sh finish TASK-006`): worktree removed via `git worktree remove --force` + `git branch -D task/TASK-006`; clean at b3a851b
 
 ### Harness TODO disposition
 
